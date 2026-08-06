@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id      Int      @id @default(autoincrement())
+  num     String
+  icon    String
+  title   String
+  titleNp String
+  desc    String
+  tags    String   // Stored as JSON string
+  price   String
+  pricing String   @default("[]") // Stored as JSON string of PricingTier[]
+}
+
+model ServiceOrder {
+  id          Int      @id @default(autoincrement())
+  serviceName String
+  tierName    String
+  price       String
+  userName    String
+  userEmail   String
+  userPhone   String
+  message     String
+  status      String   @default("Pending") // Pending, Processing, Completed, Cancelled
+  createdAt   DateTime @default(now())
+}
+
+model FAQ {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+}
+
+
+model TeamMember {
+  id     Int    @id @default(autoincrement())
+  icon   String
+  role   String
+  name   String
+  desc   String
+  skills String // Stored as JSON string
+}
+
+model Testimonial {
+  id    Int    @id @default(autoincrement())
+  stars Int
+  quote String
+  icon  String
+  name  String
+  biz   String
+}
+
+model ContactMessage {
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String
+  email         String
+  company       String
+  serviceNeeded String
+  budget        String
+  timeline      String
+  message       String
+  createdAt     DateTime @default(now())
+}
+
+model AboutPage {
+  id          Int    @id @default(autoincrement())
+  hero        String @default("{}") // JSON: { badge, title, subtitle, gradient }
+  stats       String @default("[]") // JSON: { num, label, icon }[]
+  story       String @default("{}") // JSON: { eyebrow, title, paragraphs[] }
+  values      String @default("[]") // JSON: { icon, title, desc, color }[]
+  milestones  String @default("[]") // JSON: { year, month, title, desc, icon }[]
+  teamMembers String @default("[]") // JSON: { name, role, icon, bio, skills[], color }[]
+  cta         String @default("{}") // JSON: { title, subtitle, primaryHref, primaryLabel, secondaryHref, secondaryLabel }
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model ProductEcosystem {
+  id          Int      @id @default(autoincrement())
+  pillName    String
+  badge       String
+  title       String
+  description String
+  image       String   @default("")
+  demoUrl     String   @default("")
+  category    String   @default("Product")
+  tech        String   @default("[]") // JSON: string[]
+  order       Int      @default(0)
+  highlight   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
