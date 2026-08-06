@@ -181,7 +181,7 @@ export default function ProductEcosystemSection({
     <section
       id="products"
       style={{
-        padding: '100px 24px',
+        padding: 'clamp(60px, 8vh, 100px) clamp(16px, 4vw, 24px)',
         position: 'relative',
         overflow: 'hidden',
         background: colors.bg,
@@ -399,9 +399,9 @@ export default function ProductEcosystemSection({
             borderRadius: 24,
             border: `1px solid ${colors.border}`,
             boxShadow: `0 24px 60px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)`,
-            padding: '48px 44px',
+            padding: 'clamp(24px, 4vw, 48px) clamp(16px, 4vw, 44px)',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: 44,
             alignItems: 'center',
             position: 'relative',
@@ -476,7 +476,7 @@ export default function ProductEcosystemSection({
 
             {/* Key Feature Chips */}
             {activeProduct.features && activeProduct.features.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', marginBottom: 36 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, width: '100%', marginBottom: 36 }}>
                 {activeProduct.features.map((feat, i) => (
                   <div
                     key={i}

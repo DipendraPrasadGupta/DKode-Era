@@ -8,7 +8,7 @@ async function main() {
   // Clear existing seed data to allow clean re-runs
   await prisma.service.deleteMany();
   await prisma.fAQ.deleteMany();
-  await prisma.portfolioItem.deleteMany();
+  await prisma.productEcosystem.deleteMany();
   await prisma.teamMember.deleteMany();
   await prisma.testimonial.deleteMany();
   await prisma.aboutPage.deleteMany();
@@ -114,89 +114,72 @@ async function main() {
     ],
   });
 
-  // Portfolio
-  await prisma.portfolioItem.createMany({
+  // Product Ecosystem
+  await prisma.productEcosystem.createMany({
     data: [
       {
-        icon: '🏠',
-        category: 'Mobile',
-        tag: 'Marketplace · Web + Mobile',
+        pillName: 'GharSewa',
+        badge: 'MARKETPLACE',
         title: 'GharSewa Platform',
-        desc: "Nepal's local home services marketplace connecting skilled tradespeople with customers in real time.",
-        result: '3 user types, 2 payment gateways, live in 5+ cities',
+        description: "Nepal's local home services marketplace connecting skilled tradespeople with customers in real time.",
+        category: 'Mobile App',
         tech: JSON.stringify(['React Native', 'Node.js', 'PostgreSQL', 'eSewa']),
-        results: JSON.stringify([{ label: 'User Types', value: '3' }, { label: 'Payment Gateways', value: '2' }, { label: 'Cities Covered', value: '5+' }]),
-        color: '#06b6d4',
+        order: 1,
         highlight: true,
-        year: '2026',
       },
       {
-        icon: '🏨',
+        pillName: 'HMS Pro',
+        badge: 'SAAS',
+        title: 'HMS Pro Hotel Management',
+        description: 'Multi-tenant SaaS hotel management system with booking engine, billing automation, and occupancy analytics.',
         category: 'SaaS',
-        tag: 'SaaS · Hotel Management',
-        title: 'HMS Pro',
-        desc: 'Multi-tenant SaaS hotel management system with booking engine, billing automation, and occupancy analytics.',
-        result: '3 pricing tiers, Stripe billing, React-powered',
         tech: JSON.stringify(['Next.js', 'Node.js', 'PostgreSQL', 'Stripe']),
-        results: JSON.stringify([{ label: 'Pricing Tiers', value: '3' }, { label: 'Billing', value: 'Stripe' }, { label: 'Framework', value: 'React' }]),
-        color: '#a855f7',
-        highlight: false,
-        year: '2026',
+        order: 2,
+        highlight: true,
       },
       {
-        icon: '🎓',
+        pillName: 'CollegePro',
+        badge: 'ERP',
+        title: 'CollegePro Education ERP',
+        description: 'Full-featured college management ERP with 4 portals — Admin, Teacher, Student, and Parent apps.',
         category: 'SaaS',
-        tag: 'SaaS · Education ERP',
-        title: 'CollegePro ERP',
-        desc: 'Full-featured college management ERP with 4 portals — Admin, Teacher, Student, and Parent apps.',
-        result: '4 portals, FCM push notifications, multi-tenant architecture',
         tech: JSON.stringify(['React.js', 'React Native', 'Firebase FCM', 'MongoDB']),
-        results: JSON.stringify([{ label: 'Portals', value: '4' }, { label: 'Notification', value: 'FCM' }, { label: 'Architecture', value: 'Multi-tenant' }]),
-        color: '#eab308',
-        highlight: false,
-        year: '2026',
+        order: 3,
+        highlight: true,
       },
       {
-        icon: '🛵',
-        category: 'Mobile',
-        tag: 'Platform · Food & Delivery',
+        pillName: 'Nepal Delivery',
+        badge: 'DELIVERY',
         title: 'Nepal Delivery App',
-        desc: 'Food ordering platform fully adapted for Nepal — KYC, DoTM license verification, Bikram Sambat calendar.',
-        result: '3+ payment methods, DFTQC compliant, Bikram Sambat calendar',
+        description: 'Food ordering platform fully adapted for Nepal — KYC, DoTM license verification, Bikram Sambat calendar.',
+        category: 'Mobile App',
         tech: JSON.stringify(['React Native', 'eSewa', 'Khalti', 'Node.js']),
-        results: JSON.stringify([{ label: 'Payment Methods', value: '3+' }, { label: 'Compliance', value: 'DFTQC' }, { label: 'Calendar', value: 'B.S.' }]),
-        color: '#10b981',
+        order: 4,
         highlight: false,
-        year: '2026',
       },
       {
-        icon: '🏡',
-        category: 'Web',
-        tag: 'Real Estate · Web Portal',
+        pillName: 'Nepal Bhumi',
+        badge: 'REAL ESTATE',
         title: 'Nepal Bhumi Portal',
-        desc: 'Real estate listing platform for buying, selling, and renting properties across Nepal with map view.',
-        result: 'Google Maps integration, verified listings, NPR pricing',
+        description: 'Real estate listing platform for buying, selling, and renting properties across Nepal with map view.',
+        category: 'Web App',
         tech: JSON.stringify(['Next.js', 'Google Maps API', 'Node.js', 'PostgreSQL']),
-        results: JSON.stringify([{ label: 'Map Integration', value: 'Google' }, { label: 'Listings', value: 'Verified' }, { label: 'Currency', value: 'NPR' }]),
-        color: '#ef4444',
+        order: 5,
         highlight: false,
-        year: '2026',
       },
       {
-        icon: '🛒',
+        pillName: 'Butwal Shop',
+        badge: 'E-COMMERCE',
+        title: 'Butwal Shop E-Commerce',
+        description: 'Custom e-commerce platform for a local Butwal retailer with inventory management and eSewa payments.',
         category: 'E-Commerce',
-        tag: 'E-Commerce · Retail',
-        title: 'Butwal Shop',
-        desc: 'Custom e-commerce platform for a local Butwal retailer with inventory management and eSewa payments.',
-        result: 'Rs. 2L+ monthly GMV, eSewa payments, SMS notifications',
         tech: JSON.stringify(['Next.js', 'eSewa', 'SMS API', 'PostgreSQL']),
-        results: JSON.stringify([{ label: 'Monthly GMV', value: 'Rs. 2L+' }, { label: 'Payments', value: 'eSewa' }, { label: 'Notifications', value: 'SMS' }]),
-        color: '#06b6d4',
+        order: 6,
         highlight: false,
-        year: '2026',
       },
     ],
   });
+
 
 
   // Team

@@ -652,6 +652,9 @@ export default function Navigation({
         @media (max-width: 640px) {
           nav { padding: 0 20px !important; }
         }
+        @media (max-width: 480px) {
+          nav { padding: 0 16px !important; }
+        }
       `}</style>
     </>
   );

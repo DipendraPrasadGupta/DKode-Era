@@ -112,7 +112,7 @@ export default function ContactPage() {
 
       {/* Main content */}
       <section style={{ padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,80px)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 64, alignItems: 'start' }}>
+        <div className="contact-main-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 64, alignItems: 'start' }}>
 
           {/* Contact Form */}
           <div>
@@ -132,7 +132,7 @@ export default function ContactPage() {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Name + Phone */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <div className="form-row-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div>
                   <label style={labelStyle}>Full Name *</label>
                   <input style={inputStyle} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Hari Bahadur" required />
@@ -144,7 +144,7 @@ export default function ContactPage() {
               </div>
 
               {/* Email + Company */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <div className="form-row-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div>
                   <label style={labelStyle}>Email Address *</label>
                   <input type="email" style={inputStyle} value={form.email} onChange={e => set('email', e.target.value)} placeholder="hello@yourbiz.com.np" required />
@@ -165,7 +165,7 @@ export default function ContactPage() {
               </div>
 
               {/* Budget + Timeline */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <div className="form-row-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div>
                   <label style={labelStyle}>Budget Range</label>
                   <select style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={form.budget} onChange={e => set('budget', e.target.value)}>
@@ -244,9 +244,9 @@ export default function ContactPage() {
       {/* Map placeholder / location card */}
       <section style={{ padding: '0 clamp(20px,5vw,80px) clamp(60px,8vw,100px)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{
+          <div className="contact-map-grid" style={{
             background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(168,85,247,0.04))',
-            border: `1px solid ${tk.border}`, borderRadius: 16, padding: 48,
+            border: `1px solid ${tk.border}`, borderRadius: 16, padding: 'clamp(24px,4vw,48px)',
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center',
           }}>
             <div>
@@ -281,6 +281,21 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+      <style>{`
+        @media (max-width: 768px) {
+          .contact-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          .form-row-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .contact-map-grid {
+            grid-template-columns: 1fr !important;
+            gap: 28px !important;
+          }
+        }
+      `}</style>
     </>
   );
 }

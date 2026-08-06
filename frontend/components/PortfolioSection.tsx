@@ -73,7 +73,7 @@ export default function PortfolioSection({ colors, t }: PortfolioSectionProps) {
       onMouseLeave={() => setIsPaused(false)}
       style={{ background: colors.bg2, position: 'relative', zIndex: 1, overflow: 'hidden' }}
     >
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)' }}>
         
         {/* Header Row with Navigation Buttons */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24, marginBottom: 54 }}>

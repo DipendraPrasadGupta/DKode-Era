@@ -214,6 +214,11 @@ export default function AdminOrdersPage() {
         .order-row-item:hover:not(.selected) {
           background: rgba(255,255,255,0.02);
         }
+        @media (max-width: 1024px) {
+          .admin-master-detail {
+            grid-template-columns: 1fr !important;
+          }
+        }
       `}</style>
 
       {/* Notification Toast */}
@@ -340,7 +345,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* ── Main Layout: Orders List Table & Inspection Sidebar Drawer ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedOrder ? '1fr 380px' : '1fr', gap: 24, alignItems: 'start' }}>
+      <div className="admin-master-detail" style={{ display: 'grid', gridTemplateColumns: selectedOrder ? '1fr 380px' : '1fr', gap: 24, alignItems: 'start' }}>
         {/* Left Column: Orders List */}
         <div
           style={{

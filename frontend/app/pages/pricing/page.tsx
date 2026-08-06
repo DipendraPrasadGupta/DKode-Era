@@ -379,7 +379,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }

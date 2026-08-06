@@ -28,7 +28,7 @@ export default function HeroSection({
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        padding: '100px 60px 60px',
+        padding: 'clamp(90px, 10vh, 120px) clamp(16px, 4vw, 60px) 60px',
         position: 'relative',
         overflow: 'hidden',
       }}

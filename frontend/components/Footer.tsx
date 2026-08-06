@@ -46,18 +46,31 @@ export default function Footer({ colors, t, scrollTo }: FooterProps) {
     <footer style={{
       background: colors.bg2,
       borderTop: `1px solid ${colors.border}`,
-      padding: '64px 60px 40px',
+      padding: 'clamp(40px, 6vh, 64px) clamp(16px, 4vw, 60px) 40px',
       position: 'relative',
       zIndex: 1,
     }}>
+      <style>{`
+        .footer-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: clamp(24px, 4vw, 60px);
+          padding-bottom: 48px;
+          border-bottom: 1px solid ${colors.border};
+        }
+        @media (max-width: 900px) {
+          .footer-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        @media (max-width: 540px) {
+          .footer-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr',
-          gap: 60,
-          paddingBottom: 48,
-          borderBottom: `1px solid ${colors.border}`,
-        }}>
+        <div className="footer-grid">
           {/* Brand Column */}
           <div>
             <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>

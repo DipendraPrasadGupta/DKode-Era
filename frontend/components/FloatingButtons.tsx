@@ -53,8 +53,8 @@ export default function FloatingButtons({ colors, scrollTo }: FloatingButtonsPro
     <div 
       style={{ 
         position: 'fixed', 
-        bottom: 36, 
-        right: 36, 
+        bottom: 'clamp(16px, 3vw, 36px)', 
+        right: 'clamp(16px, 3vw, 36px)', 
         zIndex: 900, 
         display: 'flex', 
         flexDirection: 'column', 

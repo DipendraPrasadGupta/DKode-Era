@@ -686,7 +686,7 @@ export default function ProductsAdminPage() {
       </div>
 
       {/* ── Product List Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
         {filteredItems.length === 0 ? (
           <div
             style={{

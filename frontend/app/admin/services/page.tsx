@@ -583,7 +583,7 @@ export default function ServicesAdminPage() {
       </div>
 
       {/* ── Services Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
         {filtered.length === 0 ? (
           <div
             style={{

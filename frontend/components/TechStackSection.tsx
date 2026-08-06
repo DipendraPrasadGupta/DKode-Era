@@ -92,7 +92,7 @@ export default function TechStackSection({ colors }: TechStackSectionProps) {
       `}</style>
 
       {/* Header Container */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px 40px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px) 40px' }}>
         <div
           style={{
             fontFamily: "'JetBrains Mono',monospace",

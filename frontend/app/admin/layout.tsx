@@ -42,6 +42,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [adminUser, setAdminUser] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (pathname === '/admin/login') {
@@ -101,50 +106,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div style={{ display: 'flex', background: '#060608', color: '#e4e4e7', minHeight: '100vh', fontFamily: "'Outfit', sans-serif" }}>
       <style>{layoutCss}</style>
 
+      {/* Mobile Backdrop Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="admin-backdrop"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* ── Sidebar ─────────────────────────────────────────── */}
       <aside
-        style={{
-          width: 256,
-          background: 'linear-gradient(180deg, #0d0e18 0%, #080910 100%)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'fixed',
-          top: 0,
-          bottom: 0,
-          left: 0,
-          zIndex: 20,
-        }}
+        className={`admin-sidebar ${mobileSidebarOpen ? 'admin-sidebar-open' : ''}`}
       >
         {/* Logo Header */}
         <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-                fontWeight: 800,
-                color: '#050810',
-                flexShrink: 0,
-                boxShadow: '0 4px 14px rgba(6,182,212,0.3)',
-              }}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: '#050810',
+                  flexShrink: 0,
+                  boxShadow: '0 4px 14px rgba(6,182,212,0.3)',
+                }}
+              >
+                D
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #f4f4f5 0%, #a1a1aa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  D-Kode Era
+                </div>
+                <div style={{ fontSize: 10, color: '#06b6d4', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 700 }}>
+                  CONTROL CENTER v2.0
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Close Button */}
+            <button
+              className="admin-sidebar-close-btn"
+              onClick={() => setMobileSidebarOpen(false)}
             >
-              D
-            </div>
-            <div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #f4f4f5 0%, #a1a1aa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                D-Kode Era
-              </div>
-              <div style={{ fontSize: 10, color: '#06b6d4', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 700 }}>
-                CONTROL CENTER v2.0
-              </div>
-            </div>
+              ✕
+            </button>
           </div>
 
           {/* System Online Badge */}
@@ -240,30 +252,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* ── Main Workspace Area ─────────────────────────────────────── */}
-      <div style={{ marginLeft: 256, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div className="admin-main">
         {/* ── ENTERPRISE HEADER TOPBAR ── */}
-        <header
-          style={{
-            height: 70,
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            background: 'rgba(9, 10, 16, 0.85)',
-            backdropFilter: 'blur(18px)',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            padding: '0 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 20,
-          }}
-        >
-          {/* Left: High-Tech Breadcrumb Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <header className="admin-header">
+          {/* Left: Hamburger & High-Tech Breadcrumb Navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              className="admin-hamburger-btn"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Toggle Navigation Drawer"
+            >
+              ☰
+            </button>
+
             <Link href="/admin" style={{ textDecoration: 'none' }}>
               <div style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#a1a1aa', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
                 <span>🏠</span>
-                <span>Control Room</span>
+                <span className="admin-breadcrumb-hide-mobile">Control Room</span>
               </div>
             </Link>
 
@@ -277,29 +282,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          {/* Center / Search Shortcut Bar */}
-          <div style={{ position: 'relative', width: 320, display: 'none', minWidth: 260 }}>
-            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 13, pointerEvents: 'none', color: '#71717a' }}>🔍</span>
-            <input
-              type="text"
-              placeholder="Quick Jump / Search Admin..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                padding: '8px 14px 8px 36px',
-                background: '#0a0a0f',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 8,
-                color: '#e4e4e7',
-                fontSize: 12.5,
-                outline: 'none',
-                fontFamily: "'Outfit', sans-serif",
-              }}
-            />
-          </div>
-
           {/* Right: Quick Action Buttons & Real-Time Clock */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {/* View Website Launch Button */}
@@ -311,11 +293,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               style={{ background: 'rgba(6,182,212,0.1)', borderColor: 'rgba(6,182,212,0.3)', color: '#06b6d4' }}
             >
               <span>↗</span>
-              <span>Open Agency Site</span>
+              <span className="admin-site-btn-label">Open Site</span>
             </a>
 
             {/* Live Clock Badge */}
-            <div className="topbar-action-btn" style={{ fontFamily: "'JetBrains Mono', monospace", color: '#a1a1aa' }}>
+            <div className="topbar-action-btn admin-clock-btn" style={{ fontFamily: "'JetBrains Mono', monospace", color: '#a1a1aa' }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} />
               <LiveClock />
             </div>
@@ -323,7 +305,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Content Page */}
-        <main style={{ padding: '36px 40px', flex: 1 }}>
+        <main className="admin-content-area">
           {children}
         </main>
       </div>
@@ -333,6 +315,79 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 const layoutCss = `
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .admin-sidebar {
+    width: 256px;
+    background: linear-gradient(180deg, #0d0e18 0%, #080910 100%);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .admin-sidebar-close-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #a1a1aa;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-main {
+    margin-left: 256px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: margin-left 0.3s ease;
+  }
+
+  .admin-header {
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(9, 10, 16, 0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .admin-content-area {
+    padding: 36px 40px;
+    flex: 1;
+  }
+
+  .admin-hamburger-btn {
+    display: none;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #06b6d4;
+    font-size: 18px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .admin-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+  }
 
   .logout-btn {
     width: 100%; padding: 11px 14px;
@@ -357,4 +412,42 @@ const layoutCss = `
     font-family: 'Outfit', sans-serif;
   }
   .topbar-action-btn:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
+
+  @media (max-width: 1024px) {
+    .admin-sidebar {
+      transform: translateX(-100%);
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    }
+    .admin-sidebar-open {
+      transform: translateX(0);
+    }
+    .admin-sidebar-close-btn {
+      display: flex;
+    }
+    .admin-main {
+      margin-left: 0;
+    }
+    .admin-header {
+      padding: 0 20px;
+    }
+    .admin-hamburger-btn {
+      display: block;
+    }
+    .admin-content-area {
+      padding: 24px 20px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .admin-header {
+      padding: 0 16px;
+    }
+    .admin-content-area {
+      padding: 20px 16px;
+    }
+    .admin-breadcrumb-hide-mobile, .admin-clock-btn {
+      display: none !important;
+    }
+  }
 `;
+

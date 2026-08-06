@@ -82,7 +82,7 @@ export default function AIChat({ colors, aiOpen, setAiOpen, t, lang }: AIChatPro
       ];
 
   return (
-    <div style={{ position: 'fixed', bottom: 36, left: 36, zIndex: 999 }}>
+    <div style={{ position: 'fixed', bottom: 'clamp(16px, 3vw, 36px)', left: 'clamp(16px, 3vw, 36px)', zIndex: 999 }}>
       {/* Floating Toggle Button */}
       <button
         onClick={() => setAiOpen(!aiOpen)}
@@ -160,8 +160,8 @@ export default function AIChat({ colors, aiOpen, setAiOpen, t, lang }: AIChatPro
             position: 'absolute',
             bottom: 74,
             left: 0,
-            width: 380,
-            height: 520,
+            width: 'min(380px, calc(100vw - 32px))',
+            height: 'min(520px, calc(100vh - 120px))',
             background: isDark ? 'rgba(13, 20, 37, 0.95)' : 'rgba(255, 255, 255, 0.96)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',

@@ -219,7 +219,7 @@ export default function TeamAdminPage() {
       </div>
 
       {/* ── Team Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 22 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 22 }}>
         {items.length === 0 ? (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '64px 24px', background: '#12121a', border: '1px solid #27272a', borderRadius: 12, color: '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <div style={{ fontSize: 40 }}>👥</div>

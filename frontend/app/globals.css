@@ -936,3 +936,70 @@ button:hover::before {
   display: none !important;
 }
 
+/* ═══════════════════════════════════════════
+   Global Responsiveness & Multi-Device Rules
+   ═══════════════════════════════════════════ */
+
+img, svg, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .page-container {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  
+  .page-hero {
+    padding-top: 80px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .page-cta__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .page-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden !important;
+  }
+  
+  .page-hero__title {
+    font-size: clamp(28px, 8vw, 38px) !important;
+  }
+  
+  .page-heading__title {
+    font-size: clamp(24px, 6vw, 32px) !important;
+  }
+
+  .page-card {
+    padding: 20px 16px !important;
+  }
+
+  .page-stats {
+    gap: 20px !important;
+  }
+}
+
+

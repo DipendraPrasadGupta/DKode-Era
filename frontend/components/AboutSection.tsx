@@ -9,9 +9,10 @@ interface AboutSectionProps {
 
 export default function AboutSection({ colors, t }: AboutSectionProps) {
   return (
+    <>
     <section id="about" style={{ background: colors.bg, position: 'relative', zIndex: 1 }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)' }}>
+        <div className="about-section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <div style={{ background: colors.bg === '#050810' ? '#0a0f1e' : '#0d1225', border: `1px solid ${colors.border}`, padding: '36px 32px', fontFamily: "'JetBrains Mono',monospace", fontSize: 13 }}>
               <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
@@ -98,5 +99,14 @@ export default function AboutSection({ colors, t }: AboutSectionProps) {
         </div>
       </div>
     </section>
+    <style>{`
+      @media (max-width: 768px) {
+        .about-section-grid {
+          grid-template-columns: 1fr !important;
+          gap: 56px !important;
+        }
+      }
+    `}</style>
+    </>
   );
 }

@@ -281,7 +281,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Settings Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
         {categorySettings.map((setting) => {
           const isReadOnly = setting.readOnly || setting.category === 'system';
           const value = getValue(setting.id, setting.value);

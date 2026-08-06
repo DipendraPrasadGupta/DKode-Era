@@ -526,7 +526,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }
           to { opacity: 1; transform: translateY(0); }
@@ -759,6 +759,19 @@ export default function AboutPage() {
           }
           .founder-badge-tl { left: 0; }
           .founder-badge-tr { right: 0; }
+        }
+
+        @media (max-width: 640px) {
+          .btn-primary, .btn-secondary {
+            width: 100%;
+            text-align: center;
+          }
+          .story-card {
+            padding: 24px 20px;
+          }
+          .value-card {
+            padding: 20px 16px;
+          }
         }
         /* ─────────────────────────────────────────────────────────── */
 

@@ -49,9 +49,10 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
   };
 
   return (
+    <>
     <section id="contact" style={{ background: colors.bg, position: 'relative', zIndex: 1 }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)' }}>
+        <div className="contact-section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80 }}>
           <div>
             <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '0.3em', color: colors.cyan, textTransform: 'uppercase', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 28, height: 1, background: colors.cyan }} />
@@ -213,5 +214,14 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
         </div>
       </div>
     </section>
+    <style>{`
+      @media (max-width: 768px) {
+        .contact-section-grid {
+          grid-template-columns: 1fr !important;
+          gap: 40px !important;
+        }
+      }
+    `}</style>
+    </>
   );
 }

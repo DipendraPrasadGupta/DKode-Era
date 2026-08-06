@@ -348,6 +348,11 @@ export default function AdminPricingPage() {
           color: #e4e4e7;
           transform: translateX(4px);
         }
+        @media (max-width: 1024px) {
+          .admin-pricing-two-col {
+            grid-template-columns: 1fr !important;
+          }
+        }
         .service-cat-pill.active {
           background: rgba(6,182,212,0.12);
           border-color: rgba(6,182,212,0.35);
@@ -491,7 +496,7 @@ export default function AdminPricingPage() {
       </div>
 
       {/* ── Main Layout: Sidebar & Plan Editor ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }}>
+      <div className="admin-pricing-two-col" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }}>
         {/* Left Column: Service Categories Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ position: 'relative' }}>

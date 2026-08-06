@@ -119,7 +119,7 @@ export default function AdminDashboard() {
           background: linear-gradient(135deg, rgba(16,20,32,0.95) 0%, rgba(22,27,42,0.85) 100%);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 20px;
-          padding: 34px 40px;
+          padding: clamp(20px, 4vw, 34px) clamp(20px, 4vw, 40px);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -127,6 +127,8 @@ export default function AdminDashboard() {
           overflow: hidden;
           backdrop-filter: blur(14px);
           box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          flex-wrap: wrap;
+          gap: 16px;
         }
         .welcome-hero-banner::before {
           content: '';
@@ -135,6 +137,19 @@ export default function AdminDashboard() {
           width: 300px; height: 300px;
           background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
           pointer-events: none;
+        }
+
+        .admin-two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+          .admin-two-col {
+            grid-template-columns: 1fr !important;
+          }
         }
 
         .stat-card-enterprise {
@@ -299,7 +314,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Activity Feed: Messages & Orders side-by-side ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="admin-two-col">
 
         {/* ── Recent Client Messages Panel ── */}
         <div className="dashboard-module" style={{ borderTop: '3px solid #06b6d4' }}>
@@ -425,7 +440,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Bottom Row: Quick Actions & Infrastructure ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="admin-two-col">
         {/* Quick Actions Module */}
         <div className="dashboard-module">
           <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, margin: '0 0 16px 0', color: '#f4f4f5' }}>

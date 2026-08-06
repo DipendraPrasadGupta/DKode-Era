@@ -19,11 +19,12 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
 // GET Single Service by slug
 export const getServiceBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params;
+    const slugParam = req.params.slug;
+    const slugStr = Array.isArray(slugParam) ? slugParam[0] : String(slugParam);
     const services = await prisma.service.findMany();
     const found = services.find(s =>
-      s.title.toLowerCase().replace(/\s+/g, '-') === slug.toLowerCase() ||
-      s.title.toLowerCase() === slug.split('-').join(' ').toLowerCase()
+      s.title.toLowerCase().replace(/\s+/g, '-') === slugStr.toLowerCase() ||
+      s.title.toLowerCase() === slugStr.split('-').join(' ').toLowerCase()
     );
     if (!found) {
       res.status(404).json({ error: 'Service not found' });

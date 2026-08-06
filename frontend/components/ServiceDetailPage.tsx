@@ -642,7 +642,7 @@ export default function ServiceDetailPage({ service }: ServiceDetailPageProps) {
         {process.length > 0 && (
           <section className="sd-section" style={{ background: tk.bgAlt, borderBottom: `1px solid ${tk.border}` }}>
             <div className="sd-wrap">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px,1fr))', gap: 72, alignItems: 'start' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: 56, alignItems: 'start' }}>
                 <div>
                   <span className="sd-eyebrow">How We Work</span>
                   <h2 className="sd-h2">Our Proven<br />Development Process</h2>
@@ -733,7 +733,7 @@ export default function ServiceDetailPage({ service }: ServiceDetailPageProps) {
                 <span className="sd-eyebrow">Our Advantage</span>
                 <h2 className="sd-h2">Why Clients Choose D-Kode Era</h2>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px,1fr))', gap: 20 }}>
                 {benefits.map((b: string, i: number) => (
                   <div key={i} style={{
                     display: 'flex', gap: 16,

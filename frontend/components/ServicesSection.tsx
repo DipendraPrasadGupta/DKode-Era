@@ -292,7 +292,7 @@ export default function ServicesSection({ colors, lang, t }: ServicesSectionProp
         }
       `}</style>
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)' }}>
         {/* Section Header */}
         <div style={{ marginBottom: 60, animation: 'slideUp 0.8s ease-out' }}>
           <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, letterSpacing: '0.3em', color: colors.cyan, textTransform: 'uppercase', marginBottom: 32, display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -309,7 +309,7 @@ export default function ServicesSection({ colors, lang, t }: ServicesSectionProp
         </div>
 
         {/* Services Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(330px, 1fr))', gap: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 28 }}>
           {services.map((s, i) => {
             const slug = serviceSlugMap[parseInt(s.num)];
             return (

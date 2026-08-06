@@ -16,8 +16,9 @@ export default function ProcessSection({ colors }: ProcessSectionProps) {
   ];
 
   return (
+    <>
     <section style={{ background: colors.bg2, position: 'relative', zIndex: 1 }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 60px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)' }}>
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, letterSpacing: '0.3em', color: colors.cyan, textTransform: 'uppercase', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 28, height: 1, background: colors.cyan }} />
           How We Work
@@ -28,7 +29,7 @@ export default function ProcessSection({ colors }: ProcessSectionProps) {
         <p style={{ fontSize: 16, color: colors.muted, maxWidth: 540, lineHeight: 1.8, marginBottom: 64 }}>
           A clear, transparent process so you always know what's happening with your project.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 0, position: 'relative' }}>
+        <div className="process-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 0, position: 'relative' }}>
           <div style={{ position: 'absolute', top: 24, left: '10%', right: '10%', height: 1, background: `linear-gradient(90deg, transparent, ${colors.cyan}, transparent)` }} />
           {steps.map((step, i) => (
             <div key={i} style={{ textAlign: 'center', padding: '0 16px' }}>
@@ -67,5 +68,22 @@ export default function ProcessSection({ colors }: ProcessSectionProps) {
         </div>
       </div>
     </section>
+    <style>{`
+      @media (max-width: 900px) {
+        .process-grid {
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+          gap: 24px !important;
+        }
+        .process-grid > div {
+          padding: 0 8px !important;
+        }
+      }
+      @media (max-width: 520px) {
+        .process-grid {
+          grid-template-columns: 1fr 1fr !important;
+        }
+      }
+    `}</style>
+    </>
   );
 }
