@@ -20,8 +20,8 @@ const timelines = [
 
 const contactInfo = [
   { icon: '📍', label: 'Our Office', value: 'Butwal-10, Rupandehi, Lumbini Province, Nepal', color: tk.cyan },
-  { icon: '📧', label: 'Email Us', value: 'hello@dkodeera.com', color: tk.purple },
-  { icon: '📱', label: 'Call / WhatsApp', value: '+977-9800000000', color: tk.green },
+  { icon: '📧', label: 'Email Us', value: 'dkodeera2026@gmail.com', color: tk.purple },
+  { icon: '📱', label: 'Call / WhatsApp', value: '+977-9807544395', color: tk.green },
   { icon: '🕐', label: 'Office Hours', value: 'Sunday – Friday: 9AM – 6PM NST', color: tk.gold },
 ];
 

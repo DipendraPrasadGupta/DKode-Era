@@ -20,8 +20,8 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
 
   const contactInfo = [
     { icon: '📍', label: 'Address', val: 'Butwal-10, Rupandehi, Lumbini Province, Nepal' },
-    { icon: '📞', label: 'Phone / WhatsApp', val: '+977-XXXX-XXXXXX' },
-    { icon: '✉️', label: 'Email', val: 'info@dkodeera.com' },
+    { icon: '📞', label: 'Phone / WhatsApp', val: '+977-9807544395' },
+    { icon: '✉️', label: 'Email', val: 'dkodeera2026@gmail.com' },
     { icon: '🕐', label: 'Working Hours', val: 'Sun–Fri, 9:00 AM – 6:00 PM (Nepal Time)' },
   ];
 

@@ -31,7 +31,7 @@ export default function Footer({ colors, t, scrollTo }: FooterProps) {
     { label: 'Butwal-10, Rupandehi', href: 'https://maps.google.com' },
     { label: 'Lumbini Province, Nepal', href: null },
     { label: '+977-9807544395', href: 'tel:+9779807544395' },
-    { label: 'info@dkodeera.com', href: 'mailto:info@dkodeera.com' },
+    { label: 'dkodeera2026@gmail.com', href: 'mailto:dkodeera2026@gmail.com' },
     { label: 'Sun–Fri, 9AM–6PM', href: null },
   ];
 
