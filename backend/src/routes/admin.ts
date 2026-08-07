@@ -30,8 +30,20 @@ import {
   updateAboutPage,
   createProductEcosystem,
   updateProductEcosystem,
-  deleteProductEcosystem
+  deleteProductEcosystem,
+  getBlogsAdmin,
+  createBlogAdmin,
+  updateBlogAdmin,
+  deleteBlogAdmin,
+  getCareersAdmin,
+  createCareerAdmin,
+  updateCareerAdmin,
+  deleteCareerAdmin,
+  getApplications,
+  updateApplicationStatus,
+  deleteApplication
 } from '../controllers/adminController';
+
 import {
   getServices,
   getFAQs,
@@ -44,6 +56,12 @@ import {
 
 
 const router = Router();
+
+// ─── BLOGS CRUD ─────────────────────────────────────────────────────────────
+router.get('/api/blogs', authMiddleware, getBlogsAdmin);
+router.post('/api/blogs', authMiddleware, createBlogAdmin);
+router.put('/api/blogs/:id', authMiddleware, updateBlogAdmin);
+router.delete('/api/blogs/:id', authMiddleware, deleteBlogAdmin);
 
 // Helper to seed default admin on boot
 async function ensureDefaultAdmin() {
@@ -148,5 +166,16 @@ router.get('/api/products', authMiddleware, getProductEcosystem);
 router.post('/api/products', authMiddleware, createProductEcosystem);
 router.put('/api/products/:id', authMiddleware, updateProductEcosystem);
 router.delete('/api/products/:id', authMiddleware, deleteProductEcosystem);
+
+// ─── CAREERS CRUD ────────────────────────────────────────────────────────────
+router.get('/api/careers', authMiddleware, getCareersAdmin);
+router.post('/api/careers', authMiddleware, createCareerAdmin);
+router.put('/api/careers/:id', authMiddleware, updateCareerAdmin);
+router.delete('/api/careers/:id', authMiddleware, deleteCareerAdmin);
+
+// ─── JOB APPLICATIONS ────────────────────────────────────────────────────────
+router.get('/api/applications', authMiddleware, getApplications);
+router.patch('/api/applications/:id/status', authMiddleware, updateApplicationStatus);
+router.delete('/api/applications/:id', authMiddleware, deleteApplication);
 
 export default router;

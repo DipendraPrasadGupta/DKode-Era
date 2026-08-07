@@ -100,62 +100,90 @@ export default function HeroSection({
           }
         }
 
-        .stats-grid-container {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-          margin-top: 64px;
-          padding-top: 48px;
+        .stats-ribbon-container {
+          margin-top: 48px;
+          padding-top: 24px;
           border-top: 1px solid ${colors.border};
-          animation: fadeUp 0.8s 0.9s both;
+          animation: fadeUp 0.8s 0.8s both;
         }
 
-        @media (max-width: 1024px) {
-          .stats-grid-container {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 540px) {
-          .stats-grid-container {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .stat-card {
-          position: relative;
-          background: ${colors.surface};
-          border: 1px solid ${colors.border};
-          border-radius: 14px;
-          padding: 24px 22px;
-          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-          overflow: hidden;
+        .stats-ribbon {
           display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          backdrop-filter: blur(10px);
+          align-items: center;
+          justify-content: space-around;
+          gap: 16px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid ${colors.border};
+          border-radius: 20px;
+          padding: 16px 28px;
+          backdrop-filter: blur(16px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          position: relative;
+          overflow: hidden;
         }
 
-        .stat-card:hover {
-          transform: translateY(-6px);
-          border-color: rgba(6, 182, 212, 0.45);
-          box-shadow: 0 16px 36px rgba(6, 182, 212, 0.15);
-        }
-
-        .stat-card::before {
+        .stats-ribbon::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, ${colors.cyan}, ${colors.green});
-          opacity: 0.7;
-          transition: opacity 0.3s ease;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, ${colors.cyan}, transparent);
+          opacity: 0.6;
         }
 
-        .stat-card:hover::before {
-          opacity: 1;
+        .stat-item-compact {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 6px 14px;
+          border-radius: 12px;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          cursor: default;
+        }
+
+        .stat-item-compact:hover {
+          background: rgba(6, 182, 212, 0.06);
+          transform: translateY(-2px);
+        }
+
+        .stat-icon-wrapper {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: rgba(6, 182, 212, 0.1);
+          border: 1px solid rgba(6, 182, 212, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+
+        .stat-divider {
+          width: 1px;
+          height: 32px;
+          background: linear-gradient(180deg, transparent, ${colors.border}, transparent);
+        }
+
+        @media (max-width: 868px) {
+          .stats-ribbon {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px;
+          }
+          .stat-divider {
+            display: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .stats-ribbon {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
         }
       `}</style>
 
@@ -349,87 +377,67 @@ export default function HeroSection({
           </button>
         </div>
 
-        <div id="stats-section" className="stats-grid-container">
-          {[
-            { k: 'p', val: counters.p, unit: '+', label: t.stats[0], icon: '🚀', badge: 'On-Time' },
-            { k: 'c', val: counters.c, unit: '+', label: t.stats[1], icon: '🤝', badge: 'Verified' },
-            { k: 'i', val: counters.i, unit: '+', label: t.stats[2], icon: '👨‍💻', badge: 'Senior' },
-            { k: 's', val: counters.s, unit: '+', label: t.stats[3], icon: '🏆', badge: 'Proven' },
-          ].map((item) => (
-            <div key={item.k} className="stat-card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 10,
-                    background: `rgba(6, 182, 212, 0.1)`,
-                    border: `1px solid rgba(6, 182, 212, 0.25)`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 18,
-                  }}
-                >
-                  {item.icon}
-                </div>
-                <span
-                  style={{
-                    fontFamily: "'JetBrains Mono',monospace",
-                    fontSize: 10,
-                    padding: '2px 8px',
-                    borderRadius: 10,
-                    background: `rgba(0, 229, 160, 0.08)`,
-                    color: colors.green,
-                    border: `1px solid rgba(0, 229, 160, 0.2)`,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {item.badge}
-                </span>
-              </div>
-
-              <div>
-                <div
-                  style={{
-                    fontFamily: "'Syne',sans-serif",
-                    fontSize: 38,
-                    fontWeight: 800,
-                    lineHeight: 1,
-                    color: colors.text,
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    gap: 2,
-                  }}
-                >
-                  <span
-                    style={{
-                      background: `linear-gradient(135deg, ${colors.text} 40%, ${colors.cyan} 100%)`,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    {item.val}
-                  </span>
-                  <span style={{ color: colors.cyan, fontSize: '0.65em', fontWeight: 800 }}>{item.unit}</span>
-                </div>
-
-                <div
-                  style={{
-                    fontFamily: "'JetBrains Mono',monospace",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: colors.muted,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    marginTop: 8,
-                  }}
-                >
-                  {item.label}
+        <div id="stats-section" className="stats-ribbon-container">
+          <div className="stats-ribbon">
+            {[
+              { k: 'p', val: counters.p, unit: '+', label: t.stats[0], icon: '🚀', badge: 'On-Time' },
+              { k: 'c', val: counters.c, unit: '+', label: t.stats[1], icon: '🤝', badge: 'Verified' },
+              { k: 'i', val: counters.i, unit: '+', label: t.stats[2], icon: '👨‍💻', badge: 'Senior' },
+              { k: 's', val: counters.s, unit: '+', label: t.stats[3], icon: '🏆', badge: 'Proven' },
+            ].map((item, idx) => (
+              <div key={item.k} style={{ display: 'contents' }}>
+                {idx > 0 && <div className="stat-divider" />}
+                <div className="stat-item-compact">
+                  <div className="stat-icon-wrapper">{item.icon}</div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span
+                        style={{
+                          fontFamily: "'Syne',sans-serif",
+                          fontSize: 22,
+                          fontWeight: 800,
+                          lineHeight: 1,
+                          background: `linear-gradient(135deg, ${colors.text} 30%, ${colors.cyan} 100%)`,
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                        }}
+                      >
+                        {item.val}{item.unit}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'JetBrains Mono',monospace",
+                          fontSize: 9,
+                          padding: '2px 6px',
+                          borderRadius: 6,
+                          background: `rgba(0, 229, 160, 0.1)`,
+                          color: colors.green,
+                          border: `1px solid rgba(0, 229, 160, 0.25)`,
+                          letterSpacing: '0.04em',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'JetBrains Mono',monospace",
+                        fontSize: 10,
+                        fontWeight: 500,
+                        color: colors.muted,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        marginTop: 3,
+                      }}
+                    >
+                      {item.label}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

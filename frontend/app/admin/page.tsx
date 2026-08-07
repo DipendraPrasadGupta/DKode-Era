@@ -11,6 +11,7 @@ interface Stats {
   testimonials: number;
   messages: number;
   orders: number;
+  applications?: number;
 }
 
 interface Message {
@@ -32,10 +33,25 @@ interface Order {
   createdAt: string;
 }
 
+interface Application {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  careerTitle: string;
+  department: string;
+  cvUrl: string;
+  resumeLink: string;
+  coverNote: string;
+  status: string;
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [recentApps, setRecentApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,11 +82,21 @@ export default function AdminDashboard() {
       })
       .catch(() => []);
 
-    Promise.all([fetchStats, fetchMessages, fetchOrders])
-      .then(([statsData, messagesData, ordersData]) => {
+    const fetchApps = fetch('http://localhost:5000/admin/api/applications', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) return [];
+        return res.json();
+      })
+      .catch(() => []);
+
+    Promise.all([fetchStats, fetchMessages, fetchOrders, fetchApps])
+      .then(([statsData, messagesData, ordersData, appsData]) => {
         setStats(statsData);
         setRecentMessages(Array.isArray(messagesData) ? messagesData.slice(0, 4) : []);
         setRecentOrders(Array.isArray(ordersData) ? ordersData.slice(0, 4) : []);
+        setRecentApps(Array.isArray(appsData) ? appsData.slice(0, 4) : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -100,10 +126,11 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
+    { title: 'Job Applications', count: stats?.applications ?? 0, icon: '📄', color: '#00e5a0', glow: 'rgba(0,229,160,0.25)', desc: 'Received candidate CVs & pitches', link: '/admin/applications' },
     { title: 'Active Services', count: stats?.services ?? 0, icon: '💼', color: '#06b6d4', glow: 'rgba(6,182,212,0.25)', desc: 'Main agency service offerings', link: '/admin/services' },
     { title: 'Order Inquiries', count: stats?.orders ?? 0, icon: '📦', color: '#3b82f6', glow: 'rgba(59,130,246,0.25)', desc: 'Client package requests', link: '/admin/orders' },
     { title: 'Inbox Messages', count: stats?.messages ?? 0, icon: '📥', color: '#10b981', glow: 'rgba(16,185,129,0.25)', desc: 'Contact page submissions', link: '/admin/messages' },
-    { title: 'Portfolio Showcase', count: stats?.portfolio ?? 0, icon: '✦', color: '#eab308', glow: 'rgba(234,179,8,0.25)', desc: 'Featured agency projects', link: '/admin/portfolio' },
+    { title: 'Portfolio Showcase', count: stats?.portfolio ?? 0, icon: '✦', color: '#eab308', glow: 'rgba(234,179,8,0.25)', desc: 'Featured agency projects', link: '/admin/products' },
     { title: 'Agency Team', count: stats?.team ?? 0, icon: '👥', color: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', desc: 'Active team roster', link: '/admin/team' },
     { title: 'Testimonials', count: stats?.testimonials ?? 0, icon: '💬', color: '#ec4899', glow: 'rgba(236,72,153,0.25)', desc: 'Verified client reviews', link: '/admin/testimonials' },
     { title: 'FAQs Library', count: stats?.faqs ?? 0, icon: '❓', color: '#f97316', glow: 'rgba(249,115,22,0.25)', desc: 'Help desk items defined', link: '/admin/faqs' },
@@ -437,6 +464,89 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ── Recent Job Applications Panel ── */}
+      <div className="dashboard-module" style={{ borderTop: '3px solid #00e5a0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,229,160,0.12)', border: '1px solid rgba(0,229,160,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>
+                📄
+              </div>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, margin: 0, color: '#f4f4f5' }}>
+                Recent Job Applications
+              </h3>
+            </div>
+            <p style={{ fontSize: 11.5, color: '#71717a', margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>
+              Candidate submissions with attached CVs & cover notes
+            </p>
+          </div>
+          <Link href="/admin/applications" style={{ fontSize: 11.5, color: '#00e5a0', textDecoration: 'none', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Manage All Applications ({stats?.applications ?? 0}) →
+          </Link>
+        </div>
+
+        {recentApps.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '42px 20px', color: '#71717a', background: '#090a10', borderRadius: 12, border: '1px dashed rgba(255,255,255,0.08)', fontSize: 13 }}>
+            📄 No job applications received yet.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+            {recentApps.map((app) => {
+              const cvLink = app.cvUrl || app.resumeLink;
+              return (
+                <div key={app.id} style={{ background: '#090a10', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 18, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 12 }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,229,160,0.12)', border: '1px solid rgba(0,229,160,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#00e5a0', flexShrink: 0, fontFamily: "'Syne', sans-serif" }}>
+                          {app.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{app.name}</div>
+                          <div style={{ fontSize: 11, color: '#71717a', fontFamily: "'JetBrains Mono', monospace" }}>{app.email}</div>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 20, background: 'rgba(6,182,212,0.12)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                        {app.status || 'New'}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: '#00e5a0', fontWeight: 700, margin: '6px 0 4px', fontFamily: "'JetBrains Mono', monospace" }}>
+                      Role: {app.careerTitle}
+                    </div>
+
+                    <p style={{ fontSize: 12, color: '#a1a1aa', lineHeight: 1.5, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {app.coverNote}
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)', gap: 10 }}>
+                    {cvLink ? (
+                      <a
+                        href={cvLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,229,160,0.1)', color: '#00e5a0', border: '1px solid rgba(0,229,160,0.3)', padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: "'JetBrains Mono', monospace" }}
+                      >
+                        📥 View Attached CV
+                      </a>
+                    ) : (
+                      <span style={{ fontSize: 11, color: '#52525b', fontFamily: "'JetBrains Mono', monospace" }}>No CV attached</span>
+                    )}
+                    <Link
+                      href="/admin/applications"
+                      style={{ fontSize: 11, color: '#a1a1aa', textDecoration: 'none', fontFamily: "'JetBrains Mono', monospace" }}
+                    >
+                      Details →
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Bottom Row: Quick Actions & Infrastructure ── */}

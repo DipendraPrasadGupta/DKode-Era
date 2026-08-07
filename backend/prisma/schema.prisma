@@ -103,3 +103,83 @@ model ProductEcosystem {
   createdAt   DateTime @default(now())
 }
 
+model Blog {
+  id           Int           @id @default(autoincrement())
+  title        String
+  slug         String        @unique
+  excerpt      String
+  content      String
+  coverImage   String        @default("")
+  category     String        @default("Engineering")
+  tags         String        @default("")
+  author       String        @default("D-Kode Era Team")
+  authorRole   String        @default("Software Engineering")
+  authorAvatar String        @default("")
+  readTime     String        @default("5 min read")
+  published    Boolean       @default(true)
+  featured     Boolean       @default(false)
+  allowModal   Boolean       @default(true)
+  views        Int           @default(0)
+  likes        Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  comments     BlogComment[]
+}
+
+
+model BlogComment {
+  id        Int      @id @default(autoincrement())
+  blogId    Int
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  name      String
+  email     String   @default("")
+  avatar    String   @default("")   // first-letter avatar color hint
+  content   String
+  approved  Boolean  @default(true) // auto-approve; set false if you want moderation
+  createdAt DateTime @default(now())
+}
+
+model Career {
+  id               Int      @id @default(autoincrement())
+  title            String
+  department       String   @default("Engineering")
+  type             String   @default("Full-time")
+  location         String   @default("Butwal / Remote")
+  experience       String   @default("2+ Years")
+  salary           String   @default("Competitive / Negotiable")
+  description      String
+  responsibilities String   @default("[]") // JSON array string
+  requirements     String   @default("[]") // JSON array string
+  benefits         String   @default("[]") // JSON array string
+  tags             String   @default("[]") // JSON array string e.g. ["React", "TypeScript"]
+  color            String   @default("#06b6d4")
+  published        Boolean  @default(true)
+  order            Int      @default(0)
+  heroDesc         String?  @default("")
+  whyJoinItems     String?  @default("")
+  applySteps       String?  @default("")
+  companyTagline   String?  @default("")
+  companyFounded   String?  @default("")
+  companyLocation  String?  @default("")
+  companyFocus     String?  @default("")
+  companyCulture   String?  @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+
+model JobApplication {
+  id          Int      @id @default(autoincrement())
+  careerId    Int
+  careerTitle String
+  department  String   @default("")
+  name        String
+  email       String
+  phone       String   @default("")
+  portfolio   String   @default("")
+  cvUrl       String   @default("") // uploaded file URL
+  resumeLink  String   @default("") // cloud link fallback
+  coverNote   String
+  status      String   @default("New")  // New, Reviewing, Shortlisted, Rejected, Hired
+  createdAt   DateTime @default(now())
+}

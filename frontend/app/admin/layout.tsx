@@ -7,7 +7,10 @@ import Link from 'next/link';
 const NAV = [
   { name: 'Dashboard', path: '/admin', icon: '⊞', group: 'overview' },
   { name: 'Products', path: '/admin/products', icon: '🚀', group: 'content' },
-  { name: 'Services', path: '/admin/services', icon: '💼', group: 'content' },
+  { name: 'Blogs & Articles', path: '/admin/blogs', icon: '📰', group: 'content' },
+  { name: 'Careers', path: '/admin/careers', icon: '💼', group: 'content' },
+  { name: 'Job Applications', path: '/admin/applications', icon: '📄', group: 'content' },
+  { name: 'Services', path: '/admin/services', icon: '⚙️', group: 'content' },
   { name: 'Pricing Plans', path: '/admin/pricing', icon: '💰', group: 'content' },
   { name: 'Orders', path: '/admin/orders', icon: '🛒', group: 'content' },
   { name: 'Team', path: '/admin/team', icon: '👥', group: 'content' },
