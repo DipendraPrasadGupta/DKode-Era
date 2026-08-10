@@ -24,8 +24,8 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [...env.FRONTEND_URLS, 'http://localhost:3000', 'http://localhost:3001'];
+
+    const allowedOrigins = [...env.FRONTEND_URLS, 'http://localhost:3000', 'https://dkodeera.com', 'https://www.dkodeera.com'];
     if (allowedOrigins.indexOf(origin) !== -1 || env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -74,6 +74,13 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "D-Kode Era backend is connected",
+  });
 });
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
