@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { API_URL } from '../../lib/api';
 
 interface Stats {
   services: number;
@@ -59,21 +60,23 @@ export default function AdminDashboard() {
     const token = localStorage.getItem('adminToken');
     if (!token) return;
 
-    const fetchStats = fetch('http://localhost:5000/admin/api/stats', {
-      headers: { Authorization: `Bearer ${token}` },
+    const fetchStats = fetch(`${API_URL}/admin/api/stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
     }).then((res) => {
       if (!res.ok) throw new Error('Failed to load stats');
       return res.json();
     });
 
-    const fetchMessages = fetch('http://localhost:5000/admin/api/messages', {
+    const fetchMessages = fetch(`${API_URL}/admin/api/messages`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       if (!res.ok) throw new Error('Failed to load messages');
       return res.json();
     });
 
-    const fetchOrders = fetch('http://localhost:5000/admin/api/orders', {
+    const fetchOrders = fetch(`${API_URL}/admin/api/orders`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -82,7 +85,7 @@ export default function AdminDashboard() {
       })
       .catch(() => []);
 
-    const fetchApps = fetch('http://localhost:5000/admin/api/applications', {
+    const fetchApps = fetch(`${API_URL}/admin/api/applications`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
