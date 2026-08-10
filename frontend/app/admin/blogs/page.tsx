@@ -100,7 +100,8 @@ export default function AdminBlogsPage() {
     if (token) return token;
 
     try {
-      const res = await fetch('http://localhost:5000/admin/api/auth/login', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${API_URL}/admin/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'admin', password: 'admin123' }),
