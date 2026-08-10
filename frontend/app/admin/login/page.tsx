@@ -20,6 +20,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!username || !password) {
       setError('Please fill in all fields.');
       return;
@@ -29,7 +30,9 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/admin/api/auth/login', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+      const res = await fetch(`${API_URL}/admin/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -43,9 +46,9 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Invalid credentials');
       }
 
-      // Save token
       localStorage.setItem('adminToken', data.token);
       router.push('/admin');
+
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
