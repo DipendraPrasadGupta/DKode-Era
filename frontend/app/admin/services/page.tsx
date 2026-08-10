@@ -55,9 +55,13 @@ const SERVICE_ACCENTS: ServiceAccentTheme[] = [
 
 const TIER_COLORS: Record<number, string> = { 0: '#06b6d4', 1: '#a855f7', 2: '#eab308', 3: '#10b981' };
 
-function parseSafe<T>(str: string, fallback: T): T {
+function parseSafe<T>(value: string | T, fallback: T): T {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
   try {
-    return JSON.parse(str) as T;
+    return JSON.parse(value) as T;
   } catch {
     return fallback;
   }
@@ -314,11 +318,19 @@ export default function ServicesAdminPage() {
 
   const filtered = services.filter((s) => {
     const q = searchQuery.toLowerCase();
-    return s.title.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || s.tags.toLowerCase().includes(q);
+    const tagsText = Array.isArray(s.tags) ? s.tags.join(' ') : s.tags || '';
+    return (
+      s.title.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q) ||
+      tagsText.toLowerCase().includes(q)
+    );
   });
 
   // Stats Counters
-  const totalTags = services.reduce((acc, curr) => acc + parseSafe<string[]>(curr.tags, []).length, 0);
+  const totalTags = services.reduce((acc, curr) => {
+    const safeTags = typeof curr.tags === 'string' ? parseSafe<string[]>(curr.tags, []) : curr.tags || [];
+    return acc + safeTags.length;
+  }, 0);
   const totalPricing = services.filter((s) => parseSafe<PricingTier[]>(s.pricing, []).length > 0).length;
 
   if (loading)
