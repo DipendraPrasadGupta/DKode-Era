@@ -340,7 +340,7 @@ export default function HeroSection({
             {t.heroCta1}
           </button>
           <button
-            onClick={() => scrollTo('portfolio')}
+            onClick={() => scrollTo('services')}
             style={{
               background: 'transparent',
               color: colors.text,

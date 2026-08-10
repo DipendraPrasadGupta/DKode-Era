@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { API_URL } from '../../../lib/api';
 
 interface Blog {
   id: number;
@@ -100,7 +101,6 @@ export default function AdminBlogsPage() {
     if (token) return token;
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${API_URL}/admin/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

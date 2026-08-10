@@ -4,11 +4,14 @@ import { useState, useEffect } from 'react';
 
 interface Service {
   id: number;
-  title: string;
-  desc: string;
+  num: string;
   icon: string;
-  tags: string;
-  pricing: string;
+  title: string;
+  titleNp: string;
+  desc: string;
+  tags: string[] | string;
+  price: string;
+  pricing: PricingTier[] | string;
 }
 
 interface PricingTier {
@@ -60,6 +63,25 @@ function parseSafe<T>(str: string, fallback: T): T {
   }
 }
 
+const parseJsonOrText = async (res: Response) => {
+  const contentType = res.headers.get('content-type') || '';
+  const text = await res.text();
+
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { error: text || 'Invalid JSON response from server.' };
+    }
+  }
+
+  if (text.startsWith('<!DOCTYPE') || text.startsWith('<html') || contentType.includes('text/html')) {
+    return { error: 'Server returned HTML instead of JSON. Check the backend route or proxy config.' };
+  }
+
+  return { error: text || 'Invalid response from server.' };
+};
+
 export default function ServicesAdminPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,8 +99,11 @@ export default function ServicesAdminPage() {
 
   // Form Fields State
   const [title, setTitle] = useState('');
+  const [titleNp, setTitleNp] = useState('');
   const [desc, setDesc] = useState('');
   const [icon, setIcon] = useState('💼');
+  const [num, setNum] = useState('');
+  const [price, setPrice] = useState('Rs. 25,000');
   const [tagsList, setTagsList] = useState<string[]>([]);
   const [tagInputText, setTagInputText] = useState('');
   const [pricingList, setPricingList] = useState<PricingTier[]>([]);
@@ -88,23 +113,25 @@ export default function ServicesAdminPage() {
     fetchServices();
   }, []);
 
-  const fetchServices = () => {
+  const fetchServices = async () => {
     const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/services', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load services.');
-        return res.json();
-      })
-      .then((data) => {
-        setServices(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+    try {
+      const res = await fetch('http://localhost:5000/admin/api/services', {
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) {
+        const errorData = await parseJsonOrText(res);
+        throw new Error(errorData.error || 'Failed to load services.');
+      }
+
+      const data = await res.json();
+      setServices(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load services.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showNotif = (type: 'success' | 'error', msg: string) => {
@@ -114,9 +141,12 @@ export default function ServicesAdminPage() {
 
   const openAddModal = () => {
     setEditingId(null);
+    setNum(String(services.length + 1));
     setTitle('');
+    setTitleNp('');
     setDesc('');
     setIcon('💼');
+    setPrice('Rs. 25,000');
     setTagsList(['React', 'Next.js', 'TypeScript']);
     setTagInputText('');
     setPricingList([
@@ -129,20 +159,33 @@ export default function ServicesAdminPage() {
 
   const openEditModal = (s: Service) => {
     setEditingId(s.id);
+    setNum((s as any).num || '');
     setTitle(s.title);
+    setTitleNp((s as any).titleNp || '');
     setDesc(s.desc);
     setIcon(s.icon || '💼');
+    setPrice(s.price || 'Rs. 25,000');
 
     // Parse tags
-    let parsedTags = parseSafe<string[]>(s.tags, []);
-    if (!Array.isArray(parsedTags)) {
-      parsedTags = typeof s.tags === 'string' ? s.tags.split(',').map((t) => t.trim()) : [];
+    let parsedTags: string[] = [];
+    if (Array.isArray(s.tags)) {
+      parsedTags = s.tags;
+    } else if (typeof s.tags === 'string') {
+      parsedTags = parseSafe<string[]>(s.tags, []);
+      if (!Array.isArray(parsedTags)) {
+        parsedTags = s.tags.split(',').map((t) => t.trim());
+      }
     }
     setTagsList(parsedTags.filter(Boolean));
     setTagInputText('');
 
     // Parse pricing
-    const parsedPricing = parseSafe<PricingTier[]>(s.pricing, []);
+    let parsedPricing: PricingTier[] = [];
+    if (Array.isArray(s.pricing)) {
+      parsedPricing = s.pricing;
+    } else if (typeof s.pricing === 'string') {
+      parsedPricing = parseSafe<PricingTier[]>(s.pricing, []);
+    }
     setPricingList(Array.isArray(parsedPricing) ? parsedPricing : []);
     setActiveTab('basic');
     setShowModal(true);
@@ -208,8 +251,8 @@ export default function ServicesAdminPage() {
 
   // Save Service Handler
   const handleSave = async () => {
-    if (!title.trim() || !desc.trim()) {
-      showNotif('error', 'Service title and description are required.');
+    if (!num.trim() || !title.trim() || !desc.trim() || !price.trim()) {
+      showNotif('error', 'Service number, title, description, and price are required.');
       setActiveTab('basic');
       return;
     }
@@ -222,11 +265,14 @@ export default function ServicesAdminPage() {
       : 'http://localhost:5000/admin/api/services';
 
     const payload = {
+      num: num.trim(),
       title: title.trim(),
+      titleNp: titleNp.trim(),
       desc: desc.trim(),
       icon: icon.trim() || '💼',
-      tags: JSON.stringify(tagsList),
-      pricing: JSON.stringify(pricingList),
+      price: price.trim(),
+      tags: tagsList,
+      pricing: pricingList,
     };
 
     try {
@@ -236,8 +282,8 @@ export default function ServicesAdminPage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || `Failed to ${editingId ? 'update' : 'create'} service.`);
+        const errorData = await parseJsonOrText(res);
+        throw new Error(errorData.error || `Failed to ${editingId ? 'update' : 'create'} service.`);
       }
       showNotif('success', `Service ${editingId ? 'updated' : 'created'} successfully!`);
       setShowModal(false);
@@ -877,6 +923,34 @@ export default function ServicesAdminPage() {
               {/* TAB 1: BASIC INFORMATION */}
               {activeTab === 'basic' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.06em' }}>
+                        Service Number <span style={{ color: '#ef4444' }}>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input-cms"
+                        placeholder="e.g. 1, 2, 3"
+                        value={num}
+                        onChange={(e) => setNum(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.06em' }}>
+                        Nepali Service Title
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input-cms"
+                        placeholder="e.g. मोबाइल एप्स विकास"
+                        value={titleNp}
+                        onChange={(e) => setTitleNp(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.06em' }}>
                       Service Title <span style={{ color: '#ef4444' }}>*</span>
@@ -887,6 +961,19 @@ export default function ServicesAdminPage() {
                       placeholder="e.g. Mobile App Development & UI/UX Design"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.06em' }}>
+                      Base Price Label <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input-cms"
+                      placeholder="e.g. Rs. 25,000"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
                     />
                   </div>
 

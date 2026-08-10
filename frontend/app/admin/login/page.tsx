@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '../../../lib/api';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,8 +31,6 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
       const res = await fetch(`${API_URL}/admin/api/auth/login`, {
         method: 'POST',
         headers: {
