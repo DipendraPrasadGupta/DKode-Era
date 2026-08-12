@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, API_URL } from '@/lib/api';
 import { getBlogBySlug, getBlogComments, getBlogs, likeBlog, postBlogComment, viewBlog } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
@@ -53,6 +53,11 @@ function formatCount(n: number) {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
   return n.toString();
 }
+
+const norm = (u?: string | null) => {
+  if (!u) return '';
+  return u.startsWith('http') ? u : `${API_URL}${u.startsWith('/') ? u : '/' + u}`;
+};
 
 function estimateWordCount(text: string) {
   return text.trim().split(/\s+/).length;
@@ -763,7 +768,7 @@ export default function BlogDetailPage() {
                     <div className="related-card" style={{ background: `linear-gradient(135deg,${tk.surface},${tk.surfaceMuted})`, border: `1px solid ${tk.border}`, borderRadius: 16, overflow: 'hidden', transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)' }}>
                       {article.coverImage && (
                         <div style={{ height: 130, overflow: 'hidden' }}>
-                          <img src={article.coverImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={norm(article.coverImage)} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                       )}
                       <div style={{ padding: 18 }}>
@@ -917,7 +922,7 @@ export default function BlogDetailPage() {
                     <div className="sidebar-article" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '13px 0', borderBottom: idx < recentArticles.length - 1 ? `1px solid ${tk.border}` : 'none', transition: 'opacity 0.2s' }}>
                       <div style={{ width: 66, height: 50, borderRadius: 9, overflow: 'hidden', flexShrink: 0, background: '#090d1a' }}>
                         {article.coverImage ? (
-                          <img src={article.coverImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={norm(article.coverImage)} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📰</div>
                         )}

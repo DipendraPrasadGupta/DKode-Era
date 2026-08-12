@@ -876,7 +876,7 @@ export default function AdminBlogsPage() {
                 </div>
                 {coverImage && (
                   <div style={{ marginTop: 8, height: 110, borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: '#090d18' }}>
-                    <img src={coverImage} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
               </div>
@@ -1255,14 +1255,14 @@ export default function AdminBlogsPage() {
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                         Article Preview — As it Appears on Blog
                       </span>
-                      {coverImage && <img src={coverImage} alt="cover" style={{ height: 18, width: 30, objectFit: 'cover', borderRadius: 3, marginLeft: 'auto', opacity: 0.7 }} />}
+                      {coverImage && <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="cover" style={{ height: 18, width: 30, objectFit: 'cover', borderRadius: 3, marginLeft: 'auto', opacity: 0.7 }} />}
                     </div>
                     {/* Preview article */}
                     <div style={{ padding: '28px 32px', maxHeight: 520, overflowY: 'auto' }}>
                       {/* Cover image */}
                       {coverImage && (
                         <div style={{ marginBottom: 24, borderRadius: 12, overflow: 'hidden', maxHeight: 200 }}>
-                          <img src={coverImage} alt="cover" style={{ width: '100%', height: 200, objectFit: 'cover' }} />
+                          <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="cover" style={{ width: '100%', height: 200, objectFit: 'cover' }} />
                         </div>
                       )}
                       {/* Category + meta bar */}

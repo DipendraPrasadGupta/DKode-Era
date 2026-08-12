@@ -4,6 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { getBlogs } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
+import { API_URL } from '@/lib/api';
+
+const norm = (u?: string | null) => {
+  if (!u) return '';
+  return u.startsWith('http') ? u : `${API_URL}${u.startsWith('/') ? u : '/' + u}`;
+};
 
 interface Blog {
   id: number;
@@ -592,7 +598,7 @@ export default function BlogsPage() {
                         >
                           {item.coverImage && (
                             <img
-                              src={item.coverImage}
+                              src={norm(item.coverImage)}
                               alt={item.title}
                               style={{ width: 44, height: 38, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
                             />
@@ -685,7 +691,7 @@ export default function BlogsPage() {
               }}
             >
               {/* Cover Image Frame */}
-              {featuredBlog.coverImage && (
+                  {featuredBlog.coverImage && (
                 <div
                   style={{
                     position: 'relative',
@@ -697,7 +703,7 @@ export default function BlogsPage() {
                   }}
                 >
                   <img
-                    src={featuredBlog.coverImage}
+                    src={norm(featuredBlog.coverImage)}
                     alt={featuredBlog.title}
                     style={{
                       width: '100%',
@@ -714,7 +720,7 @@ export default function BlogsPage() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setZoomImage(featuredBlog.coverImage);
+                      setZoomImage(norm(featuredBlog.coverImage));
                     }}
                     title="Expand Full Image"
                     style={{
@@ -1009,7 +1015,7 @@ export default function BlogsPage() {
                             }}
                           >
                             <img
-                              src={post.coverImage}
+                              src={norm(post.coverImage)}
                               alt={post.title}
                               style={{
                                 width: '100%',
@@ -1026,7 +1032,7 @@ export default function BlogsPage() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setZoomImage(post.coverImage);
+                                setZoomImage(norm(post.coverImage));
                               }}
                               title="Zoom Image"
                               style={{
@@ -1289,7 +1295,7 @@ export default function BlogsPage() {
                         }}
                       >
                         {post.coverImage ? (
-                          <img src={post.coverImage} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={norm(post.coverImage)} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>📰</div>
                         )}
