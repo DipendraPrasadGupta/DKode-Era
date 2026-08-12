@@ -61,7 +61,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push('/admin/login');
       return;
     }
-    fetch('http://localhost:5000/admin/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+    fetch(`${API_URL}/admin/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         if (!res.ok) throw new Error('Unauthorized');
         return res.json();
@@ -200,8 +203,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         background: isActive
                           ? 'linear-gradient(90deg, rgba(6,182,212,0.14) 0%, rgba(6,182,212,0.04) 100%)'
                           : isHov
-                          ? 'rgba(255,255,255,0.04)'
-                          : 'transparent',
+                            ? 'rgba(255,255,255,0.04)'
+                            : 'transparent',
                         borderLeft: isActive ? '3px solid #06b6d4' : '3px solid transparent',
                         paddingLeft: isActive ? 12 : 14,
                         transition: 'all 0.2s ease',
