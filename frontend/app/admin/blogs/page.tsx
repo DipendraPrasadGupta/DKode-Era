@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { apiFetch } from '../../../lib/api';
+import { apiFetch, API_URL } from '../../../lib/api';
 import { getBlogs } from '@/lib/api/blogs';
 
 interface Blog {
@@ -647,7 +647,11 @@ export default function AdminBlogsPage() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
-          {filtered.map((blog) => (
+          {filtered.map((blog) => {
+            const imgSrc = blog.coverImage
+              ? (blog.coverImage.startsWith('http') ? blog.coverImage : `${API_URL}${blog.coverImage.startsWith('/') ? blog.coverImage : '/' + blog.coverImage}`)
+              : '';
+            return (
             <div
               key={blog.id}
               style={{
@@ -663,8 +667,8 @@ export default function AdminBlogsPage() {
               <div>
                 {/* Cover Image Header */}
                 <div style={{ height: 180, background: '#090d18', position: 'relative', overflow: 'hidden', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                  {blog.coverImage ? (
-                    <img src={blog.coverImage} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+                  {imgSrc ? (
+                    <img src={imgSrc} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
                   ) : (
                     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3f3f46', fontSize: 32 }}>
                       🖼️
@@ -753,7 +757,8 @@ export default function AdminBlogsPage() {
                 </button>
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
