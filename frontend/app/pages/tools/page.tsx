@@ -3,70 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { pageTokens as tk } from '@/lib/pageTokens';
-
-const toolsList = [
-  {
-    id: 'quote-calc',
-    icon: '💰',
-    title: 'Project Cost Estimator',
-    desc: 'Calculate estimated budget and timeline for custom Web, Mobile, or AI app projects in real-time.',
-    badge: 'Interactive',
-    category: 'Business',
-    color: tk.gold,
-  },
-  {
-    id: 'speed-test',
-    icon: '⚡',
-    title: 'Website Speed & SEO Analyzer',
-    desc: 'Audit your website performance, SEO metrics, and core web vitals for instant optimizations.',
-    badge: 'Free Tool',
-    category: 'Performance',
-    color: tk.cyan,
-  },
-  {
-    id: 'ai-prompt',
-    icon: '🧠',
-    title: 'AI Prompt Studio',
-    desc: 'Generate optimized prompts for ChatGPT, Claude, and Midjourney to boost design and code workflows.',
-    badge: 'AI Powered',
-    category: 'Productivity',
-    color: tk.purple,
-  },
-  {
-    id: 'color-palette',
-    icon: '🎨',
-    title: 'Modern Color Palette Generator',
-    desc: 'Generate accessible, vibrant glassmorphism and dark mode color palettes for UI designers.',
-    badge: 'Design',
-    category: 'UI/UX',
-    color: tk.green,
-  },
-  {
-    id: 'meta-gen',
-    icon: '🏷️',
-    title: 'Meta Tag & OpenGraph Generator',
-    desc: 'Craft social preview tags, Twitter cards, and search engine metadata instantly.',
-    badge: 'SEO',
-    category: 'Marketing',
-    color: tk.red,
-  },
-  {
-    id: 'json-formatter',
-    icon: '🛠️',
-    title: 'JSON Formatter & Validator',
-    desc: 'Format, validate, sanitize, and convert raw JSON data with syntax highlighting.',
-    badge: 'Developer',
-    category: 'Utility',
-    color: tk.cyan,
-  },
-];
+import { toolsList, toolCategories } from '@/lib/toolsData';
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState('All');
-  const categories = ['All', 'Business', 'Performance', 'Productivity', 'UI/UX', 'SEO', 'Utility'];
 
-  const filteredTools = activeTab === 'All' 
-    ? toolsList 
+  const filteredTools = activeTab === 'All'
+    ? toolsList
     : toolsList.filter(t => t.category === activeTab);
 
   return (
@@ -134,7 +77,7 @@ export default function ToolsPage() {
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px 100px' }}>
         {/* Category Filters */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 48 }}>
-          {categories.map((cat) => (
+          {toolCategories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveTab(cat)}
@@ -180,7 +123,7 @@ export default function ToolsPage() {
                       width: 48,
                       height: 48,
                       borderRadius: 12,
-                      background: `rgba(255,255,255,0.04)`,
+                      background: 'rgba(255,255,255,0.04)',
                       border: `1px solid ${tk.border}`,
                       display: 'flex',
                       alignItems: 'center',
@@ -202,7 +145,7 @@ export default function ToolsPage() {
                       fontWeight: 600,
                     }}
                   >
-                    {tool.badge}
+                    {tool.available ? tool.badge : 'Coming Soon'}
                   </span>
                 </div>
 
@@ -214,23 +157,42 @@ export default function ToolsPage() {
                 </p>
               </div>
 
-              <Link
-                href="/pages/contact"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  fontSize: 12,
-                  fontFamily: tk.fontMono,
-                  fontWeight: 600,
-                  color: tool.color,
-                  textDecoration: 'none',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Launch Tool →
-              </Link>
+              {tool.available ? (
+                <Link
+                  href={tool.href}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 12,
+                    fontFamily: tk.fontMono,
+                    fontWeight: 600,
+                    color: tool.color,
+                    textDecoration: 'none',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Launch Tool →
+                </Link>
+              ) : (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 12,
+                    fontFamily: tk.fontMono,
+                    fontWeight: 600,
+                    color: tk.textDim,
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    opacity: 0.6,
+                  }}
+                >
+                  Coming Soon
+                </span>
+              )}
             </div>
           ))}
         </div>
