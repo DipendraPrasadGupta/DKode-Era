@@ -265,7 +265,7 @@ export default function BlogDetailPage() {
             style={{
               position: 'absolute', inset: 0,
               width: '100%', height: '100%',
-              objectFit: 'contain', objectPosition: 'center',
+              objectFit: 'fill', objectPosition: 'center',
               zIndex: 0,
             }}
           />
@@ -276,11 +276,11 @@ export default function BlogDetailPage() {
           }} />
         )}
 
-        {/* Gradient scrim (bottom-heavy so text pops) */}
+        {/* Gradient scrim (bottom-heavy so text pops)
         <div style={{
           position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to bottom, rgba(5,8,16,0.25) 0%, rgba(5,8,16,0.55) 40%, rgba(5,8,16,0.92) 75%, rgba(5,8,16,1) 100%)',
-        }} />
+          background: 'linear-gradient(to bottom, rgba(5,8,16,0.25) 0%, rgba(5,8,16,0.55) 20%, rgba(5,8,16,0.92) 55%, rgba(5,8,16,1) 100%)',
+        }} /> */}
 
       </div>
 
