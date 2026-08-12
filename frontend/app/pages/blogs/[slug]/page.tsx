@@ -260,12 +260,12 @@ export default function BlogDetailPage() {
         {/* Background layer */}
         {blog.coverImage ? (
           <img
-            src={blog.coverImage}
+            src={norm(blog.coverImage)}
             alt={blog.title}
             style={{
               position: 'absolute', inset: 0,
               width: '100%', height: '100%',
-              objectFit: 'cover', objectPosition: 'center',
+              objectFit: 'contain', objectPosition: 'center',
               zIndex: 0,
             }}
           />
