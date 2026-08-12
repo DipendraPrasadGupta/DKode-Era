@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
+import { getBlogBySlug, getBlogComments, getBlogs, likeBlog, postBlogComment, viewBlog } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 interface Blog {
@@ -102,13 +104,8 @@ export default function BlogDetailPage() {
   useEffect(() => {
     if (!slug) return;
 
-    fetch(`http://localhost:5000/api/blogs/${slug}`)
-      .then(res => {
-        if (res.status === 404) { setNotFound(true); setLoading(false); return null; }
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data: Blog | null) => {
+    getBlogBySlug(slug)
+      .then((data: Blog) => {
         if (!data) return;
         setBlog(data);
         setViews(data.views ?? 0);
@@ -124,22 +121,19 @@ export default function BlogDetailPage() {
         // Fire view increment once per mount
         if (!viewFired.current) {
           viewFired.current = true;
-          fetch(`http://localhost:5000/api/blogs/${slug}/view`, { method: 'POST' })
-            .then(r => r.json())
-            .then(d => { if (d.views != null) setViews(d.views); })
+          apiFetch(`/api/blogs/${slug}/view`, { method: 'POST' })
+            .then((d: any) => { if (d.views != null) setViews(d.views); })
             .catch(() => {});
         }
       })
       .catch(() => { setNotFound(true); setLoading(false); });
 
-    fetch('http://localhost:5000/api/blogs')
-      .then(r => r.json())
+    getBlogs()
       .then((d: Blog[]) => { if (Array.isArray(d)) setAllBlogs(d); })
       .catch(() => {});
 
     // Fetch comments
-    fetch(`http://localhost:5000/api/blogs/${slug}/comments`)
-      .then(r => r.json())
+    getBlogComments(slug)
       .then((d: Comment[]) => { if (Array.isArray(d)) setComments(d); })
       .catch(() => {});
   }, [slug]);
@@ -158,13 +152,8 @@ export default function BlogDetailPage() {
     try { localStorage.setItem(LS_LIKED_KEY(slug), nextLiked ? 'true' : 'false'); } catch {}
 
     // Server update
-    fetch(`http://localhost:5000/api/blogs/${slug}/like`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ liked: nextLiked }),
-    })
-      .then(r => r.json())
-      .then(d => { if (d.likes != null) setLikes(d.likes); })
+    likeBlog(slug, nextLiked)
+      .then((d: any) => { if (d.likes != null) setLikes(d.likes); })
       .catch(() => {});
   };
 
@@ -204,27 +193,15 @@ export default function BlogDetailPage() {
     }
     setCommentSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/blogs/${slug}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: commentName, email: commentEmail, content: commentText }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setCommentError(data.error || 'Failed to post comment.');
-        setFormShake(true);
-        setTimeout(() => setFormShake(false), 500);
-      } else {
-        // Prepend new comment to list
-        setComments(prev => [data as Comment, ...prev]);
-        setCommentName('');
-        setCommentEmail('');
-        setCommentText('');
-        setCommentSuccess(true);
-        setTimeout(() => setCommentSuccess(false), 4000);
-      }
-    } catch {
-      setCommentError('Network error. Please try again.');
+      const data = await postBlogComment(slug, { name: commentName, email: commentEmail, content: commentText });
+      setComments(prev => [data as Comment, ...prev]);
+      setCommentName('');
+      setCommentEmail('');
+      setCommentText('');
+      setCommentSuccess(true);
+      setTimeout(() => setCommentSuccess(false), 4000);
+    } catch (err: any) {
+      setCommentError(err.message || 'Network error. Please try again.');
     } finally {
       setCommentSubmitting(false);
     }

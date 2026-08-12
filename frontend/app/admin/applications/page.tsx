@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../../lib/api';
 
 interface JobApplication {
   id: number;
@@ -44,14 +45,7 @@ export default function AdminApplicationsPage() {
   }, []);
 
   const fetchApps = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/applications', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load applications');
-        return r.json();
-      })
+    apiFetch('/admin/api/applications')
       .then((data) => { setApps(data); setLoading(false); })
       .catch((err) => { setError(err.message); setLoading(false); });
   };
@@ -62,14 +56,11 @@ export default function AdminApplicationsPage() {
   };
 
   const handleStatusChange = async (id: number, status: string) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/applications/${id}/status`, {
+      await apiFetch(`/admin/api/applications/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error('Failed to update status');
       setApps((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
       showNotification(`Status updated to "${status}"`);
     } catch (err: any) {
@@ -78,13 +69,10 @@ export default function AdminApplicationsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/applications/${id}`, {
+      await apiFetch(`/admin/api/applications/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to delete');
       setApps((prev) => prev.filter((a) => a.id !== id));
       setDeletingId(null);
       showNotification('Application deleted.');

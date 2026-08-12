@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { getBlogs } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 interface Blog {
@@ -80,11 +81,7 @@ export default function BlogsPage() {
   };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/blogs')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch blogs');
-        return res.json();
-      })
+    getBlogs()
       .then((data) => {
         if (Array.isArray(data)) {
           setBlogs(data);

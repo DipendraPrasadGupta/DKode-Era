@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface FAQSectionProps {
@@ -13,8 +14,7 @@ export default function FAQSection({ colors, t }: FAQSectionProps) {
   const [faqs, setFaqs] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/faqs')
-      .then(res => res.json())
+    apiFetch('/api/faqs')
       .then(data => setFaqs(data))
       .catch(err => console.error('Error fetching faqs:', err));
   }, []);

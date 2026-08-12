@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_URL } from '../../../lib/api';
+import { apiFetch } from '../../../lib/api';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -31,19 +31,10 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/admin/api/auth/login`, {
+      const data = await apiFetch('/admin/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ username, password })
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Invalid credentials');
-      }
 
       localStorage.setItem('adminToken', data.token);
       router.push('/admin');

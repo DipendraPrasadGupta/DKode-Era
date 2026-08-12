@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../../lib/api';
 
 interface FAQ {
   id: number;
@@ -29,23 +30,16 @@ export default function FAQsAdminPage() {
     fetchItems();
   }, []);
 
-  const fetchItems = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/faqs', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load FAQs.');
-        return res.json();
-      })
-      .then(data => {
-        setItems(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
+  const fetchItems = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch('/admin/api/faqs');
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load FAQs.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showNotification = (msg: string) => {
@@ -75,21 +69,15 @@ export default function FAQsAdminPage() {
     e.preventDefault();
     const token = localStorage.getItem('adminToken');
     const url = editingItem
-      ? `http://localhost:5000/admin/api/faqs/${editingItem.id}`
-      : 'http://localhost:5000/admin/api/faqs';
+      ? `/admin/api/faqs/${editingItem.id}`
+      : '/admin/api/faqs';
     const method = editingItem ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) throw new Error('Failed to save FAQ.');
 
       showNotification(editingItem ? 'FAQ updated successfully!' : 'FAQ created successfully!');
       setIsModalOpen(false);
@@ -102,12 +90,9 @@ export default function FAQsAdminPage() {
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/faqs/${id}`, {
+      await apiFetch(`/admin/api/faqs/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      if (!res.ok) throw new Error('Failed to delete FAQ.');
 
       showNotification('FAQ deleted successfully!');
       setDeletingId(null);

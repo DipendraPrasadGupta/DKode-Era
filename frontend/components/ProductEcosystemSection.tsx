@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface ProductItem {
@@ -114,11 +115,7 @@ export default function ProductEcosystemSection({
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch products');
-        return res.json();
-      })
+    apiFetch('/api/products')
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           // Merge API data with default icons/features if missing

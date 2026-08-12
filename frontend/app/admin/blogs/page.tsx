@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { API_URL } from '../../../lib/api';
+import { apiFetch } from '../../../lib/api';
+import { getBlogs } from '@/lib/api/blogs';
 
 interface Blog {
   id: number;
@@ -101,17 +102,13 @@ export default function AdminBlogsPage() {
     if (token) return token;
 
     try {
-      const res = await fetch(`${API_URL}/admin/api/auth/login`, {
+      const data = await apiFetch('/admin/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'admin', password: 'admin123' }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem('adminToken', data.token);
-          return data.token;
-        }
+      if (data?.token) {
+        localStorage.setItem('adminToken', data.token);
+        return data.token;
       }
     } catch { }
     return null;
@@ -120,27 +117,8 @@ export default function AdminBlogsPage() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      let token = await getAuthToken();
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      let res = await fetch('http://localhost:5000/admin/api/blogs', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401) {
-        localStorage.removeItem('adminToken');
-        token = await getAuthToken();
-        if (token) {
-          res = await fetch('http://localhost:5000/admin/api/blogs', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        }
-      }
-      if (res.ok) {
-        const data = await res.json();
-        setBlogs(data);
-      }
+      const data = await getBlogs();
+      setBlogs(data);
     } catch (err) {
       console.error('Error fetching blogs:', err);
     } finally {
@@ -205,20 +183,12 @@ export default function AdminBlogsPage() {
     formData.append('image', file);
 
     try {
-      const res = await fetch('http://localhost:5000/admin/api/upload', {
+      const data = await apiFetch('/admin/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        setCoverImage(data.url);
-        showToast('Image uploaded successfully!');
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Failed to upload image');
-      }
+      setCoverImage(data.url);
+      showToast('Image uploaded successfully!');
     } catch (err) {
       console.error('Upload error:', err);
       alert('Error uploading image');
@@ -263,20 +233,13 @@ export default function AdminBlogsPage() {
     formData.append('image', file);
     try {
       setUploading(true);
-      const res = await fetch('http://localhost:5000/admin/api/upload', {
+      const data = await apiFetch('/admin/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (res.ok) {
-        const data = await res.json();
-        const alt = file.name.replace(/\.[^.]+$/, '') || 'Image';
-        handleInsertImage(data.url, alt);
-        showToast('Image inserted into article!');
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Failed to upload image');
-      }
+      const alt = file.name.replace(/\.[^.]+$/, '') || 'Image';
+      handleInsertImage(data.url, alt);
+      showToast('Image inserted into article!');
     } catch {
       alert('Error uploading image');
     } finally {
@@ -332,20 +295,13 @@ export default function AdminBlogsPage() {
     formData.append('image', file);
     try {
       setImgUploading(true);
-      const res = await fetch('http://localhost:5000/admin/api/upload', {
+      const data = await apiFetch('/admin/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (res.ok) {
-        const data = await res.json();
-        setImgUrl(data.url);
-        if (!imgAlt) setImgAlt(file.name.replace(/\.[^.]+$/, ''));
-        showToast('Image uploaded! Fill in details and click Insert.');
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Failed to upload image');
-      }
+      setImgUrl(data.url);
+      if (!imgAlt) setImgAlt(file.name.replace(/\.[^.]+$/, ''));
+      showToast('Image uploaded! Fill in details and click Insert.');
     } catch {
       alert('Error uploading image');
     } finally {
@@ -472,42 +428,21 @@ export default function AdminBlogsPage() {
         allowModal,
       };
 
-      const url = editingBlog
-        ? `http://localhost:5000/admin/api/blogs/${editingBlog.id}`
-        : 'http://localhost:5000/admin/api/blogs';
+      const endpoint = editingBlog
+        ? `/admin/api/blogs/${editingBlog.id}`
+        : '/admin/api/blogs';
       const method = editingBlog ? 'PUT' : 'POST';
 
-      let res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.status === 401) {
-        localStorage.removeItem('adminToken');
-        token = await getAuthToken();
-        if (token) {
-          res = await fetch(url, {
-            method,
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
-          });
-        }
-      }
-
-      if (res.ok) {
+      try {
+        await apiFetch(endpoint, {
+          method,
+          body: JSON.stringify(payload),
+        });
         showToast(editingBlog ? 'Blog article updated successfully!' : 'Blog article published successfully!');
         setModalOpen(false);
         fetchBlogs();
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(`Failed to save article: ${errData.error || res.statusText || 'Server error'}`);
+      } catch (err: any) {
+        alert(`Failed to save article: ${err.message || 'Server error'}`);
       }
     } catch (err: any) {
       console.error('Save error:', err);
@@ -524,14 +459,11 @@ export default function AdminBlogsPage() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/blogs/${id}`, {
+      await apiFetch(`/admin/api/blogs/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        showToast('Blog deleted!');
-        fetchBlogs();
-      }
+      showToast('Blog deleted!');
+      fetchBlogs();
     } catch (err) {
       console.error('Delete error:', err);
     }
@@ -542,18 +474,12 @@ export default function AdminBlogsPage() {
     if (!token) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/blogs/${blog.id}`, {
+      await apiFetch(`/admin/api/blogs/${blog.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ ...blog, published: !blog.published }),
       });
-      if (res.ok) {
-        showToast(blog.published ? 'Blog unpublished (Draft)' : 'Blog published live!');
-        fetchBlogs();
-      }
+      showToast(blog.published ? 'Blog unpublished (Draft)' : 'Blog published live!');
+      fetchBlogs();
     } catch (err) {
       console.error('Toggle error:', err);
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 interface PricingTier {
@@ -50,10 +51,10 @@ export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/services')
+    apiFetch('/api/services')
       .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch services');
-        return res.json();
+        if (!Array.isArray(res)) throw new Error('Failed to fetch services');
+        return res;
       })
       .then(data => {
         if (Array.isArray(data)) {

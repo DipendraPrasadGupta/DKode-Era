@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/lib/api';
 
 interface Setting {
   id: string;
@@ -84,7 +85,7 @@ const INITIAL_SETTINGS: Setting[] = [
   { id: 'framework',     label: 'Frontend Framework',     value: 'Next.js 14 (App Router)',     type: 'text', category: 'system', description: 'Admin and public site framework', readOnly: true },
   { id: 'backend',       label: 'Backend Framework',      value: 'Express.js v4.18',            type: 'text', category: 'system', description: 'REST API server framework', readOnly: true },
   { id: 'cms_version',   label: 'CMS Build Version',      value: 'v2.0.0 — Jul 2026',          type: 'text', category: 'system', description: 'Current admin panel release version', readOnly: true },
-  { id: 'api_base',      label: 'Live API Base URL',      value: 'http://localhost:5000',       type: 'text', category: 'system', description: 'Active API server endpoint', readOnly: true },
+  { id: 'api_base',      label: 'Live API Base URL',      value: API_URL,       type: 'text', category: 'system', description: 'Active API server endpoint', readOnly: true },
   { id: 'deploy_env',    label: 'Deployment Environment', value: 'Development (localhost)',      type: 'text', category: 'system', description: 'Current runtime environment', readOnly: true },
   { id: 'server_uptime', label: 'API Server Uptime',      value: '99.98% (last 30 days)',       type: 'text', category: 'system', description: 'Server availability percentage', readOnly: true },
 ];

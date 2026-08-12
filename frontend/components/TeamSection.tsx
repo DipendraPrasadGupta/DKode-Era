@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface TeamSectionProps {
@@ -20,8 +21,7 @@ export default function TeamSection({ colors, t, lang }: TeamSectionProps) {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/team')
-      .then(res => res.json())
+    apiFetch('/api/team')
       .then(data => setTeamMembers(data))
       .catch(err => console.error('Error fetching team:', err));
   }, []);

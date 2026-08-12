@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../../lib/api';
 
 interface ContactMessage {
   id: number;
@@ -33,23 +34,16 @@ export default function MessagesAdminPage() {
     fetchMessages();
   }, []);
 
-  const fetchMessages = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/messages', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load messages.');
-        return res.json();
-      })
-      .then((data) => {
-        setMessages(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch('/admin/api/messages');
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load messages.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showNotification = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -58,20 +52,16 @@ export default function MessagesAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/messages/${id}`, {
+      await apiFetch(`/admin/api/messages/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error('Failed to delete message.');
 
       showNotification('Client message inquiry deleted successfully!');
       setDeletingId(null);
       fetchMessages();
     } catch (err: any) {
-      showNotification(err.message || 'Failed to delete message.', 'error');
+      showNotification(err?.message || 'Failed to delete message.', 'error');
     }
   };
 

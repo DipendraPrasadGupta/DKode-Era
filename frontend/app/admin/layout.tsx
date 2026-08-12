@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { getCurrentUser } from '@/lib/api/auth';
 
 const NAV = [
   { name: 'Dashboard', path: '/admin', icon: '⊞', group: 'overview' },
@@ -61,14 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push('/admin/login');
       return;
     }
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-    fetch(`${API_URL}/admin/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    getCurrentUser()
       .then((data) => {
         setAdminUser(data.user?.username || 'Admin');
         setLoading(false);

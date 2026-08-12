@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 import Link from 'next/link';
 
@@ -18,8 +19,7 @@ export default function PortfolioSection({ colors, t }: PortfolioSectionProps) {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/portfolio')
-      .then(res => res.json())
+    apiFetch('/api/portfolio')
       .then(data => setPortfolioItems(data))
       .catch(err => console.error('Error fetching portfolio:', err));
   }, []);

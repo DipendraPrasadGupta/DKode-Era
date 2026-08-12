@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiFetch } from '@/lib/api';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 const services = [
@@ -45,15 +46,10 @@ export default function ContactPage() {
     }
     setStatus('sending');
     try {
-      const res = await fetch('http://localhost:5000/api/contact', {
+      await apiFetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Something went wrong.');
-      }
       setStatus('success');
       setForm({ name: '', phone: '', email: '', company: '', service: '', budget: '', timeline: '', message: '' });
     } catch (err: any) {

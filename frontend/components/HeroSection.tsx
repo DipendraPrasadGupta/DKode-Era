@@ -23,6 +23,7 @@ export default function HeroSection({
   return (
     <section
       id="hero"
+      className="hero-section"
       style={{
         background: `linear-gradient(135deg, ${colors.bg} 0%, ${colors.bg2} 100%)`,
         minHeight: '100vh',
@@ -31,201 +32,14 @@ export default function HeroSection({
         padding: 'clamp(90px, 10vh, 120px) clamp(16px, 4vw, 60px) 60px',
         position: 'relative',
         overflow: 'hidden',
-      }}
+        '--hero-border': colors.border,
+        '--hero-cyan': colors.cyan,
+        '--hero-green': colors.green,
+      } as React.CSSProperties}
     >
-      <style>{`
-        .hero-grid {
-          background-image: 
-            linear-gradient(${colors.border} 1px, transparent 1px),
-            linear-gradient(90deg, ${colors.border} 1px, transparent 1px);
-          background-size: 60px 60px;
-          opacity: 0.2;
-          animation: slide-grid 20s linear infinite;
-        }
-
-        @keyframes slide-grid {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(60px, 60px); }
-        }
-
-        .hero-blob {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(40px);
-          opacity: 0.6;
-        }
-
-        .hero-blob-1 {
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
-          top: -200px;
-          right: -150px;
-          animation: float-blob-1 15s ease-in-out infinite;
-        }
-
-        .hero-blob-2 {
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(0,100,200,0.12) 0%, transparent 70%);
-          bottom: -100px;
-          left: -100px;
-          animation: float-blob-2 20s ease-in-out infinite;
-        }
-
-        @keyframes float-blob-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-50px, 50px) scale(1.1); }
-        }
-
-        @keyframes float-blob-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(50px, -50px) scale(1.05); }
-        }
-
-        .hero-title {
-          animation: title-entrance 1s ease-out forwards;
-        }
-
-        @keyframes title-entrance {
-          0% {
-            opacity: 0;
-            transform: translateY(40px);
-            letter-spacing: 0.1em;
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-            letter-spacing: -0.02em;
-          }
-        }
-
-        .stats-ribbon-container {
-          margin-top: 48px;
-          padding-top: 24px;
-          border-top: 1px solid ${colors.border};
-          animation: fadeUp 0.8s 0.8s both;
-        }
-
-        .stats-ribbon {
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-          gap: 16px;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid ${colors.border};
-          border-radius: 20px;
-          padding: 16px 28px;
-          backdrop-filter: blur(16px);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .stats-ribbon::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, ${colors.cyan}, transparent);
-          opacity: 0.6;
-        }
-
-        .stat-item-compact {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 6px 14px;
-          border-radius: 12px;
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          cursor: default;
-        }
-
-        .stat-item-compact:hover {
-          background: rgba(6, 182, 212, 0.06);
-          transform: translateY(-2px);
-        }
-
-        .stat-icon-wrapper {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          background: rgba(6, 182, 212, 0.1);
-          border: 1px solid rgba(6, 182, 212, 0.25);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          flex-shrink: 0;
-        }
-
-        .stat-divider {
-          width: 1px;
-          height: 32px;
-          background: linear-gradient(180deg, transparent, ${colors.border}, transparent);
-        }
-
-        @media (max-width: 868px) {
-          .stats-ribbon {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 16px;
-          }
-          .stat-divider {
-            display: none;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .stats-ribbon {
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
-        }
-      `}</style>
-
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `linear-gradient(${colors.border} 1px, transparent 1px), linear-gradient(90deg, ${colors.border} 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-          opacity: 0.3,
-          pointerEvents: 'none',
-          animation: 'slide-grid 20s linear infinite',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: '-200px',
-          right: '-150px',
-          width: 600,
-          height: 600,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)`,
-          pointerEvents: 'none',
-          animation: 'float-blob-1 15s ease-in-out infinite',
-          filter: 'blur(40px)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-100px',
-          left: '-100px',
-          width: 500,
-          height: 500,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, rgba(0,100,200,0.12) 0%, transparent 70%)`,
-          pointerEvents: 'none',
-          animation: 'float-blob-2 20s ease-in-out infinite',
-          filter: 'blur(40px)',
-        }}
-      />
+      <div className="hero-grid" />
+      <div className="hero-blob hero-blob-1" />
+      <div className="hero-blob hero-blob-2" />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
         <div
@@ -278,6 +92,7 @@ export default function HeroSection({
         </div>
 
         <h1
+          className="hero-title"
           style={{
             fontFamily: "'Syne',sans-serif",
             fontSize: 'clamp(54px,8vw,100px)',
@@ -285,7 +100,6 @@ export default function HeroSection({
             lineHeight: 1.0,
             letterSpacing: '-0.03em',
             marginBottom: 24,
-            animation: 'fadeUp 0.8s 0.3s both',
           }}
         >
           {t.heroTitle1}

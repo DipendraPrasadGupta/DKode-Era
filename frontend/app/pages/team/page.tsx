@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 import Link from 'next/link';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
@@ -169,16 +170,12 @@ export default function TeamPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/team')
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-        return res.json();
-      })
+    apiFetch('/api/team')
       .then((data: TeamMember[]) => {
         setMembers(Array.isArray(data) ? data : []);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error('Failed to load team:', err);
         setError('Unable to load team members right now.');
         setLoading(false);
@@ -284,10 +281,10 @@ export default function TeamPage() {
                 {error}
               </h2>
               <p style={{ fontSize: 14, color: tk.textDim, marginBottom: 28 }}>
-                Check that the backend server is running at <code style={{ color: tk.cyan }}>localhost:5000</code>.
+                Check that the backend server is available and retry loading the team list.
               </p>
               <button
-                onClick={() => { setError(null); setLoading(true); fetch('http://localhost:5000/api/team').then(r => r.json()).then(d => { setMembers(d); setLoading(false); }).catch(() => { setError('Still unable to load team.'); setLoading(false); }); }}
+                onClick={() => { setError(null); setLoading(true); apiFetch('/api/team').then((d: TeamMember[]) => { setMembers(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => { setError('Still unable to load team.'); setLoading(false); }); }}
                 style={{ padding: '11px 28px', background: tk.cyan, color: '#050810', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: tk.fontBody }}
               >
                 Try Again

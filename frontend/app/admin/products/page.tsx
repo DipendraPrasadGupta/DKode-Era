@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface ProductItem {
   id: number;
@@ -136,14 +137,7 @@ export default function ProductsAdminPage() {
   }, []);
 
   const fetchItems = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/products', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load Product Ecosystem items.');
-        return res.json();
-      })
+    apiFetch('/admin/api/products')
       .then((data) => {
         setItems(data);
         setLoading(false);
@@ -210,19 +204,14 @@ export default function ProductsAdminPage() {
     if (!file) return;
 
     setUploadingImage(true);
-    const token = localStorage.getItem('adminToken');
     const body = new FormData();
     body.append('image', file);
 
     try {
-      const res = await fetch('http://localhost:5000/admin/api/upload', {
+      const data = await apiFetch('/admin/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
         body,
       });
-
-      if (!res.ok) throw new Error('Image upload failed.');
-      const data = await res.json();
       setFormData((prev) => ({ ...prev, image: data.url }));
       showToast('success', 'Preview graphic uploaded successfully!');
     } catch (err: any) {
@@ -240,10 +229,9 @@ export default function ProductsAdminPage() {
     }
 
     setFormLoading(true);
-    const token = localStorage.getItem('adminToken');
     const url = editingItem
-      ? `http://localhost:5000/admin/api/products/${editingItem.id}`
-      : 'http://localhost:5000/admin/api/products';
+      ? `/admin/api/products/${editingItem.id}`
+      : '/admin/api/products';
     const method = editingItem ? 'PUT' : 'POST';
 
     try {
@@ -257,19 +245,10 @@ export default function ProductsAdminPage() {
         tech: techArray,
       };
 
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to ${editingItem ? 'update' : 'create'} product.`);
-      }
 
       showToast(
         'success',
@@ -285,14 +264,10 @@ export default function ProductsAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/products/${id}`, {
+      await apiFetch(`/admin/api/products/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error('Failed to delete product.');
 
       showToast('success', 'Product ecosystem entry deleted.');
       setDeletingItem(null);

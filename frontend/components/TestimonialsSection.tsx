@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface Testimonial {
@@ -82,11 +83,7 @@ export default function TestimonialsSection({ colors }: TestimonialsSectionProps
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/testimonials')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch testimonials');
-        return res.json();
-      })
+    apiFetch('/api/testimonials')
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setTestimonials(data);

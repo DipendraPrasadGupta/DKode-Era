@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { API_URL } from '../../../lib/api';
+import { apiFetch } from '../../../lib/api';
+import { createCareer, updateCareer, deleteCareer } from '@/lib/api/careers';
 
 interface Career {
   id: number;
@@ -106,17 +107,13 @@ export default function AdminCareersPage() {
     let token = localStorage.getItem('adminToken');
     if (token) return token;
     try {
-      const res = await fetch(`${API_URL}/admin/api/auth/login`, {
+      const data = await apiFetch('/admin/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'admin', password: 'admin123' }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem('adminToken', data.token);
-          return data.token;
-        }
+      if (data?.token) {
+        localStorage.setItem('adminToken', data.token);
+        return data.token;
       }
     } catch { }
     return null;
@@ -127,13 +124,8 @@ export default function AdminCareersPage() {
     if (!token) return;
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/admin/api/careers', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCareers(data);
-      }
+      const data = await apiFetch('/admin/api/careers');
+      setCareers(data);
     } catch (err) {
       console.error('Error fetching careers:', err);
     } finally {
@@ -246,31 +238,17 @@ export default function AdminCareersPage() {
 
     try {
       setIsSubmitting(true);
-      const url = editingCareer
-        ? `http://localhost:5000/admin/api/careers/${editingCareer.id}`
-        : 'http://localhost:5000/admin/api/careers';
-      const method = editingCareer ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        showToast(editingCareer ? 'Job opening updated successfully!' : 'New job opening created live!');
-        setModalOpen(false);
-        fetchCareers();
+      if (editingCareer) {
+        await updateCareer(editingCareer.id, payload);
       } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(errData.error || 'Failed to save job opening');
+        await createCareer(payload);
       }
+      showToast(editingCareer ? 'Job opening updated successfully!' : 'New job opening created live!');
+      setModalOpen(false);
+      fetchCareers();
     } catch (err) {
       console.error(err);
-      alert('Error saving job opening');
+      alert(err instanceof Error ? err.message : 'Failed to save job opening');
     } finally {
       setIsSubmitting(false);
     }
@@ -281,14 +259,9 @@ export default function AdminCareersPage() {
     const token = await getAuthToken();
     if (!token) return;
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/careers/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        showToast('Job opening deleted.');
-        fetchCareers();
-      }
+      await deleteCareer(id);
+      showToast('Job opening deleted.');
+      fetchCareers();
     } catch (err) {
       console.error('Error deleting career:', err);
     }
@@ -298,7 +271,7 @@ export default function AdminCareersPage() {
     const token = await getAuthToken();
     if (!token) return;
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/careers/${c.id}`, {
+      await apiFetch(`/admin/api/careers/${c.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -306,10 +279,8 @@ export default function AdminCareersPage() {
         },
         body: JSON.stringify({ published: !c.published }),
       });
-      if (res.ok) {
-        showToast(`Job opening is now ${!c.published ? 'Live / Published' : 'Draft / Hidden'}`);
-        fetchCareers();
-      }
+      showToast(`Job opening is now ${!c.published ? 'Live / Published' : 'Draft / Hidden'}`);
+      fetchCareers();
     } catch (err) {
       console.error(err);
     }

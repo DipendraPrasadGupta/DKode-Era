@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getCareerById, uploadCv, applyCareer } from '@/lib/api/careers';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 interface JobRole {
@@ -35,7 +36,7 @@ interface JobRole {
 export default function CareerDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const roleId = params?.id;
+  const roleId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const [role, setRole] = useState<JobRole | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,11 +83,7 @@ export default function CareerDetailPage() {
   useEffect(() => {
     if (!roleId) return;
     setLoading(true);
-    fetch(`http://localhost:5000/api/careers/${roleId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Job opening not found or no longer active');
-        return res.json();
-      })
+    getCareerById(roleId)
       .then((data) => {
         // Normalize array fields that may be double-encoded
         data.responsibilities = parseArrayField(data.responsibilities);
@@ -129,12 +126,8 @@ export default function CareerDetailPage() {
     try {
       const formData = new FormData();
       formData.append('cv', file);
-      const res = await fetch('http://localhost:5000/api/cv-upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.url) {
+      const data = await uploadCv(formData);
+      if (data?.url) {
         setCvUploadedUrl(data.url);
       } else {
         alert(data.error || 'CV upload failed. Please try a cloud link instead.');
@@ -157,32 +150,23 @@ export default function CareerDetailPage() {
 
     try {
       setSubmitting(true);
-      const res = await fetch('http://localhost:5000/api/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          careerId: role?.id,
-          careerTitle: role?.title || '',
-          department: role?.department || '',
-          name: fullName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          portfolio: portfolio.trim(),
-          cvUrl: cvUploadedUrl,
-          resumeLink: resumeUrl.trim(),
-          coverNote: coverNote.trim(),
-        }),
+      await applyCareer({
+        careerId: role?.id,
+        careerTitle: role?.title || '',
+        department: role?.department || '',
+        name: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        portfolio: portfolio.trim(),
+        cvUrl: cvUploadedUrl,
+        resumeLink: resumeUrl.trim(),
+        coverNote: coverNote.trim(),
       });
 
-      if (res.ok) {
-        setAppliedSuccess(true);
-      } else {
-        const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Failed to submit application. Please try again.');
-      }
+      setAppliedSuccess(true);
     } catch (err) {
       console.error('Submission error:', err);
-      alert('Network error submitting application.');
+      alert((err as Error).message || 'Network error submitting application.');
     } finally {
       setSubmitting(false);
     }

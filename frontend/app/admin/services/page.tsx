@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface Service {
   id: number;
@@ -118,18 +119,8 @@ export default function ServicesAdminPage() {
   }, []);
 
   const fetchServices = async () => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch('http://localhost:5000/admin/api/services', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        const errorData = await parseJsonOrText(res);
-        throw new Error(errorData.error || 'Failed to load services.');
-      }
-
-      const data = await res.json();
+      const data = await apiFetch('/admin/api/services');
       setServices(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load services.');
@@ -262,11 +253,10 @@ export default function ServicesAdminPage() {
     }
 
     setFormLoading(true);
-    const token = localStorage.getItem('adminToken');
     const method = editingId ? 'PUT' : 'POST';
     const url = editingId
-      ? `http://localhost:5000/admin/api/services/${editingId}`
-      : 'http://localhost:5000/admin/api/services';
+      ? `/admin/api/services/${editingId}`
+      : '/admin/api/services';
 
     const payload = {
       num: num.trim(),
@@ -280,15 +270,10 @@ export default function ServicesAdminPage() {
     };
 
     try {
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        const errorData = await parseJsonOrText(res);
-        throw new Error(errorData.error || `Failed to ${editingId ? 'update' : 'create'} service.`);
-      }
       showNotif('success', `Service ${editingId ? 'updated' : 'created'} successfully!`);
       setShowModal(false);
       fetchServices();
@@ -300,13 +285,10 @@ export default function ServicesAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/services/${id}`, {
+      await apiFetch(`/admin/api/services/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to delete service.');
       showNotif('success', 'Service deleted successfully.');
       setDeletingId(null);
       if (expandedId === id) setExpandedId(null);

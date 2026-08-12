@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface Testimonial {
   id: number;
@@ -36,15 +37,8 @@ export default function TestimonialsAdminPage() {
   }, []);
 
   const fetchItems = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/testimonials', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load testimonials.');
-        return res.json();
-      })
-      .then(data => {
+    apiFetch('/admin/api/testimonials')
+      .then((data) => {
         setItems(data);
         setLoading(false);
       })
@@ -85,23 +79,16 @@ export default function TestimonialsAdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
     const url = editingItem
-      ? `http://localhost:5000/admin/api/testimonials/${editingItem.id}`
-      : 'http://localhost:5000/admin/api/testimonials';
+      ? `/admin/api/testimonials/${editingItem.id}`
+      : '/admin/api/testimonials';
     const method = editingItem ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) throw new Error('Failed to save testimonial.');
 
       showNotification(editingItem ? 'Testimonial updated!' : 'Testimonial created!');
       setIsModalOpen(false);
@@ -112,14 +99,10 @@ export default function TestimonialsAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/testimonials/${id}`, {
+      await apiFetch(`/admin/api/testimonials/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      if (!res.ok) throw new Error('Failed to delete testimonial.');
 
       showNotification('Testimonial deleted!');
       setDeletingId(null);

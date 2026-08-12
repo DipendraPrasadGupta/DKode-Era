@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getServices } from '@/lib/api/services';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 const colorMap: Record<string, string> = {
@@ -41,12 +42,8 @@ export default function ServicesPage() {
   };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/services')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch services');
-        return res.json();
-      })
-      .then(data => {
+    getServices()
+      .then((data) => {
         if (!Array.isArray(data) || data.length === 0) {
           setError('No services available');
           setServices([]);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getJobs } from '@/lib/api/careers';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
 interface JobOpening {
@@ -65,11 +66,7 @@ export default function CareersPage() {
   const [activeDept, setActiveDept] = useState('All');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/careers')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch careers');
-        return res.json();
-      })
+    getJobs()
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setOpenings(data);

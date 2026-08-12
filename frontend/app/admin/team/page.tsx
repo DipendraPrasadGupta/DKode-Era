@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface TeamMember {
   id: number;
@@ -45,11 +46,7 @@ export default function TeamAdminPage() {
   useEffect(() => { fetchItems(); }, []);
 
   const fetchItems = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/team', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => { if (!res.ok) throw new Error('Failed to load team members.'); return res.json(); })
+    apiFetch('/admin/api/team')
       .then(data => { setItems(data); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
   };
@@ -61,17 +58,13 @@ export default function TeamAdminPage() {
 
   const uploadImage = async (file: File): Promise<string> => {
     setUploadingImage(true);
-    const token = localStorage.getItem('adminToken');
     const fd = new FormData();
     fd.append('image', file);
     try {
-      const res = await fetch('http://localhost:5000/admin/api/upload', {
+      const data = await apiFetch('/admin/api/upload', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
         body: fd,
       });
-      if (!res.ok) throw new Error('Upload failed');
-      const data = await res.json();
       return data.url;
     } finally {
       setUploadingImage(false);
@@ -136,10 +129,9 @@ export default function TeamAdminPage() {
       return;
     }
     setFormLoading(true);
-    const token = localStorage.getItem('adminToken');
     const url = editingItem
-      ? `http://localhost:5000/admin/api/team/${editingItem.id}`
-      : 'http://localhost:5000/admin/api/team';
+      ? `/admin/api/team/${editingItem.id}`
+      : '/admin/api/team';
     const method = editingItem ? 'PUT' : 'POST';
     const payload = {
       icon: formData.icon || '👤',
@@ -149,12 +141,10 @@ export default function TeamAdminPage() {
       skills: formData.skillsString.split(',').map(s => s.trim()).filter(Boolean),
     };
     try {
-      const res = await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to save team member.');
       showNotif('success', editingItem ? '✅ Team member updated!' : '✅ Team member added!');
       setIsModalOpen(false);
       fetchItems();
@@ -166,13 +156,10 @@ export default function TeamAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/team/${id}`, {
+      await apiFetch(`/admin/api/team/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Delete failed.');
       showNotif('success', '🗑️ Team member removed.');
       setDeletingId(null);
       fetchItems();

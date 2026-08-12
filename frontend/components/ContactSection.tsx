@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface ContactSectionProps {
@@ -29,20 +30,13 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
     e.preventDefault();
     setStatus('loading');
     try {
-      const res = await fetch('http://localhost:5000/api/contact', {
+      await apiFetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-      if (res.ok) {
-        setStatus('success');
-        setFormData({ name: '', phone: '', email: '', serviceNeeded: 'Website Development', message: '' });
-        setTimeout(() => setStatus('idle'), 5000);
-      } else {
-        setStatus('error');
-      }
+      setStatus('success');
+      setFormData({ name: '', phone: '', email: '', serviceNeeded: 'Website Development', message: '' });
+      setTimeout(() => setStatus('idle'), 5000);
     } catch (error) {
       setStatus('error');
     }

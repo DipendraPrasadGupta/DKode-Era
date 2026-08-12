@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../../lib/api';
+import { updateService } from '@/lib/api/services';
 
 interface PricingTier {
   tier: string;
@@ -60,27 +62,19 @@ export default function AdminPricingPage() {
     fetchServices();
   }, []);
 
-  const fetchServices = () => {
-    const token = localStorage.getItem('adminToken');
+  const fetchServices = async () => {
     setLoading(true);
-    fetch('http://localhost:5000/admin/api/services', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load services.');
-        return res.json();
-      })
-      .then((data) => {
-        setServices(data);
-        if (data.length > 0) {
-          selectService(data[0]);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    try {
+      const data = await apiFetch('/admin/api/services');
+      setServices(data);
+      if (Array.isArray(data) && data.length > 0) {
+        selectService(data[0]);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to load services.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showNotif = (type: 'success' | 'error', msg: string) => {
@@ -231,17 +225,7 @@ export default function AdminPricingPage() {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/services/${selectedService.id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error('Failed to save subscription pricing structure.');
-
+      await updateService(selectedService.id, payload);
       showNotif('success', `Pricing packages for "${selectedService.title}" updated successfully!`);
       setHasUnsavedChanges(false);
 

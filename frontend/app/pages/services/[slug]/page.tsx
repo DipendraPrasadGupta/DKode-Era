@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
 import ServiceDetailPage from '@/components/ServiceDetailPage';
 import { usePages } from '@/context/PagesContext';
 
@@ -37,21 +38,16 @@ export default function ServicePage() {
 
         // Fetch direct slug endpoint from backend
         let data: any = null;
-        const res = await fetch(`http://localhost:5000/api/services/${slug}`);
-        
-        if (res.ok) {
-          data = await res.json();
-        } else {
+        try {
+          data = await apiFetch(`/api/services/${slug}`);
+        } catch {
           // Fallback: fetch all services and match locally
-          const fallbackRes = await fetch('http://localhost:5000/api/services');
-          if (fallbackRes.ok) {
-            const allServices = await fallbackRes.json();
-            const formattedSlug = slug.toLowerCase().replace(/-/g, ' ');
-            data = allServices.find((s: any) =>
-              s.title.toLowerCase() === formattedSlug ||
-              s.title.toLowerCase().replace(/\s+/g, '-') === slug
-            );
-          }
+          const allServices = await apiFetch('/api/services');
+          const formattedSlug = slug.toLowerCase().replace(/-/g, ' ');
+          data = allServices.find((s: any) =>
+            s.title.toLowerCase() === formattedSlug ||
+            s.title.toLowerCase().replace(/\s+/g, '-') === slug
+          );
         }
 
         if (!data) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/api';
 
 interface Order {
   id: number;
@@ -41,26 +42,20 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, []);
 
-  const fetchOrders = () => {
-    const token = localStorage.getItem('adminToken');
-    fetch('http://localhost:5000/admin/api/orders', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load orders.');
-        return res.json();
-      })
-      .then((data) => {
-        setOrders(data);
-        if (data.length > 0 && !selectedOrder) {
-          setSelectedOrder(data[0]);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch('/admin/api/orders');
+      const ordersData = Array.isArray(data) ? data : [];
+      setOrders(ordersData);
+      if (ordersData.length > 0 && !selectedOrder) {
+        setSelectedOrder(ordersData[0]);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load orders.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showNotification = (type: 'success' | 'error', msg: string) => {
@@ -70,20 +65,15 @@ export default function AdminOrdersPage() {
 
   const handleUpdateStatus = async (id: number, status: string) => {
     setStatusUpdating(id);
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/orders/${id}`, {
+      const updatedOrder = await apiFetch(`/admin/api/orders/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status }),
       });
 
-      if (!res.ok) throw new Error('Failed to update status.');
-
-      const updatedOrder = await res.json();
       showNotification('success', `Order #${id} status updated to "${status}"`);
 
       // Update local state
@@ -92,21 +82,17 @@ export default function AdminOrdersPage() {
         setSelectedOrder(updatedOrder);
       }
     } catch (err: any) {
-      showNotification('error', err.message);
+      showNotification('error', err?.message || 'Unable to update order status.');
     } finally {
       setStatusUpdating(null);
     }
   };
 
   const handleDelete = async (id: number) => {
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:5000/admin/api/orders/${id}`, {
+      await apiFetch(`/admin/api/orders/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error('Failed to delete order inquiry.');
 
       showNotification('success', 'Order inquiry deleted successfully.');
       setDeletingId(null);
@@ -115,7 +101,7 @@ export default function AdminOrdersPage() {
       }
       fetchOrders();
     } catch (err: any) {
-      showNotification('error', err.message);
+      showNotification('error', err?.message || 'Unable to delete order inquiry.');
     }
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getServices } from '@/lib/api/services';
 import { ThemeColors } from '@/lib/styles';
 
 interface PricingSectionProps {
@@ -85,11 +86,7 @@ export default function PricingSection({ colors, t, scrollTo }: PricingSectionPr
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/services')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch pricing');
-        return res.json();
-      })
+    getServices()
       .then(data => {
         if (Array.isArray(data)) {
           const transformed = data
