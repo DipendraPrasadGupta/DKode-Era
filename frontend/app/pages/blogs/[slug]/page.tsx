@@ -282,16 +282,12 @@ export default function BlogDetailPage() {
           background: 'linear-gradient(to bottom, rgba(5,8,16,0.25) 0%, rgba(5,8,16,0.55) 40%, rgba(5,8,16,0.92) 75%, rgba(5,8,16,1) 100%)',
         }} />
 
-        {/* Hero Content */}
-        <div style={{
-          position: 'relative', zIndex: 2,
-          maxWidth: 1200,
-          width: '100%',
-          margin: '0 auto',
-          padding: 'clamp(60px,10vh,120px) clamp(20px,5vw,60px) clamp(40px,5vw,60px)',
-        }}>
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 22, fontSize: 12, fontFamily: tk.fontMono, color: 'rgba(255,255,255,0.45)' }}>
+      </div>
+
+      {/* Header below cover image */}
+      <div style={{ maxWidth: 1200, margin: '24px auto', padding: '0 20px' }}>
+        <div style={{ padding: '28px', background: `linear-gradient(135deg,${tk.surface},${tk.surfaceMuted})`, border: `1px solid ${tk.border}`, borderRadius: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontSize: 12, fontFamily: tk.fontMono, color: tk.textDim }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link>
             <span>›</span>
             <Link href="/pages/blogs" style={{ color: 'inherit', textDecoration: 'none' }}>Blog</Link>
@@ -299,15 +295,14 @@ export default function BlogDetailPage() {
             <span style={{ color: catColor }}>{blog.category}</span>
           </div>
 
-          {/* Category chip */}
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 12 }}>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               fontSize: 10, fontFamily: tk.fontMono, fontWeight: 700,
               padding: '5px 14px', borderRadius: 20,
-              background: `${catColor}22`,
+              background: `${catColor}12`,
               color: catColor,
-              border: `1px solid ${catColor}55`,
+              border: `1px solid ${catColor}18`,
               letterSpacing: '0.12em', textTransform: 'uppercase',
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: catColor, display: 'inline-block' }} />
@@ -315,96 +310,54 @@ export default function BlogDetailPage() {
             </span>
           </div>
 
-          {/* Title */}
           <h1 style={{
             fontFamily: tk.fontDisplay,
-            fontSize: 'clamp(28px,4.5vw,54px)',
+            fontSize: 'clamp(24px,3.5vw,42px)',
             fontWeight: 900,
             lineHeight: 1.12,
-            color: '#ffffff',
-            margin: '0 0 18px',
+            color: tk.text,
+            margin: '0 0 12px',
             maxWidth: 860,
-            letterSpacing: '-0.025em',
-            textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+            letterSpacing: '-0.02em',
           }}>
             {blog.title}
           </h1>
 
-          {/* Excerpt */}
           <p style={{
-            fontSize: 'clamp(14px,1.5vw,17px)',
-            color: 'rgba(255,255,255,0.68)',
+            fontSize: 15,
+            color: tk.textMuted,
             lineHeight: 1.7,
-            margin: '0 0 32px',
-            maxWidth: 640,
+            margin: '0 0 18px',
+            maxWidth: 760,
           }}>
             {blog.excerpt}
           </p>
 
-          {/* Author + meta row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            {/* Avatar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 13,
-                background: `${catColor}25`, border: `2px solid ${catColor}60`,
+                background: `${catColor}12`, border: `2px solid ${catColor}20`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontFamily: tk.fontDisplay, fontWeight: 900, color: catColor, fontSize: 19,
               }}>
                 {blog.author.charAt(0).toUpperCase()}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{blog.author}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontFamily: tk.fontMono }}>{blog.authorRole}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: tk.text }}>{blog.author}</div>
+                <div style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>{blog.authorRole}</div>
               </div>
             </div>
-
-            <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)' }} />
-
-            {/* Meta chips */}
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 12, fontFamily: tk.fontMono, color: 'rgba(255,255,255,0.45)' }}>
+            <div style={{ width: 1, height: 24, background: tk.border }} />
+            <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', gap: 12, alignItems: 'center' }}>
               <span>📅 {formatDate(blog.createdAt)}</span>
               <span>⏱️ {blog.readTime}</span>
-            </div>
-
-            <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)' }} />
-
-            {/* Live stats */}
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                padding: '5px 12px', borderRadius: 20,
-                fontSize: 12, fontFamily: tk.fontMono, color: 'rgba(255,255,255,0.6)',
-              }}>
-                <span style={{ fontSize: 13 }}>👁️</span>
-                <span style={{ fontWeight: 700, color: '#fff' }}>{formatCount(views)}</span> views
-              </div>
-
-              <button
-                onClick={handleLike}
-                title={liked ? 'Unlike this article' : 'Like this article'}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  background: liked ? `${catColor}22` : 'rgba(255,255,255,0.07)',
-                  border: `1px solid ${liked ? catColor + '60' : 'rgba(255,255,255,0.12)'}`,
-                  padding: '5px 14px', borderRadius: 20,
-                  fontSize: 12, fontFamily: tk.fontMono, color: liked ? catColor : 'rgba(255,255,255,0.6)',
-                  cursor: 'pointer',
-                  transition: 'all 0.25s ease',
-                  transform: likeAnim ? 'scale(1.15)' : 'scale(1)',
-                }}
-              >
-                <span style={{ fontSize: 14, transition: 'transform 0.2s', transform: likeAnim ? 'scale(1.3)' : 'scale(1)' }}>
-                  {liked ? '❤️' : '🤍'}
-                </span>
-                <span style={{ fontWeight: 700, color: liked ? catColor : '#fff' }}>{formatCount(likes)}</span>
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+      
 
       {/* ═══════════════════════════════════════════════
           MAIN CONTENT (2-col)
@@ -1071,8 +1024,34 @@ function renderMarkdown(md: string): string {
     return `<ol>${items}</ol>`;
   });
 
+  // Helper to normalize image URLs (handles absolute localhost and scheme mismatches)
+  const normalizeUrl = (src: string) => {
+    if (!src) return '';
+    try {
+      if (src.startsWith('http')) {
+        const s = new URL(src);
+        const api = new URL(API_URL);
+        // Replace localhost or backend-hosted absolute URLs with configured API_URL origin
+        if (s.hostname === 'localhost' || s.host === api.host) {
+          return `${api.origin}${s.pathname}${s.search || ''}${s.hash || ''}`;
+        }
+        // If the image is served from same host but wrong scheme (http vs https), use current origin
+        if (typeof window !== 'undefined' && s.host === window.location.host && s.protocol !== window.location.protocol) {
+          return `${window.location.origin}${s.pathname}${s.search || ''}${s.hash || ''}`;
+        }
+        return src;
+      }
+      return `${API_URL}${src.startsWith('/') ? src : '/' + src}`;
+    } catch {
+      return src;
+    }
+  };
+
   // Images before links to avoid `![ ]( )` vs `[ ]( )` conflict
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, url) => {
+    const u = normalizeUrl(url || '');
+    return `<img src="${u}" alt="${alt}" />`;
+  });
 
   // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
@@ -1099,6 +1078,14 @@ function renderMarkdown(md: string): string {
     if (blockTags.some(t => line.trim().startsWith(t))) return line;
     return `<p>${line}</p>`;
   }).join('\n');
+
+  // Normalize any preserved raw HTML blocks that contain <img src="..."> before restoring
+  for (let i = 0; i < htmlBlocks.length; i++) {
+    htmlBlocks[i] = htmlBlocks[i].replace(/<img\s+([^>]*?)src=(['"])([^'"\s>]+)\2([^>]*?)>/gi, (_m, pre, q, src, post) => {
+      const u = normalizeUrl(src || '');
+      return `<img ${pre}src=${q}${u}${q}${post}>`;
+    });
+  }
 
   // Restore raw HTML blocks
   html = html.replace(/%%HTML_BLOCK_(\d+)%%/g, (_m, i) => htmlBlocks[Number(i)]);

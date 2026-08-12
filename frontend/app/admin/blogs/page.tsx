@@ -1619,8 +1619,32 @@ function renderMarkdown(md: string): string {
     return `<ol>${items}</ol>`;
   });
 
-  // Images before links to avoid conflict
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  // Helper to normalize image URLs (handles absolute localhost and scheme mismatches)
+  const normalizeUrl = (src: string) => {
+    if (!src) return '';
+    try {
+      if (src.startsWith('http')) {
+        const s = new URL(src);
+        const api = new URL(API_URL);
+        if (s.hostname === 'localhost' || s.host === api.host) {
+          return `${api.origin}${s.pathname}${s.search || ''}${s.hash || ''}`;
+        }
+        if (typeof window !== 'undefined' && s.host === window.location.host && s.protocol !== window.location.protocol) {
+          return `${window.location.origin}${s.pathname}${s.search || ''}${s.hash || ''}`;
+        }
+        return src;
+      }
+      return `${API_URL}${src.startsWith('/') ? src : '/' + src}`;
+    } catch {
+      return src;
+    }
+  };
+
+  // Images before links to avoid conflict — normalize relative image URLs
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, url) => {
+    const u = normalizeUrl(url || '');
+    return `<img src="${u}" alt="${alt}" />`;
+  });
 
   // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
@@ -1647,6 +1671,14 @@ function renderMarkdown(md: string): string {
     if (blockTags.some(t => line.trim().startsWith(t))) return line;
     return `<p>${line}</p>`;
   }).join('\n');
+
+  // Normalize preserved raw HTML blocks that contain <img src="..."> before restoring
+  for (let i = 0; i < htmlBlocks.length; i++) {
+    htmlBlocks[i] = htmlBlocks[i].replace(/<img\s+([^>]*?)src=(['"])([^'"\s>]+)\2([^>]*?)>/gi, (_m, pre, q, src, post) => {
+      const u = normalizeUrl(src || '');
+      return `<img ${pre}src=${q}${u}${q}${post}>`;
+    });
+  }
 
   // Restore raw HTML blocks
   html = html.replace(/%%HTML_BLOCK_(\d+)%%/g, (_m, i) => htmlBlocks[Number(i)]);
