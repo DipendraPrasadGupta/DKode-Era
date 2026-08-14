@@ -18,6 +18,7 @@ const NAV = [
   { name: 'Testimonials', path: '/admin/testimonials', icon: '💬', group: 'content' },
   { name: 'FAQs', path: '/admin/faqs', icon: '❓', group: 'content' },
   { name: 'Messages', path: '/admin/messages', icon: '✉️', group: 'comms' },
+  { name: 'Notifications', path: '/admin/notifications', icon: '🔔', group: 'comms' },
   { name: 'Settings', path: '/admin/settings', icon: '⚙️', group: 'comms' },
 ];
 

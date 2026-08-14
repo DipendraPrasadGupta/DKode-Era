@@ -183,3 +183,34 @@ model JobApplication {
   status      String   @default("New")  // New, Reviewing, Shortlisted, Rejected, Hired
   createdAt   DateTime @default(now())
 }
+model Notification {
+  id         Int                      @id @default(autoincrement())
+  subject    String
+  body       String
+  channel    String                   @default("email") // "email" | "in-app" | "both"
+  targetType String                   @default("all")   // "all" | "selected"
+  sentBy     String                   @default("admin")
+  status     String                   @default("sent")  // "sent" | "draft" | "failed"
+  createdAt  DateTime                 @default(now())
+  recipients NotificationRecipient[]
+}
+
+model NotificationRecipient {
+  id             Int          @id @default(autoincrement())
+  notificationId Int
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  email          String
+  name           String       @default("")
+  status         String       @default("pending") // "pending" | "sent" | "failed"
+  sentAt         DateTime?
+}
+
+// Subscriber list — contacts, applicants who opted-in
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String   @default("")
+  source    String   @default("contact") // "contact" | "applicant" | "manual"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

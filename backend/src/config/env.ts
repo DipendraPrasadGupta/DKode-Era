@@ -24,6 +24,12 @@ export const env = {
   JWT_SECRET: jwtSecret,
   ADMIN_PASSWORD: getEnvVar('ADMIN_PASSWORD', 'Admin@DkodeEra#2026!'),
   FRONTEND_URLS: getEnvVar('FRONTEND_URL', 'http://localhost:3000').split(',').map(url => url.trim()),
-  DATABASE_URL: getEnvVar('DATABASE_URL'), // Required for Prisma connection confirmation
+  DATABASE_URL: getEnvVar('DATABASE_URL'),
+  // SMTP email config (optional — leave blank to skip real email sending)
+  SMTP_HOST: process.env.SMTP_HOST || '',
+  SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_PASS: process.env.SMTP_PASS || '',
+  SMTP_FROM: process.env.SMTP_FROM || 'D-Kode Era <no-reply@dkodeera.com>',
 };
 

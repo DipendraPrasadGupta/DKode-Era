@@ -47,6 +47,16 @@ import {
 } from '../controllers/adminController';
 
 import {
+  getNotifications,
+  sendNotification,
+  deleteNotification,
+  getSubscribers,
+  addSubscriber,
+  updateSubscriber,
+  deleteSubscriber,
+} from '../controllers/notificationController';
+
+import {
   getServices,
   getFAQs,
 
@@ -179,5 +189,16 @@ router.delete('/api/careers/:id', authMiddleware, deleteCareerAdmin);
 router.get('/api/applications', authMiddleware, getApplications);
 router.patch('/api/applications/:id/status', authMiddleware, updateApplicationStatus);
 router.delete('/api/applications/:id', authMiddleware, deleteApplication);
+
+// ─── NOTIFICATIONS ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+router.get('/api/notifications', authMiddleware, getNotifications);
+router.post('/api/notifications/send', authMiddleware, sendNotification);
+router.delete('/api/notifications/:id', authMiddleware, deleteNotification);
+
+// ─── SUBSCRIBERS ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+router.get('/api/subscribers', authMiddleware, getSubscribers);
+router.post('/api/subscribers', authMiddleware, addSubscriber);
+router.patch('/api/subscribers/:id', authMiddleware, updateSubscriber);
+router.delete('/api/subscribers/:id', authMiddleware, deleteSubscriber);
 
 export default router;
