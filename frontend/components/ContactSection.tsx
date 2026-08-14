@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 interface ContactSectionProps {
   colors: ThemeColors;
@@ -10,6 +11,8 @@ interface ContactSectionProps {
 }
 
 export default function ContactSection({ colors, t }: ContactSectionProps) {
+  const { settings } = useSiteSettings();
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -20,10 +23,10 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const contactInfo = [
-    { icon: '📍', label: 'Address', val: 'Butwal-10, Rupandehi, Lumbini Province, Nepal' },
-    { icon: '📞', label: 'Phone / WhatsApp', val: '+977-9807544395' },
-    { icon: '✉️', label: 'Email', val: 'dkodeera2026@gmail.com' },
-    { icon: '🕐', label: 'Working Hours', val: 'Sun–Fri, 9:00 AM – 6:00 PM (Nepal Time)' },
+    { icon: '📍', label: 'Address', val: settings.agency_address || 'Butwal-10, Rupandehi, Lumbini Province, Nepal' },
+    { icon: '📞', label: 'Phone / WhatsApp', val: settings.agency_phone || '+977-9800000000' },
+    { icon: '✉️', label: 'Email', val: settings.agency_email || 'hello@dkodeera.com' },
+    { icon: '🕐', label: 'Working Hours', val: settings.business_hours || 'Sun–Fri, 9:00 AM – 6:00 PM (Nepal Time)' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

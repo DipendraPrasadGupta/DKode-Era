@@ -1,6 +1,7 @@
 'use client';
 
 import { ThemeColors } from '@/lib/styles';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 interface AboutSectionProps {
   colors: ThemeColors;
@@ -8,6 +9,20 @@ interface AboutSectionProps {
 }
 
 export default function AboutSection({ colors, t }: AboutSectionProps) {
+  const { settings } = useSiteSettings();
+
+  const terminalLines = [
+    ['$ ', 'whoami', ''],
+    ['', `→ ${settings.agency_name || 'D-Kode Era'} Pvt. Ltd.`, ''],
+    ['$ ', 'cat mission.txt', ''],
+    ['', "→ Empowering Nepal's businesses", ''],
+    ['', '→ through world-class technology', ''],
+    ['$ ', 'cat location.txt', ''],
+    ['', `→ ${settings.agency_address || 'Butwal-10, Rupandehi, Nepal'}`, ''],
+    ['$ ', 'cat status.txt', ''],
+    ['', '→ ACTIVE · HIRING · GROWING', 'green'],
+  ];
+
   return (
     <>
     <section id="about" style={{ background: colors.bg, position: 'relative', zIndex: 1 }}>
@@ -21,17 +36,7 @@ export default function AboutSection({ colors, t }: AboutSectionProps) {
                 <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
                 <span style={{ marginLeft: 12, color: colors.muted, fontSize: 11 }}>dkode-era ~ terminal</span>
               </div>
-              {[
-                ['$ ', 'whoami', ''],
-                ['', '→ D-Kode Era Pvt. Ltd.', ''],
-                ['$ ', 'cat mission.txt', ''],
-                ['', '→ Empowering Nepal\'s businesses', ''],
-                ['', '→ through world-class technology', ''],
-                ['$ ', 'cat location.txt', ''],
-                ['', '→ Butwal-10, Rupandehi, Nepal', ''],
-                ['$ ', 'cat status.txt', ''],
-                ['', '→ ACTIVE · HIRING · GROWING', 'green'],
-              ].map(([prefix, line, color], i) => (
+              {terminalLines.map(([prefix, line, color], i) => (
                 <div
                   key={i}
                   style={{
@@ -62,9 +67,9 @@ export default function AboutSection({ colors, t }: AboutSectionProps) {
                 FOUNDED
               </div>
               <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, lineHeight: 1 }}>
-                2026
+                {settings.agency_founded || '2026'}
               </div>
-              <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>Butwal, Nepal</div>
+              <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>{settings.agency_address ? settings.agency_address.split(',')[0] : 'Butwal'}, Nepal</div>
             </div>
           </div>
           <div>

@@ -47,7 +47,9 @@ import {
   deleteCareerAdmin,
   getApplications,
   updateApplicationStatus,
-  deleteApplication
+  deleteApplication,
+  getSiteSettings,
+  updateSiteSettings
 } from '../controllers/adminController';
 
 import {
@@ -206,5 +208,9 @@ router.get('/api/subscribers', authMiddleware, getSubscribers);
 router.post('/api/subscribers', authMiddleware, addSubscriber);
 router.patch('/api/subscribers/:id', authMiddleware, updateSubscriber);
 router.delete('/api/subscribers/:id', authMiddleware, deleteSubscriber);
+
+// ─── SITE SETTINGS ───────────────────────────────────────────────────────────
+router.get('/api/settings', authMiddleware, getSiteSettings);
+router.put('/api/settings', authMiddleware, updateSiteSettings);
 
 export default router;

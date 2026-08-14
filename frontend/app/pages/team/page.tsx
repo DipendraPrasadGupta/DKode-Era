@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, normalizeImageUrl } from '@/lib/api';
 import Link from 'next/link';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
@@ -16,6 +16,18 @@ interface TeamMember {
   skills: string[];
 }
 
+interface Career {
+  id: number;
+  title: string;
+  department: string;
+  type: string;
+  location: string;
+  experience: string;
+  description: string;
+  color?: string;
+  tags?: string[] | string;
+}
+
 // ─── Static accent colours cycling per card ──────────────────────────────────
 
 const ACCENTS = [tk.cyan, tk.purple, tk.gold, tk.green, tk.red, '#06b6d4'];
@@ -27,11 +39,8 @@ const culture = [
   { icon: '⚡', title: 'Move Fast', desc: 'We ship in days, not months. Speed is a feature — and we built it into our culture.' },
 ];
 
-const openRoles = [
-  { title: 'React.js Developer', type: 'Full-Time · Butwal', color: tk.cyan, desc: '2+ years experience, proficiency in Next.js, REST APIs, and TypeScript.' },
-  { title: 'Digital Marketing Executive', type: 'Full-Time · Butwal', color: tk.purple, desc: 'Meta Ads, Google Ads, and content creation. Nepal market experience preferred.' },
-  { title: 'UI/UX Designer (Intern)', type: 'Internship · 3 months', color: tk.gold, desc: 'Figma skills required. Build real projects for real clients from day one.' },
-];
+const CAREER_FALLBACK_COLORS = [tk.cyan, tk.purple, tk.gold, tk.green, tk.red];
+
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
 
@@ -106,7 +115,7 @@ function MemberCard({ member, accent }: { member: TeamMember; accent: string }) 
         flexShrink: 0,
       }}>
         {hasPhoto
-          ? <img src={member.icon} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ? <img src={normalizeImageUrl(member.icon)} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : (member.icon || '👤')
         }
       </div>
@@ -168,6 +177,8 @@ export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [careers, setCareers] = useState<Career[]>([]);
+  const [careersLoading, setCareersLoading] = useState(true);
 
   useEffect(() => {
     apiFetch('/api/team')
@@ -180,7 +191,18 @@ export default function TeamPage() {
         setError('Unable to load team members right now.');
         setLoading(false);
       });
+
+    apiFetch('/api/careers')
+      .then((data: Career[]) => {
+        setCareers(Array.isArray(data) ? data : []);
+        setCareersLoading(false);
+      })
+      .catch(() => {
+        setCareers([]);
+        setCareersLoading(false);
+      });
   }, []);
+
 
   return (
     <>
@@ -348,39 +370,117 @@ export default function TeamPage() {
       <section style={{ padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,80px)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <div style={{ fontSize: 11, color: tk.cyan, fontFamily: tk.fontMono, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>WE'RE HIRING</div>
+            <div style={{ fontSize: 11, color: tk.cyan, fontFamily: tk.fontMono, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>WE&apos;RE HIRING</div>
             <h2 style={{ fontFamily: tk.fontDisplay, fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, color: tk.text }}>Join Our Team</h2>
             <p style={{ fontSize: 15, color: tk.textMuted, marginTop: 14, maxWidth: 500, margin: '12px auto 0' }}>
               We&apos;re always looking for talented people passionate about building great tech in Nepal.
             </p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {openRoles.map((role) => (
-              <div key={role.title} style={{
-                padding: '24px 28px', background: 'rgba(13,20,37,0.6)',
-                border: `1px solid ${tk.border}`, borderRadius: 12,
-                display: 'flex', justifyContent: 'space-between',
-                alignItems: 'center', flexWrap: 'wrap', gap: 16,
-                borderLeft: `3px solid ${role.color}`,
-              }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-                    <h3 style={{ fontFamily: tk.fontDisplay, fontSize: 17, fontWeight: 700, color: tk.text }}>{role.title}</h3>
-                    <span style={{ padding: '3px 10px', background: `${role.color}10`, border: `1px solid ${role.color}30`, borderRadius: 20, fontSize: 11, color: role.color, fontFamily: tk.fontMono }}>{role.type}</span>
+
+          {/* Loading skeleton */}
+          {careersLoading && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{
+                  padding: '24px 28px', background: 'rgba(13,20,37,0.6)',
+                  border: `1px solid ${tk.border}`, borderRadius: 12,
+                  animation: 'pulse 1.6s ease-in-out infinite',
+                  height: 88,
+                }} />
+              ))}
+            </div>
+          )}
+
+          {/* Live careers from DB */}
+          {!careersLoading && careers.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {careers.map((career, i) => {
+                const roleColor = career.color || CAREER_FALLBACK_COLORS[i % CAREER_FALLBACK_COLORS.length];
+                const badge = [career.type, career.location].filter(Boolean).join(' · ');
+                return (
+                  <div key={career.id} style={{
+                    padding: '24px 28px', background: 'rgba(13,20,37,0.6)',
+                    border: `1px solid ${tk.border}`, borderRadius: 12,
+                    display: 'flex', justifyContent: 'space-between',
+                    alignItems: 'center', flexWrap: 'wrap', gap: 16,
+                    borderLeft: `3px solid ${roleColor}`,
+                    transition: 'border-color 0.2s, box-shadow 0.2s',
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+                        <h3 style={{ fontFamily: tk.fontDisplay, fontSize: 17, fontWeight: 700, color: tk.text, margin: 0 }}>
+                          {career.title}
+                        </h3>
+                        {badge && (
+                          <span style={{
+                            padding: '3px 10px', background: `${roleColor}12`,
+                            border: `1px solid ${roleColor}35`, borderRadius: 20,
+                            fontSize: 11, color: roleColor, fontFamily: tk.fontMono,
+                            whiteSpace: 'nowrap',
+                          }}>
+                            {badge}
+                          </span>
+                        )}
+                        {career.department && (
+                          <span style={{
+                            padding: '3px 10px', background: 'rgba(255,255,255,0.05)',
+                            border: `1px solid ${tk.border}`, borderRadius: 20,
+                            fontSize: 11, color: tk.textMuted, fontFamily: tk.fontMono,
+                          }}>
+                            {career.department}
+                          </span>
+                        )}
+                        {career.experience && (
+                          <span style={{
+                            padding: '3px 10px', background: 'rgba(16,185,129,0.08)',
+                            border: '1px solid rgba(16,185,129,0.25)', borderRadius: 20,
+                            fontSize: 11, color: tk.green, fontFamily: tk.fontMono,
+                          }}>
+                            {career.experience}
+                          </span>
+                        )}
+                      </div>
+                      {career.description && (
+                        <p style={{ fontSize: 13.5, color: tk.textDim, margin: 0, lineHeight: 1.7 }}>
+                          {career.description.length > 160 ? career.description.slice(0, 157) + '...' : career.description}
+                        </p>
+                      )}
+                    </div>
+                    <Link href="/pages/careers" style={{
+                      padding: '11px 22px', background: 'transparent',
+                      color: roleColor, border: `2px solid ${roleColor}`,
+                      borderRadius: 8, textDecoration: 'none',
+                      fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                    }}>
+                      Apply →
+                    </Link>
                   </div>
-                  <p style={{ fontSize: 13, color: tk.textDim }}>{role.desc}</p>
-                </div>
-                <Link href="/pages/contact" style={{
-                  padding: '11px 22px', background: 'transparent',
-                  color: role.color, border: `2px solid ${role.color}`,
-                  borderRadius: 8, textDecoration: 'none',
-                  fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap',
-                }}>
-                  Apply →
-                </Link>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!careersLoading && careers.length === 0 && (
+            <div style={{
+              textAlign: 'center', padding: '48px 24px',
+              background: 'rgba(13,20,37,0.4)', border: `1px solid ${tk.border}`,
+              borderRadius: 14,
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 14 }}>📭</div>
+              <p style={{ fontSize: 15, color: tk.textMuted, marginBottom: 24 }}>
+                No open positions right now — but we&apos;re always open to talented people.<br />Send us your CV and we&apos;ll reach out when something fits.
+              </p>
+              <Link href="/pages/contact" style={{
+                padding: '12px 28px', background: tk.purple, color: '#fff',
+                borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 14,
+                fontFamily: tk.fontBody, boxShadow: `0 4px 20px rgba(168,85,247,0.3)`,
+              }}>
+                Get In Touch →
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

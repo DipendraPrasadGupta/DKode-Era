@@ -842,5 +842,105 @@ export const getStats = async (req: AuthenticatedRequest, res: Response, next: N
   }
 };
 
+// ─── SITE SETTINGS ────────────────────────────────────────────────────────────
+
+async function ensureSiteSettingsTable() {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "SiteSetting" (
+        "key" VARCHAR(255) PRIMARY KEY,
+        "value" TEXT NOT NULL DEFAULT '',
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+  } catch (e) {
+    // Ignore if table exists
+  }
+}
+
+/** GET all settings as { key: value } map */
+export const getSiteSettings = async (_req: any, res: Response, next: NextFunction) => {
+  try {
+    let rows: any[] = [];
+    if ((prisma as any).siteSetting?.findMany) {
+      try {
+        rows = await (prisma as any).siteSetting.findMany();
+      } catch (e) {
+        await ensureSiteSettingsTable();
+        rows = await prisma.$queryRaw`SELECT key, value FROM "SiteSetting"`;
+      }
+    } else {
+      try {
+        rows = await prisma.$queryRaw`SELECT key, value FROM "SiteSetting"`;
+      } catch (e) {
+        await ensureSiteSettingsTable();
+        rows = await prisma.$queryRaw`SELECT key, value FROM "SiteSetting"`;
+      }
+    }
+    const map: Record<string, string> = {};
+    for (const r of rows) map[r.key] = r.value;
+    res.json(map);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/** PUT bulk-upsert settings — body: { key: value, ... } */
+export const updateSiteSettings = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const updates: Record<string, string> = req.body;
+    if (!updates || typeof updates !== 'object') {
+      res.status(400).json({ error: 'Body must be a key-value object' });
+      return;
+    }
+
+    await ensureSiteSettingsTable();
+
+    if ((prisma as any).siteSetting?.upsert) {
+      try {
+        const ops = Object.entries(updates).map(([key, value]) =>
+          (prisma as any).siteSetting.upsert({
+            where: { key },
+            update: { value: String(value) },
+            create: { key, value: String(value) },
+          })
+        );
+        await Promise.all(ops);
+      } catch (e) {
+        for (const [key, value] of Object.entries(updates)) {
+          const valStr = String(value);
+          await prisma.$executeRaw`
+            INSERT INTO "SiteSetting" ("key", "value", "updatedAt")
+            VALUES (${key}, ${valStr}, CURRENT_TIMESTAMP)
+            ON CONFLICT ("key")
+            DO UPDATE SET "value" = ${valStr}, "updatedAt" = CURRENT_TIMESTAMP
+          `;
+        }
+      }
+    } else {
+      for (const [key, value] of Object.entries(updates)) {
+        const valStr = String(value);
+        await prisma.$executeRaw`
+          INSERT INTO "SiteSetting" ("key", "value", "updatedAt")
+          VALUES (${key}, ${valStr}, CURRENT_TIMESTAMP)
+          ON CONFLICT ("key")
+          DO UPDATE SET "value" = ${valStr}, "updatedAt" = CURRENT_TIMESTAMP
+        `;
+      }
+    }
+
+    let rows: any[] = [];
+    try {
+      rows = await prisma.$queryRaw`SELECT key, value FROM "SiteSetting"`;
+    } catch (e) {
+      rows = [];
+    }
+    const map: Record<string, string> = {};
+    for (const r of rows) map[r.key] = r.value;
+    res.json(map);
+  } catch (error) {
+    next(error);
+  }
+};
 
 

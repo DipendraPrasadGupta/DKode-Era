@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { pageTokens as tk } from '@/lib/pageTokens';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 const services = [
   'Web Development', 'Mobile App (iOS/Android)', 'UI/UX Design',
@@ -19,14 +20,15 @@ const timelines = [
   'ASAP (within 1 week)', '2–4 weeks', '1–3 months', '3–6 months', 'Flexible',
 ];
 
-const contactInfo = [
-  { icon: '📍', label: 'Our Office', value: 'Butwal-10, Rupandehi, Lumbini Province, Nepal', color: tk.cyan },
-  { icon: '📧', label: 'Email Us', value: 'dkodeera2026@gmail.com', color: tk.purple },
-  { icon: '📱', label: 'Call / WhatsApp', value: '+977-9807544395', color: tk.green },
-  { icon: '🕐', label: 'Office Hours', value: 'Sunday – Friday: 9AM – 6PM NST', color: tk.gold },
-];
-
 export default function ContactPage() {
+  const { settings } = useSiteSettings();
+
+  const contactInfo = [
+    { icon: '📍', label: 'Our Office', value: settings.agency_address || 'Butwal-10, Rupandehi, Lumbini Province, Nepal', color: tk.cyan },
+    { icon: '📧', label: 'Email Us', value: settings.agency_email || 'hello@dkodeera.com', color: tk.purple },
+    { icon: '📱', label: 'Call / WhatsApp', value: settings.agency_phone || '+977-9800000000', color: tk.green },
+    { icon: '🕐', label: 'Office Hours', value: settings.business_hours || 'Sunday – Friday: 9AM – 6PM NST', color: tk.gold },
+  ];
   const [form, setForm] = useState({
     name: '', phone: '', email: '', company: '',
     service: '', budget: '', timeline: '', message: '',
@@ -252,9 +254,7 @@ export default function ContactPage() {
                 We&apos;re based in the heart of Butwal. Drop in any time during office hours — no appointment needed. We love meeting clients face to face.
               </p>
               <div style={{ fontSize: 14, color: tk.textMuted, lineHeight: 2 }}>
-                📍 Butwal-10, Rupandehi<br />
-                Lumbini Province, Nepal<br />
-                Near [Landmark, Butwal]
+                📍 {settings.agency_address || 'Butwal-10, Rupandehi, Nepal'}
               </div>
             </div>
             <div style={{

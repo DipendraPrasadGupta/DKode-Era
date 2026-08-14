@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ThemeColors } from '@/lib/styles';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 interface FloatingButtonsProps {
   colors: ThemeColors;
@@ -9,7 +10,11 @@ interface FloatingButtonsProps {
 }
 
 export default function FloatingButtons({ colors, scrollTo }: FloatingButtonsProps) {
+  const { settings } = useSiteSettings();
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null);
+
+  const waNum = (settings.whatsapp_number || '+9779800000000').replace(/[^0-9]/g, '');
+  const phoneNum = (settings.agency_phone || '+9779800000000').replace(/[^+0-9]/g, '');
 
   const buttonStyle = (isHovered: boolean, bgColor: string, shadowColor: string) => ({
     display: 'flex',
@@ -64,7 +69,7 @@ export default function FloatingButtons({ colors, scrollTo }: FloatingButtonsPro
     >
       {/* WhatsApp Button */}
       <a
-        href="https://wa.me/+9779807544395"
+        href={`https://wa.me/${waNum}`}
         target="_blank"
         rel="noopener noreferrer"
         onMouseEnter={() => setHoveredBtn('wa')}
@@ -93,7 +98,7 @@ export default function FloatingButtons({ colors, scrollTo }: FloatingButtonsPro
 
       {/* Call Now Button */}
       <a
-        href="tel:+9779807544395"
+        href={`tel:${phoneNum}`}
         onMouseEnter={() => setHoveredBtn('call')}
         onMouseLeave={() => setHoveredBtn(null)}
         style={buttonStyle(

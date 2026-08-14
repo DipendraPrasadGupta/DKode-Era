@@ -23,6 +23,7 @@ import {
   submitJobApplication,
   submitOrder
 } from '../controllers/clientController';
+import { getSiteSettings } from '../controllers/adminController';
 
 import rateLimit from 'express-rate-limit';
 
@@ -131,6 +132,9 @@ router.post('/contact', submitContactForm);
 router.post('/messages', submitContactForm); // Alias for contact form
 router.post('/orders', submitOrder);
 router.post('/apply', submitJobApplication); // Job application submission
+
+// Public site settings (no auth required — used by frontend pages)
+router.get('/settings', getSiteSettings);
 
 export default router;
 

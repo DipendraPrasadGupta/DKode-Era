@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { pageTokens as tk } from '@/lib/pageTokens';
+import { useSiteSettings } from '@/lib/useSiteSettings';
+import { apiFetch } from '@/lib/api';
 
 const stats = [
   { value: '25+', label: 'Projects Delivered', icon: '🚀' },
@@ -27,88 +30,137 @@ const milestones = [
   { year: '2026', month: 'Jun', title: 'Official Pvt. Ltd. Registration', desc: "Registered as D-Kode Era Pvt. Ltd., cementing our commitment to Nepal's digital future.", icon: '🏢', featured: true },
 ];
 
-const contactRows = [
-  ['📧', 'hello@dkodeera.com'],
-  ['📱', '+977-9800000000'],
-  ['💬', 'WhatsApp Available'],
-  ['🕐', 'Sun–Fri 9AM–6PM NST'],
-];
+const contactRows: [string, string][] = [];
 
 export default function AboutPage() {
+  const { settings } = useSiteSettings();
+  const [counts, setCounts] = useState({
+    projects: 25,
+    clients: 18,
+    team: 8,
+    satisfaction: '99%',
+  });
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch('/api/services').catch(() => []),
+      apiFetch('/api/testimonials').catch(() => []),
+      apiFetch('/api/team').catch(() => []),
+      apiFetch('/api/products').catch(() => []),
+    ]).then(([servicesData, testimonialsData, teamData, productsData]) => {
+      const sCount = Array.isArray(servicesData) ? servicesData.length : 0;
+      const tCount = Array.isArray(testimonialsData) ? testimonialsData.length : 0;
+      const tmCount = Array.isArray(teamData) ? teamData.length : 0;
+      const pCount = Array.isArray(productsData) ? productsData.length : 0;
+
+      setCounts({
+        projects: Math.max(25, sCount * 3 + pCount * 4 + 10),
+        clients: Math.max(18, tCount > 0 ? tCount : 18),
+        team: Math.max(8, tmCount > 0 ? tmCount : 8),
+        satisfaction: '99%',
+      });
+    });
+  }, []);
+
+  const liveStats = [
+    { value: `${counts.projects}+`, label: 'Projects Delivered', icon: '🚀' },
+    { value: `${counts.clients}+`, label: 'Happy Clients', icon: '🤝' },
+    { value: `${counts.team}+`, label: 'Team Members', icon: '👥' },
+    { value: counts.satisfaction, label: 'Satisfaction Rate', icon: '⭐' },
+  ];
+
+  const liveContactRows: [string, string][] = [
+    ['📧', settings.agency_email || 'hello@dkodeera.com'],
+    ['📱', settings.agency_phone || '+977-9800000000'],
+    ['💬', `WhatsApp: ${settings.whatsapp_number || '+977-9800000000'}`],
+    ['🕐', settings.business_hours || 'Sun–Fri 9AM–6PM NST'],
+  ];
+
   return (
     <>
-      {/* Hero */}
+      {/* ─── Hero ──────────────────────────────────────────────────────────── */}
       <section
         style={{
-          background: `radial-gradient(ellipse 900px 600px at 15% 10%, rgba(0,212,255,0.14), transparent 60%),
-                       radial-gradient(ellipse 800px 700px at 90% 30%, rgba(168,85,247,0.12), transparent 60%),
-                       ${tk.bg || '#050810'}`,
-          minHeight: '88vh',
+          background: `
+            radial-gradient(ellipse 1000px 700px at 0% 0%, rgba(0,212,255,0.18), transparent 55%),
+            radial-gradient(ellipse 800px 600px at 100% 20%, rgba(168,85,247,0.16), transparent 55%),
+            radial-gradient(ellipse 600px 500px at 50% 100%, rgba(168,85,247,0.08), transparent 60%),
+            ${tk.bg || '#050810'}
+          `,
+          minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '100px 20px 80px',
+          padding: '120px 20px 100px',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {/* dot-grid backdrop, signature "space" texture */}
+        {/* Animated dot-grid */}
         <div
           aria-hidden="true"
           style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'radial-gradient(rgba(0,212,255,0.35) 1px, transparent 1px)',
-            backgroundSize: '34px 34px',
-            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 75%)',
-            opacity: 0.5,
+            position: 'absolute', inset: 0,
+            backgroundImage: 'radial-gradient(rgba(0,212,255,0.3) 1px, transparent 1px)',
+            backgroundSize: '36px 36px',
+            maskImage: 'radial-gradient(ellipse 75% 65% at 50% 40%, black 0%, transparent 80%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 75% 65% at 50% 40%, black 0%, transparent 80%)',
+            opacity: 0.45,
             pointerEvents: 'none',
           }}
         />
+
+        {/* Floating orbs */}
         <div aria-hidden="true" className="orb orb-cyan" />
         <div aria-hidden="true" className="orb orb-purple" />
+        <div aria-hidden="true" style={{
+          position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)',
+          top: '60%', left: '10%', pointerEvents: 'none',
+          animation: 'floatSlow 8s ease-in-out infinite',
+        }} />
 
-        <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }} className="fade-up">
-          <div
-            style={{
-              display: 'inline-block',
-              padding: '8px 18px',
-              background: 'rgba(0,212,255,0.12)',
-              border: `1px solid rgba(0,212,255,0.4)`,
-              borderRadius: 20,
-              color: tk.cyan,
-              fontSize: 12,
-              fontFamily: tk.fontMono,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              marginBottom: 28,
-            }}
-          >
-            ◈ About D-Kode Era
+        <div style={{ maxWidth: 860, margin: '0 auto', position: 'relative', zIndex: 1 }} className="fade-up">
+          {/* Eyebrow badge */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '8px 20px',
+            background: 'rgba(0,212,255,0.1)',
+            border: '1px solid rgba(0,212,255,0.4)',
+            borderRadius: 30,
+            color: tk.cyan,
+            fontSize: 11.5,
+            fontFamily: tk.fontMono,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            marginBottom: 32,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: tk.cyan, display: 'inline-block', boxShadow: `0 0 10px ${tk.cyan}` }} />
+            Est. {settings.agency_founded || '2026'} · {settings.agency_address || 'Butwal, Nepal'}
           </div>
 
           <h1
             style={{
               fontFamily: tk.fontDisplay,
-              fontSize: 'clamp(40px,7vw,80px)',
+              fontSize: 'clamp(42px,7.5vw,88px)',
               fontWeight: 800,
               color: tk.text,
-              lineHeight: 1.1,
-              marginBottom: 24,
-              letterSpacing: '-0.03em',
+              lineHeight: 1.05,
+              marginBottom: 28,
+              letterSpacing: '-0.04em',
             }}
           >
             Built in Butwal.
             <br />
             <span
               style={{
-                background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
+                background: `linear-gradient(135deg, ${tk.cyan} 0%, ${tk.purple} 60%, #ff6eb4 100%)`,
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 color: 'transparent',
+                filter: 'drop-shadow(0 0 40px rgba(0,212,255,0.25))',
               }}
             >
               Built for Nepal.
@@ -119,15 +171,34 @@ export default function AboutPage() {
             style={{
               fontSize: 18,
               color: tk.textMuted,
-              maxWidth: 640,
-              margin: '0 auto 44px',
-              lineHeight: 1.8,
+              maxWidth: 660,
+              margin: '0 auto 20px',
+              lineHeight: 1.85,
             }}
           >
-            D-Kode Era is Nepal&apos;s fastest-growing IT company, headquartered in Butwal. We deliver world-class websites, mobile apps, management systems, and digital marketing — engineered specifically for Nepal&apos;s market, culture, and payment ecosystem.
+            Nepal&apos;s fastest-growing IT company — delivering world-class websites, apps,
+            management systems, and digital marketing engineered for Nepal&apos;s market,
+            culture, and payment ecosystem.
           </p>
 
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
+          {/* Tech tags */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40 }}>
+            {['Next.js', 'Node.js', 'PostgreSQL', 'React Native', 'AI/LLM', 'TypeScript'].map((tag) => (
+              <span key={tag} style={{
+                padding: '5px 14px',
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${tk.border}`,
+                borderRadius: 20,
+                fontSize: 12,
+                color: tk.textMuted,
+                fontFamily: tk.fontMono,
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 72 }}>
             <Link href="/pages/contact" className="btn-primary">
               Get a Free Quote →
             </Link>
@@ -141,23 +212,34 @@ export default function AboutPage() {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: 24,
+              gap: 2,
               borderTop: `1px solid ${tk.border}`,
-              paddingTop: 40,
+              paddingTop: 0,
             }}
           >
-            {stats.map((s) => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 26, marginBottom: 6 }} aria-hidden="true">{s.icon}</div>
-                <div style={{ fontFamily: tk.fontDisplay, fontSize: 32, fontWeight: 800, color: tk.text }}>{s.value}</div>
-                <div style={{ fontSize: 13, color: tk.textMuted, fontFamily: tk.fontBody, marginTop: 4 }}>{s.label}</div>
+            {liveStats.map((s, i) => (
+              <div key={s.label} style={{
+                textAlign: 'center',
+                padding: '32px 16px',
+                borderRight: i < liveStats.length - 1 ? `1px solid ${tk.border}` : 'none',
+                position: 'relative',
+              }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }} aria-hidden="true">{s.icon}</div>
+                <div style={{
+                  fontFamily: tk.fontDisplay, fontSize: 36, fontWeight: 800,
+                  background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
+                  WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+                }}>
+                  {s.value}
+                </div>
+                <div style={{ fontSize: 12.5, color: tk.textMuted, fontFamily: tk.fontBody, marginTop: 6 }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Our Story */}
+      {/* ─── Our Story ─────────────────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,80px)' }}>
         <div
           style={{
@@ -169,6 +251,7 @@ export default function AboutPage() {
             alignItems: 'center',
           }}
         >
+          {/* Text side */}
           <div>
             <div style={{ fontSize: 11, color: tk.cyan, fontFamily: tk.fontMono, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>
               OUR STORY
@@ -182,29 +265,92 @@ export default function AboutPage() {
             <p style={{ fontSize: 16, color: tk.textMuted, lineHeight: 1.9, marginBottom: 18 }}>
               So he started D-Kode Era in Butwal — combining world-class technical skill with deep local understanding. We speak your language, accept eSewa and Khalti, and understand your market.
             </p>
-            <p style={{ fontSize: 16, color: tk.textMuted, lineHeight: 1.9 }}>
+            <p style={{ fontSize: 16, color: tk.textMuted, lineHeight: 1.9, marginBottom: 32 }}>
               Today, we&apos;re proud to serve 18+ clients across hotels, schools, retail, and tech — and we&apos;re just getting started.
             </p>
-          </div>
 
-          <div className="story-card">
-            <div style={{ fontSize: 44, marginBottom: 20 }} aria-hidden="true">🏢</div>
-            <div style={{ fontSize: 11, color: tk.cyan, fontFamily: tk.fontMono, letterSpacing: '0.12em', marginBottom: 12 }}>
-              HEADQUARTERS
-            </div>
-            <div style={{ fontFamily: tk.fontDisplay, fontSize: 22, fontWeight: 700, color: tk.text, marginBottom: 8 }}>
-              Butwal-10, Rupandehi
-            </div>
-            <div style={{ fontSize: 14, color: tk.textMuted, lineHeight: 1.7, marginBottom: 24 }}>
-              Lumbini Province, Nepal
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {contactRows.map(([icon, text]) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: tk.textMuted }}>
+            {/* Contact info compact row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {liveContactRows.map(([icon, text]) => (
+                <div key={text} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${tk.border}`,
+                  borderRadius: 10,
+                  fontSize: 13, color: tk.textMuted,
+                }}>
                   <span aria-hidden="true">{icon}</span>
                   <span>{text}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Image side */}
+          <div style={{ position: 'relative' }}>
+            {/* Glow behind image */}
+            <div aria-hidden="true" style={{
+              position: 'absolute', inset: -20,
+              background: `radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,212,255,0.12), transparent 70%)`,
+              borderRadius: 28,
+              pointerEvents: 'none',
+            }} />
+
+            {/* Image container */}
+            <div style={{
+              position: 'relative',
+              borderRadius: 24,
+              overflow: 'hidden',
+              border: `1px solid rgba(0,212,255,0.25)`,
+              boxShadow: `0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(168,85,247,0.15)`,
+            }}>
+              {/* Corner tech accents */}
+              <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, width: 28, height: 28, borderTop: `2px solid ${tk.cyan}`, borderLeft: `2px solid ${tk.cyan}`, borderRadius: '24px 0 0 0', zIndex: 2 }} />
+              <div aria-hidden="true" style={{ position: 'absolute', top: 0, right: 0, width: 28, height: 28, borderTop: `2px solid ${tk.purple}`, borderRight: `2px solid ${tk.purple}`, borderRadius: '0 24px 0 0', zIndex: 2 }} />
+              <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, width: 28, height: 28, borderBottom: `2px solid ${tk.purple}`, borderLeft: `2px solid ${tk.purple}`, borderRadius: '0 0 0 24px', zIndex: 2 }} />
+              <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderBottom: `2px solid ${tk.cyan}`, borderRight: `2px solid ${tk.cyan}`, borderRadius: '0 0 24px 0', zIndex: 2 }} />
+
+              <img
+                src="/D-Kode Era.jpeg"
+                alt="D-Kode Era Office — Butwal, Nepal"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block',
+                  objectFit: 'cover',
+                }}
+              />
+
+              {/* Overlay caption */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                padding: '32px 24px 20px',
+                background: 'linear-gradient(to top, rgba(5,8,16,0.92) 0%, transparent 100%)',
+              }}>
+                <div style={{ fontSize: 10, color: tk.cyan, fontFamily: tk.fontMono, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  📍 Butwal-10, Rupandehi · Lumbini Province
+                </div>
+                <div style={{ fontFamily: tk.fontDisplay, fontSize: 16, fontWeight: 700, color: tk.text }}>
+                  D-Kode Era Headquarters
+                </div>
+              </div>
+            </div>
+
+            {/* Floating badge */}
+            <div style={{
+              position: 'absolute', top: 20, right: -16,
+              padding: '10px 16px',
+              background: 'rgba(5,8,16,0.9)',
+              border: `1px solid rgba(0,212,255,0.35)`,
+              borderRadius: 12,
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', gap: 8,
+              zIndex: 3,
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: tk.green, display: 'inline-block', boxShadow: `0 0 10px ${tk.green}` }} />
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: tk.text, fontFamily: tk.fontMono }}>Est. Jan 2026</span>
             </div>
           </div>
         </div>
@@ -367,8 +513,8 @@ export default function AboutPage() {
                 {[
                   { icon: '💼', label: 'LinkedIn', href: 'https://www.linkedin.com/in/technicaldipendra/', target: '_blank' },
                   { icon: '🐙', label: 'GitHub', href: 'https://github.com/DipendraPrasadGupta' },
-                  { icon: '✉️', label: 'Email', href: 'mailto:dipendraofficial45@gmail.com' },
-                  { icon: '📱', label: 'WhatsApp', href: 'https://wa.me/9779807544395' },
+                  { icon: '✉️', label: 'Email', href: `mailto:${settings.agency_email || 'dipendraofficial45@gmail.com'}` },
+                  { icon: '📱', label: 'WhatsApp', href: `https://wa.me/${(settings.whatsapp_number || '9779807544395').replace(/[^0-9]/g, '')}` },
                 ].map((s) => (
                   <a key={s.label} href={s.href} className="founder-social-btn"
                     target={s.href.startsWith('http') ? '_blank' : undefined}

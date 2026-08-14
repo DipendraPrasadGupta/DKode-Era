@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ThemeColors } from '@/lib/styles';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 interface FooterProps {
   colors: ThemeColors;
@@ -10,6 +11,8 @@ interface FooterProps {
 }
 
 export default function Footer({ colors, t, scrollTo }: FooterProps) {
+  const { settings } = useSiteSettings();
+
   const serviceLinks = [
     { label: 'Website Development', href: '/pages/services' },
     { label: 'Mobile Apps', href: '/pages/services' },
@@ -28,18 +31,17 @@ export default function Footer({ colors, t, scrollTo }: FooterProps) {
   ];
 
   const contactInfo = [
-    { label: 'Butwal-10, Rupandehi', href: 'https://maps.google.com' },
-    { label: 'Lumbini Province, Nepal', href: null },
-    { label: '+977-9807544395', href: 'tel:+9779807544395' },
-    { label: 'dkodeera2026@gmail.com', href: 'mailto:dkodeera2026@gmail.com' },
-    { label: 'Sun–Fri, 9AM–6PM', href: null },
+    { label: settings.agency_address || 'Butwal-10, Rupandehi, Nepal', href: 'https://maps.google.com' },
+    { label: settings.agency_phone || '+977-9800000000', href: `tel:${(settings.agency_phone || '+9779800000000').replace(/[^+0-9]/g, '')}` },
+    { label: settings.agency_email || 'hello@dkodeera.com', href: `mailto:${settings.agency_email || 'hello@dkodeera.com'}` },
+    { label: settings.business_hours || 'Sun–Fri, 9AM–6PM', href: null },
   ];
 
   const socialLinks = [
-    { icon: '📘', label: 'Facebook', href: '#' },
-    { icon: '💼', label: 'LinkedIn', href: '#' },
-    { icon: '📸', label: 'Instagram', href: '#' },
-    { icon: '🐦', label: 'Twitter', href: '#' },
+    { icon: '📘', label: 'Facebook', href: settings.social_facebook || '#' },
+    { icon: '💼', label: 'LinkedIn', href: settings.social_linkedin || '#' },
+    { icon: '📸', label: 'Instagram', href: settings.social_instagram || '#' },
+    { icon: '🐦', label: 'Twitter', href: settings.social_twitter || '#' },
   ];
 
   return (
