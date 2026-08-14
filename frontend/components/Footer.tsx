@@ -73,15 +73,35 @@ export default function Footer({ colors, t, scrollTo }: FooterProps) {
         <div className="footer-grid">
           {/* Brand Column */}
           <div>
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div
-                style={{
-                  width: 8, height: 8, background: colors.cyan, borderRadius: '50%',
-                  boxShadow: `0 0 8px ${colors.cyan}`, animation: 'pulse 2s infinite',
-                }}
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <img
+                src="/logo.png"
+                alt="D-Kode Era Logo"
+                style={{ height: 36, width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(0,212,255,0.3))' }}
               />
-              <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, color: colors.text }}>
-                D-Kode<span style={{ color: colors.cyan }}>Era</span>
+              <span
+                style={{
+                  fontFamily: "'Syne', sans-serif",
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: colors.text,
+                  letterSpacing: '-0.03em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                D-Kode
+                <span
+                  style={{
+                    background: 'linear-gradient(135deg, #00d4ff 0%, #00e5a0 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0 0 24px rgba(0, 212, 255, 0.3)',
+                  }}
+                >
+                  Era
+                </span>
               </span>
             </Link>
             <p style={{ fontSize: 13, color: colors.muted, maxWidth: 280, lineHeight: 1.8, marginBottom: 20 }}>

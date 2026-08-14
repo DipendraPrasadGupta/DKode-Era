@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     'React development Nepal', 'Butwal IT company', 'D-Kode Era',
     'AI software Nepal', 'digital marketing Nepal',
   ],
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/apple-icon.png',
+  },
   authors: [{ name: 'Dipendra Prasad Gupta', url: 'https://dkodeera.com' }],
   creator: 'D-Kode Era',
   publisher: 'D-Kode Era',

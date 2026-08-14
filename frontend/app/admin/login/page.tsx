@@ -96,18 +96,43 @@ export default function AdminLoginPage() {
         zIndex: 5
       }}>
         {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{
-            fontFamily: "'Syne', sans-serif",
-            fontSize: 26,
-            fontWeight: 800,
-            letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #00ffff, #0099ff)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            marginBottom: 8
-          }}>
-            D-Kode CMS
+        <div style={{ textAlign: 'center', marginBottom: 36, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <img
+            src="/logo.png"
+            alt="D-Kode Era Logo"
+            style={{
+              height: 48,
+              width: 'auto',
+              objectFit: 'contain',
+              marginBottom: 16,
+              filter: 'drop-shadow(0 0 16px rgba(6, 182, 212, 0.4))',
+            }}
+          />
+          <div
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 26,
+              fontWeight: 800,
+              color: '#f4f4f5',
+              letterSpacing: '-0.03em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              marginBottom: 8,
+            }}
+          >
+            D-Kode
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #06b6d4 0%, #00e5a0 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 0 24px rgba(6, 182, 212, 0.4)',
+              }}
+            >
+              Era CMS
+            </span>
           </div>
           <div style={{ fontSize: 13, color: '#71717a' }}>
             Enter your credentials to manage website content

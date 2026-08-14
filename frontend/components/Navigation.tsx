@@ -193,42 +193,19 @@ export default function Navigation({
         <Link
           href="/"
           id="nav-logo"
-          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}
         >
-          {/* Animated Emblem */}
-          <div style={{ position: 'relative', width: 34, height: 34, flexShrink: 0 }}>
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                border: `1.5px solid rgba(${accentRgb}, 0.7)`,
-                borderRadius: 8,
-                animation: 'logo-rotate 10s linear infinite',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                inset: 5,
-                background: `radial-gradient(circle, rgba(${accentRgb}, 0.25) 0%, transparent 80%)`,
-                borderRadius: 4,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <div
-                style={{
-                  width: 9,
-                  height: 9,
-                  background: `rgb(${accentRgb})`,
-                  borderRadius: 3,
-                  boxShadow: `0 0 14px rgba(${accentRgb}, 1)`,
-                  animation: 'logo-pulse 2.2s ease-in-out infinite',
-                }}
-              />
-            </div>
-          </div>
+          <img
+            src="/logo.png"
+            alt="D-Kode Era Logo"
+            style={{
+              height: navScrolled ? 34 : 40,
+              width: 'auto',
+              objectFit: 'contain',
+              transition: 'all 0.3s ease',
+              filter: 'drop-shadow(0 0 10px rgba(0, 212, 255, 0.4))',
+            }}
+          />
 
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
             <span

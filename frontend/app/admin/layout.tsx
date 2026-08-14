@@ -122,27 +122,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div
+              <img
+                src="/logo.png"
+                alt="D-Kode Era Logo"
                 style={{
-                  width: 36,
                   height: 36,
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: '#050810',
-                  flexShrink: 0,
-                  boxShadow: '0 4px 14px rgba(6,182,212,0.3)',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 0 10px rgba(6,182,212,0.4))',
                 }}
-              >
-                D
-              </div>
+              />
               <div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #f4f4f5 0%, #a1a1aa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  D-Kode Era
+                <div
+                  style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontSize: 17,
+                    fontWeight: 800,
+                    color: '#f4f4f5',
+                    letterSpacing: '-0.03em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  D-Kode
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #06b6d4 0%, #00e5a0 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      textShadow: '0 0 20px rgba(6,182,212,0.4)',
+                    }}
+                  >
+                    Era
+                  </span>
                 </div>
                 <div style={{ fontSize: 10, color: '#06b6d4', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 700 }}>
                   CONTROL CENTER v2.0
