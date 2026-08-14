@@ -17,8 +17,10 @@ import {
   updateFAQ,
   deleteFAQ,
 
+  getTeamAdmin,
   createTeam,
   updateTeam,
+  updateTeamOrder,
   deleteTeam,
   getTestimonialsAdmin,
   createTestimonial,
@@ -148,9 +150,10 @@ router.delete('/api/faqs/:id', authMiddleware, deleteFAQ);
 
 
 // ─── TEAM CRUD ────────────────────────────────────────────────────────────────
-router.get('/api/team', authMiddleware, getTeam);
+router.get('/api/team', authMiddleware, getTeamAdmin);
 router.post('/api/team', authMiddleware, createTeam);
 router.put('/api/team/:id', authMiddleware, updateTeam);
+router.patch('/api/team/:id/order', authMiddleware, updateTeamOrder);
 router.delete('/api/team/:id', authMiddleware, deleteTeam);
 
 // ─── TESTIMONIALS CRUD ────────────────────────────────────────────────────────

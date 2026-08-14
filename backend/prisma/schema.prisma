@@ -46,6 +46,7 @@ model TeamMember {
   name   String
   desc   String
   skills String // Stored as JSON string
+  order  Int    @default(0)
 }
 
 model Testimonial {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, normalizeImageUrl } from '@/lib/api';
 
 interface TeamMember {
   id: number;
@@ -10,6 +10,7 @@ interface TeamMember {
   name: string;
   desc: string;
   skills: string[];
+  order: number;
 }
 
 const ROLE_COLORS: string[] = ['#06b6d4', '#a855f7', '#eab308', '#10b981', '#ef4444'];
@@ -32,6 +33,7 @@ export default function TeamAdminPage() {
     name: '',
     desc: '',
     skillsString: '',
+    order: 0,
   });
 
   // Image upload state
@@ -42,6 +44,7 @@ export default function TeamAdminPage() {
 
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [reorderingId, setReorderingId] = useState<number | null>(null);
 
   useEffect(() => { fetchItems(); }, []);
 
@@ -73,7 +76,7 @@ export default function TeamAdminPage() {
 
   const handleFileSelect = useCallback(async (file: File | null) => {
     if (!file) return;
-    if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
+    if (!/^image\/(jpeg|png|webp|gif)$/i.test(file.type)) {
       showNotif('error', 'Only JPEG, PNG, WebP or GIF allowed.');
       return;
     }
@@ -81,15 +84,21 @@ export default function TeamAdminPage() {
       showNotif('error', 'Image must be under 5 MB.');
       return;
     }
-    // Local preview first
+
+    // Local instant preview
     const reader = new FileReader();
-    reader.onload = e => setImagePreview(e.target?.result as string);
+    reader.onload = e => {
+      const result = e.target?.result as string;
+      if (result) setImagePreview(result);
+    };
     reader.readAsDataURL(file);
+
     // Upload to server
     try {
       const url = await uploadImage(file);
       setFormData(prev => ({ ...prev, icon: url }));
-      setImagePreview(url);
+      setImagePreview(normalizeImageUrl(url));
+      showNotif('success', '📷 Profile photo uploaded!');
     } catch {
       showNotif('error', 'Image upload failed. Check backend connection.');
     }
@@ -104,7 +113,7 @@ export default function TeamAdminPage() {
 
   const openAddModal = () => {
     setEditingItem(null);
-    setFormData({ icon: '', role: '', name: '', desc: '', skillsString: '' });
+    setFormData({ icon: '', role: '', name: '', desc: '', skillsString: '', order: items.length + 1 });
     setImagePreview('');
     setIsModalOpen(true);
   };
@@ -117,8 +126,9 @@ export default function TeamAdminPage() {
       name: item.name,
       desc: item.desc,
       skillsString: Array.isArray(item.skills) ? item.skills.join(', ') : '',
+      order: item.order || 0,
     });
-    setImagePreview(isUrl(item.icon) ? item.icon : '');
+    setImagePreview(isUrl(item.icon) ? normalizeImageUrl(item.icon) : '');
     setIsModalOpen(true);
   };
 
@@ -139,6 +149,7 @@ export default function TeamAdminPage() {
       name: formData.name,
       desc: formData.desc,
       skills: formData.skillsString.split(',').map(s => s.trim()).filter(Boolean),
+      order: Number(formData.order || 0),
     };
     try {
       await apiFetch(url, {
@@ -152,6 +163,23 @@ export default function TeamAdminPage() {
       showNotif('error', err.message);
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleOrderChange = async (item: TeamMember, newOrder: number) => {
+    if (newOrder < 0) return;
+    setReorderingId(item.id);
+    try {
+      await apiFetch(`/admin/api/team/${item.id}/order`, {
+        method: 'PATCH',
+        body: JSON.stringify({ order: newOrder }),
+      });
+      showNotif('success', `↕️ Position rank updated for ${item.name}!`);
+      fetchItems();
+    } catch (err: any) {
+      showNotif('error', err.message);
+    } finally {
+      setReorderingId(null);
     }
   };
 
@@ -196,17 +224,17 @@ export default function TeamAdminPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
         <div>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, margin: 0, color: '#f4f4f5' }}>
-            Team Members
+            Team Members & Position Ordering
           </h2>
           <p style={{ fontSize: 13, color: '#71717a', margin: '4px 0 0', fontFamily: "'JetBrains Mono', monospace" }}>
-            <span style={{ color: '#a855f7' }}>{items.length}</span> members &nbsp;·&nbsp; Photo uploads supported
+            <span style={{ color: '#a855f7' }}>{items.length}</span> members &nbsp;·&nbsp; Drag & Drop uploads & Position ordering supported
           </p>
         </div>
         <button className="btn-add" onClick={openAddModal}>➕ Add Member</button>
       </div>
 
       {/* ── Team Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 22 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 22 }}>
         {items.length === 0 ? (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '64px 24px', background: '#12121a', border: '1px solid #27272a', borderRadius: 12, color: '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <div style={{ fontSize: 40 }}>👥</div>
@@ -216,9 +244,38 @@ export default function TeamAdminPage() {
         ) : items.map((item, idx) => {
           const accent = ROLE_COLORS[idx % ROLE_COLORS.length];
           const hasPhoto = isUrl(item.icon);
+          const photoUrl = normalizeImageUrl(item.icon);
+
           return (
             <div key={item.id} className="member-card" style={{ '--accent': accent } as React.CSSProperties}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: accent, borderRadius: '12px 12px 0 0' }} />
+
+              {/* Order Badge & Reorder Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <span className="order-badge">
+                  RANK #{item.order || idx + 1}
+                </span>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    title="Move Up in Display Order"
+                    disabled={reorderingId === item.id || idx === 0}
+                    onClick={() => handleOrderChange(item, Math.max(0, (item.order || idx + 1) - 1))}
+                    className="btn-order"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    title="Move Down in Display Order"
+                    disabled={reorderingId === item.id || idx === items.length - 1}
+                    onClick={() => handleOrderChange(item, (item.order || idx + 1) + 1)}
+                    className="btn-order"
+                  >
+                    ▼
+                  </button>
+                </div>
+              </div>
 
               {/* Avatar */}
               <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
@@ -228,8 +285,8 @@ export default function TeamAdminPage() {
                   overflow: 'hidden', background: `${accent}18`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  {hasPhoto
-                    ? <img src={item.icon} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {hasPhoto && photoUrl
+                    ? <img src={photoUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : <span style={{ fontSize: 30 }}>{item.icon || '👤'}</span>
                   }
                 </div>
@@ -244,7 +301,7 @@ export default function TeamAdminPage() {
               </div>
 
               {/* Bio */}
-              <p style={{ fontSize: 13, color: '#a1a1aa', lineHeight: 1.7, marginBottom: 16 }}>
+              <p style={{ fontSize: 13, color: '#a1a1aa', lineHeight: 1.7, marginBottom: 16, flex: 1 }}>
                 {item.desc || <span style={{ opacity: 0.5, fontStyle: 'italic' }}>No bio yet.</span>}
               </p>
 
@@ -273,147 +330,237 @@ export default function TeamAdminPage() {
 
       {/* ─────────────────── ADD / EDIT MODAL ─────────────────── */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setIsModalOpen(false); }}>
-          <div className="modal-box" style={{ maxWidth: 580 }}>
-            {/* Header */}
-            <div style={{ padding: '24px 30px', borderBottom: '1px solid #27272a', background: 'linear-gradient(135deg, rgba(168,85,247,0.07), rgba(6,182,212,0.04))' }}>
-              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 21, fontWeight: 800, margin: 0, color: '#f4f4f5' }}>
-                {editingItem ? '✏️ Edit Team Member' : '➕ Add Team Member'}
-              </h2>
-              <p style={{ margin: '4px 0 0', fontSize: 12.5, color: '#71717a' }}>
-                Upload a photo from your gallery and fill in their details
-              </p>
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+        >
+          <div className="modal-box" style={{ maxWidth: 640 }}>
+            {/* Header Bar */}
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div className="modal-icon-badge">
+                  {editingItem ? '✏️' : '👥'}
+                </div>
+                <div>
+                  <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, margin: 0, color: '#f4f4f5', letterSpacing: '-0.02em' }}>
+                    {editingItem ? 'Edit Team Member' : 'Add New Team Member'}
+                  </h2>
+                  <p style={{ margin: '3px 0 0', fontSize: 12, color: '#94a3b8', fontFamily: "'Outfit', sans-serif" }}>
+                    Configure member profile, photo, designation, and position rank
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="modal-close-btn"
+                title="Close Modal"
+              >
+                ✕
+              </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} style={{ padding: '26px 30px', display: 'flex', flexDirection: 'column', gap: 22, overflowY: 'auto', maxHeight: '68vh' }}>
-
-              {/* ── Photo Upload Zone ── */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 12 }}>
-                  Profile Photo
-                </label>
-                <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
-                  {/* Preview circle */}
-                  <div style={{
-                    width: 88, height: 88, borderRadius: '50%', flexShrink: 0,
-                    border: '2px dashed #27272a', overflow: 'hidden',
-                    background: 'rgba(168,85,247,0.06)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
-                  }}>
-                    {imagePreview
-                      ? <img src={imagePreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : (formData.icon && !isUrl(formData.icon) ? formData.icon : '👤')
-                    }
-                  </div>
-
-                  {/* Drop zone */}
-                  <div
-                    className={`drop-zone${dragOver ? ' drag-active' : ''}`}
-                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                    onDragLeave={() => setDragOver(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{ flex: 1 }}
-                  >
-                    {uploadingImage ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                        <div className="spinner-sm" />
-                        <span style={{ fontSize: 12, color: '#a855f7' }}>Uploading...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ fontSize: 26, marginBottom: 6 }}>📷</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>Click or drag & drop</div>
-                        <div style={{ fontSize: 11, color: '#71717a', marginTop: 2 }}>JPEG, PNG, WebP · Max 5 MB</div>
-                      </>
-                    )}
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    style={{ display: 'none' }}
-                    onChange={e => handleFileSelect(e.target.files?.[0] ?? null)}
-                  />
+            {/* Scrollable Form Body */}
+            <form id="team-form" onSubmit={handleSubmit} className="modal-form-body">
+              {/* ── Photo Upload & Avatar Preview Card ── */}
+              <div className="photo-card-container">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <label className="form-label" style={{ color: '#a855f7', margin: 0 }}>
+                    📷 Profile Photo / Avatar
+                  </label>
+                  {imagePreview && (
+                    <span className="photo-loaded-tag">
+                      ✓ Photo Loaded
+                    </span>
+                  )}
                 </div>
 
-                {/* Remove photo button */}
-                {imagePreview && (
-                  <button
-                    type="button"
-                    onClick={() => { setImagePreview(''); setFormData(prev => ({ ...prev, icon: '' })); }}
-                    style={{ marginTop: 8, background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, fontWeight: 600, padding: 0 }}
-                  >
-                    ✕ Remove photo
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {/* Avatar Circle Preview */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <div className="avatar-preview-ring">
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : formData.icon && !isUrl(formData.icon) ? (
+                        <span style={{ fontSize: 38 }}>{formData.icon}</span>
+                      ) : (
+                        <span style={{ fontSize: 38 }}>👤</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Upload Drop Zone & Controls */}
+                  <div style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div
+                      className={`drop-zone${dragOver ? ' drag-active' : ''}`}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOver(true);
+                      }}
+                      onDragLeave={() => setDragOver(false)}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {uploadingImage ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                          <div className="spinner-sm" />
+                          <span style={{ fontSize: 12, color: '#a855f7', fontWeight: 600 }}>Uploading image...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#f4f4f5' }}>
+                            Click to Upload from Gallery
+                          </div>
+                          <div style={{ fontSize: 11, color: '#71717a', marginTop: 2 }}>
+                            Drag & drop JPG, PNG, WebP · Max 5 MB
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+                    />
+
+                    {/* Image URL or Emoji Fallback input */}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        className="form-input"
+                        style={{ fontSize: 12, padding: '8px 12px' }}
+                        placeholder="Or paste Image URL or Emoji (e.g. 👨‍💻)"
+                        value={formData.icon}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormData((prev) => ({ ...prev, icon: val }));
+                          if (isUrl(val)) {
+                            setImagePreview(normalizeImageUrl(val));
+                          } else {
+                            setImagePreview('');
+                          }
+                        }}
+                      />
+                      {imagePreview && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview('');
+                            setFormData((prev) => ({ ...prev, icon: '' }));
+                          }}
+                          className="btn-clear-photo"
+                        >
+                          ✕ Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Name + Role row */}
+              {/* Full Name + Role Row */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label className="form-label">Full Name <span className="req-badge">REQUIRED</span></label>
+                  <label className="form-label">
+                    Full Name <span className="req-badge">REQUIRED</span>
+                  </label>
                   <input
                     className="form-input"
                     type="text"
                     value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Samir Thapa"
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. Dipendra Gupta"
                     required
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label className="form-label">Role / Designation <span className="req-badge">REQUIRED</span></label>
+                  <label className="form-label">
+                    Role / Designation <span className="req-badge">REQUIRED</span>
+                  </label>
                   <input
                     className="form-input"
                     type="text"
                     value={formData.role}
-                    onChange={e => setFormData({ ...formData, role: e.target.value })}
-                    placeholder="e.g. Lead Developer"
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    placeholder="e.g. Lead Full-Stack Engineer"
                     required
                   />
                 </div>
               </div>
 
+              {/* Display Order Position */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label className="form-label">
+                  Display Order Rank <span style={{ fontSize: 10.5, color: '#06b6d4', fontWeight: 600, textTransform: 'none' }}>(Rank #1 appears first on website)</span>
+                </label>
+                <input
+                  className="form-input"
+                  type="number"
+                  min="0"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+                  placeholder="1, 2, 3..."
+                />
+              </div>
+
               {/* Bio */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label className="form-label">Short Bio</label>
+                <label className="form-label">Short Bio / Description</label>
                 <textarea
                   className="form-input form-textarea"
                   value={formData.desc}
-                  onChange={e => setFormData({ ...formData, desc: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
                   placeholder="Tell something inspiring about this team member..."
                 />
               </div>
 
               {/* Skills */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label className="form-label">Skills <span style={{ fontSize: 10, color: '#71717a', fontWeight: 400, textTransform: 'none' }}>comma-separated</span></label>
+                <label className="form-label">
+                  Key Skills / Tech Stack <span style={{ fontSize: 10.5, color: '#71717a', fontWeight: 400, textTransform: 'none' }}>(comma-separated)</span>
+                </label>
                 <input
                   className="form-input"
                   type="text"
                   value={formData.skillsString}
-                  onChange={e => setFormData({ ...formData, skillsString: e.target.value })}
-                  placeholder="React, Node.js, PostgreSQL, AWS"
+                  onChange={(e) => setFormData({ ...formData, skillsString: e.target.value })}
+                  placeholder="React, Next.js, Node.js, PostgreSQL, AWS"
                 />
                 {/* Live skill chips preview */}
                 {formData.skillsString.trim() && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                    {formData.skillsString.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => (
-                      <span key={i} style={{ fontSize: 10.5, padding: '3px 9px', borderRadius: 20, color: '#a855f7', background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{s}</span>
-                    ))}
+                    {formData.skillsString
+                      .split(',')
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                      .map((s, i) => (
+                        <span key={i} className="skill-chip-preview">
+                          {s}
+                        </span>
+                      ))}
                   </div>
                 )}
               </div>
             </form>
 
-            {/* Footer */}
-            <div style={{ padding: '16px 30px', borderTop: '1px solid #27272a', display: 'flex', gap: 12, background: '#0a0a0f', borderRadius: '0 0 16px 16px' }}>
-              <button type="submit" className="btn-save" onClick={handleSubmit as any} disabled={formLoading || uploadingImage}>
-                {formLoading ? '⏳ Saving...' : `💾 ${editingItem ? 'Update Member' : 'Add Member'}`}
+            {/* Sticky Footer Bar */}
+            <div className="modal-footer-bar">
+              <button
+                type="submit"
+                form="team-form"
+                className="btn-save"
+                disabled={formLoading || uploadingImage}
+              >
+                {formLoading ? '⏳ Saving Member...' : `💾 ${editingItem ? 'Update Team Member' : 'Add Team Member'}`}
               </button>
-              <button className="btn-cancel" type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
+              <button className="btn-cancel" type="button" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -422,15 +569,21 @@ export default function TeamAdminPage() {
       {/* ─────────────────── DELETE CONFIRM ─────────────────── */}
       {deletingId !== null && (
         <div className="modal-overlay">
-          <div className="modal-box" style={{ maxWidth: 400, textAlign: 'center', padding: 40 }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, margin: '0 0 10px', color: '#f4f4f5' }}>Remove Member?</h3>
-            <p style={{ fontSize: 13.5, color: '#a1a1aa', marginBottom: 28, lineHeight: 1.7 }}>
+          <div className="modal-box" style={{ maxWidth: 400, textAlign: 'center', padding: 32, margin: 'auto' }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>⚠️</div>
+            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, margin: '0 0 10px', color: '#f4f4f5' }}>
+              Remove Member?
+            </h3>
+            <p style={{ fontSize: 13.5, color: '#a1a1aa', marginBottom: 24, lineHeight: 1.7 }}>
               This will permanently remove the team member from the platform.
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn-cancel" style={{ flex: 1, padding: '12px 20px' }} onClick={() => setDeletingId(null)}>No, Keep</button>
-              <button className="btn-danger" style={{ flex: 1 }} onClick={() => deletingId && handleDelete(deletingId)}>Yes, Remove</button>
+              <button className="btn-cancel" style={{ flex: 1, padding: '12px 20px' }} onClick={() => setDeletingId(null)}>
+                No, Keep
+              </button>
+              <button className="btn-danger" style={{ flex: 1 }} onClick={() => deletingId && handleDelete(deletingId)}>
+                Yes, Remove
+              </button>
             </div>
           </div>
         </div>
@@ -447,12 +600,31 @@ const css = `
   .toast {
     position: fixed; bottom: 24px; right: 24px;
     padding: 14px 26px; border-radius: 10px;
-    font-weight: 700; font-size: 14px; z-index: 200;
+    font-weight: 700; font-size: 14px; z-index: 200000;
     animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
     font-family: 'Outfit', sans-serif;
   }
   .toast-success { background: #10b981; color: #050810; box-shadow: 0 12px 32px rgba(16,185,129,0.35); }
   .toast-error   { background: #ef4444; color: #fff;    box-shadow: 0 12px 32px rgba(239,68,68,0.35); }
+
+  .order-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; font-weight: 800;
+    color: #06b6d4; background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.25);
+    padding: 3px 8px; border-radius: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-order {
+    background: #181824; border: 1px solid #27272a;
+    color: #a1a1aa; border-radius: 5px;
+    width: 26px; height: 26px; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .btn-order:not(:disabled):hover { background: #27272a; color: #06b6d4; border-color: #06b6d4; }
+  .btn-order:disabled { opacity: 0.3; cursor: not-allowed; }
 
   .btn-add {
     padding: 11px 22px;
@@ -467,7 +639,7 @@ const css = `
 
   .member-card {
     background: #12121a; border: 1px solid #27272a;
-    border-radius: 12px; padding: 26px 22px;
+    border-radius: 12px; padding: 22px 20px;
     display: flex; flex-direction: column;
     position: relative; overflow: hidden;
     transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
@@ -479,14 +651,14 @@ const css = `
   }
 
   .drop-zone {
-    border: 1.5px dashed #27272a; border-radius: 10px;
-    padding: 20px 16px; cursor: pointer;
+    border: 1.5px dashed rgba(168,85,247,0.35); border-radius: 10px;
+    padding: 16px 14px; cursor: pointer;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; transition: border-color 0.2s, background 0.2s;
-    background: rgba(168,85,247,0.03);
+    background: rgba(168,85,247,0.04);
   }
   .drop-zone:hover, .drop-zone.drag-active {
-    border-color: #a855f7; background: rgba(168,85,247,0.07);
+    border-color: #a855f7; background: rgba(168,85,247,0.1);
   }
 
   .spinner-sm {
@@ -509,27 +681,98 @@ const css = `
 
   .form-input {
     width: 100%; box-sizing: border-box;
-    padding: 11px 14px; background: #0a0a0f;
+    padding: 11px 14px; background: #07080e;
     border: 1px solid #27272a; border-radius: 8px;
     color: #e4e4e7; font-size: 13px;
     font-family: 'Outfit', sans-serif;
     outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .form-input:focus { border-color: rgba(168,85,247,0.5); box-shadow: 0 0 0 3px rgba(168,85,247,0.08); }
-  .form-textarea { min-height: 90px; resize: vertical; line-height: 1.65; }
+  .form-input:focus { border-color: rgba(168,85,247,0.5); box-shadow: 0 0 0 3px rgba(168,85,247,0.1); }
+  .form-textarea { min-height: 85px; resize: vertical; line-height: 1.65; }
 
+  /* ── Modal Positioning & Containers ── */
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(5,5,10,0.88); backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(3, 4, 10, 0.86); backdrop-filter: blur(14px);
     display: flex; align-items: center; justify-content: center;
-    z-index: 90; padding: 20px; animation: fadeIn 0.2s ease;
+    z-index: 99999; padding: 24px; box-sizing: border-box;
+    animation: fadeIn 0.2s ease-out;
   }
   .modal-box {
-    width: 100%; background: #12121a;
-    border: 1px solid #27272a; border-radius: 16px;
-    box-shadow: 0 28px 72px rgba(0,0,0,0.6);
+    width: 100%; max-width: 640px; max-height: 88vh;
+    background: #0c0d16; border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 20px; box-shadow: 0 32px 90px rgba(0, 0, 0, 0.95);
     display: flex; flex-direction: column;
-    max-height: 94vh; overflow: hidden;
+    overflow: hidden; position: relative; z-index: 100000;
+  }
+
+  .modal-header {
+    padding: 20px 26px; border-bottom: 1px solid #27272a;
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(6,182,212,0.06));
+    display: flex; justify-content: space-between; alignItems: center;
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px);
+  }
+
+  .modal-icon-badge {
+    width: 42px; height: 42px; borderRadius: 12px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(6,182,212,0.15));
+    border: 1px solid rgba(168,85,247,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+
+  .modal-close-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: #a1a1aa; border-radius: 50%; width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; font-weight: 700; transition: all 0.2s;
+  }
+  .modal-close-btn:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #ffffff; }
+
+  .modal-form-body {
+    padding: 24px 28px; display: flex; flex-direction: column; gap: 20px;
+    overflow-y: auto; flex: 1;
+  }
+
+  .photo-card-container {
+    background: #07080e; border: 1px solid #27272a; borderRadius: 14px; padding: 18px;
+  }
+
+  .avatar-preview-ring {
+    width: 90px; height: 90px; borderRadius: 50%; flex-shrink: 0;
+    border: 3px solid rgba(168,85,247,0.45); overflow: hidden;
+    background: rgba(168,85,247,0.08);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6); position: relative;
+  }
+
+  .photo-loaded-tag {
+    font-size: 10px; font-weight: 800; color: #10b981;
+    background: rgba(16,185,129,0.15); padding: 3px 8px;
+    border-radius: 10px; border: 1px solid rgba(16,185,129,0.3);
+  }
+
+  .btn-clear-photo {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    color: #ef4444; border-radius: 6px; padding: 8px 12px;
+    font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .btn-clear-photo:hover { background: rgba(239,68,68,0.2); }
+
+  .skill-chip-preview {
+    font-size: 10.5px; padding: 3px 9px; borderRadius: 20px;
+    color: #a855f7; background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.25);
+    font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  }
+
+  .modal-footer-bar {
+    padding: 16px 28px; border-top: 1px solid #27272a;
+    display: flex; gap: 12px; background: #07080d;
+    position: sticky; bottom: 0; z-index: 10;
   }
 
   .btn-edit {
@@ -556,7 +799,7 @@ const css = `
     border: none; border-radius: 8px;
     color: #fff; font-size: 13.5px; font-weight: 700;
     cursor: pointer; font-family: 'Outfit', sans-serif;
-    box-shadow: 0 4px 14px rgba(168,85,247,0.25);
+    box-shadow: 0 4px 14px rgba(168,85,247,0.3);
     transition: opacity 0.2s, transform 0.15s;
   }
   .btn-save:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -582,3 +825,5 @@ const css = `
   }
   .btn-danger:hover { transform: translateY(-1.5px); }
 `;
+
+

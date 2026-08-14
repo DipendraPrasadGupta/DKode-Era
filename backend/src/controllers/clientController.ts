@@ -56,8 +56,13 @@ export const getFAQs = async (req: Request, res: Response, next: NextFunction) =
 // GET Team
 export const getTeam = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const team = await prisma.teamMember.findMany();
-    const formattedTeam = team.map(t => ({
+    const team = await (prisma as any).teamMember.findMany({
+      orderBy: [
+        { order: 'asc' },
+        { id: 'asc' },
+      ],
+    });
+    const formattedTeam = team.map((t: any) => ({
       ...t,
       skills: JSON.parse(t.skills)
     }));

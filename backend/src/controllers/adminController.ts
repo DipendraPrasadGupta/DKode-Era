@@ -175,11 +175,37 @@ export const deleteFAQ = async (req: AuthenticatedRequest, res: Response, next: 
 
 // ─── TEAM CRUD ────────────────────────────────────────────────────────────────
 
+export const getTeamAdmin = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const team = await (prisma as any).teamMember.findMany({
+      orderBy: [
+        { order: 'asc' },
+        { id: 'asc' },
+      ],
+    });
+    const formattedTeam = team.map((t: any) => ({
+      ...t,
+      skills: JSON.parse(t.skills)
+    }));
+    res.json(formattedTeam);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const createTeam = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { icon, role, name, desc, skills } = req.body;
-    const item = await prisma.teamMember.create({ data: { icon, role, name, desc, skills: JSON.stringify(skills || []) } });
+    const { icon, role, name, desc, skills, order } = req.body;
+    const item = await (prisma as any).teamMember.create({
+      data: {
+        icon: String(icon || '').trim(),
+        role: String(role || '').trim(),
+        name: String(name || '').trim(),
+        desc: String(desc || '').trim(),
+        skills: JSON.stringify(skills || []),
+        order: Number(order || 0),
+      },
+    });
     res.json({ ...item, skills: JSON.parse(item.skills) });
   } catch (error) {
     next(error);
@@ -188,8 +214,34 @@ export const createTeam = async (req: AuthenticatedRequest, res: Response, next:
 
 export const updateTeam = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { icon, role, name, desc, skills } = req.body;
-    const item = await prisma.teamMember.update({ where: { id: Number(req.params.id) }, data: { icon, role, name, desc, skills: JSON.stringify(skills || []) } });
+    const id = Number(req.params.id);
+    const { icon, role, name, desc, skills, order } = req.body;
+    const dataToUpdate: any = {};
+    if (icon !== undefined) dataToUpdate.icon = String(icon).trim();
+    if (role !== undefined) dataToUpdate.role = String(role).trim();
+    if (name !== undefined) dataToUpdate.name = String(name).trim();
+    if (desc !== undefined) dataToUpdate.desc = String(desc).trim();
+    if (skills !== undefined) dataToUpdate.skills = JSON.stringify(skills || []);
+    if (order !== undefined) dataToUpdate.order = Number(order);
+
+    const item = await (prisma as any).teamMember.update({
+      where: { id },
+      data: dataToUpdate,
+    });
+    res.json({ ...item, skills: JSON.parse(item.skills) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateTeamOrder = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = Number(req.params.id);
+    const { order } = req.body;
+    const item = await (prisma as any).teamMember.update({
+      where: { id },
+      data: { order: Number(order || 0) },
+    });
     res.json({ ...item, skills: JSON.parse(item.skills) });
   } catch (error) {
     next(error);
@@ -198,7 +250,7 @@ export const updateTeam = async (req: AuthenticatedRequest, res: Response, next:
 
 export const deleteTeam = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    await prisma.teamMember.delete({ where: { id: Number(req.params.id) } });
+    await (prisma as any).teamMember.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
   } catch (error) {
     next(error);
