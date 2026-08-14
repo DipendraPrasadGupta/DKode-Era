@@ -214,7 +214,7 @@ export const getTestimonialsAdmin = async (req: AuthenticatedRequest, res: Respo
     if (status && typeof status === 'string' && status !== 'all') {
       whereClause.status = status;
     }
-    const testimonials = await prisma.testimonial.findMany({
+    const testimonials = await (prisma as any).testimonial.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
     });
@@ -226,23 +226,25 @@ export const getTestimonialsAdmin = async (req: AuthenticatedRequest, res: Respo
 
 export const createTestimonial = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const { stars, quote, icon, name, biz, company, position, email, status, featured } = req.body;
+    const { stars, rating, quote, message, icon, image, name, company, position, email, biz, status, featured } = req.body;
     const combinedBiz = String(biz || '').trim() ||
       (position && company ? `${position}, ${company}` : company || position || '');
 
-    const testimonial = await prisma.testimonial.create({
-      data: {
-        stars: Number(stars || 5),
-        quote: String(quote || '').trim(),
-        icon: String(icon || '').trim(),
-        name: String(name || '').trim(),
-        email: String(email || '').trim(),
-        company: String(company || '').trim(),
-        position: String(position || '').trim(),
-        biz: combinedBiz,
-        status: String(status || 'Approved'),
-        featured: Boolean(featured),
-      },
+    const testimonialData: any = {
+      name: String(name || '').trim(),
+      email: String(email || '').trim(),
+      company: String(company || '').trim(),
+      position: String(position || '').trim(),
+      biz: combinedBiz,
+      quote: String(quote || message || '').trim(),
+      stars: Number(stars || rating || 5),
+      icon: String(icon || image || '').trim(),
+      status: String(status || 'Approved'),
+      featured: Boolean(featured),
+    };
+
+    const testimonial = await (prisma as any).testimonial.create({
+      data: testimonialData,
     });
     res.json(testimonial);
   } catch (error) {
@@ -253,16 +255,16 @@ export const createTestimonial = async (req: AuthenticatedRequest, res: Response
 export const updateTestimonial = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
-    const { stars, quote, icon, name, biz, company, position, email, status, featured } = req.body;
+    const { stars, rating, quote, message, icon, image, name, company, position, email, biz, status, featured } = req.body;
 
     const dataToUpdate: any = {};
-    if (stars !== undefined) dataToUpdate.stars = Number(stars);
-    if (quote !== undefined) dataToUpdate.quote = String(quote).trim();
-    if (icon !== undefined) dataToUpdate.icon = String(icon).trim();
     if (name !== undefined) dataToUpdate.name = String(name).trim();
     if (email !== undefined) dataToUpdate.email = String(email).trim();
     if (company !== undefined) dataToUpdate.company = String(company).trim();
     if (position !== undefined) dataToUpdate.position = String(position).trim();
+    if (quote !== undefined || message !== undefined) dataToUpdate.quote = String(quote || message || '').trim();
+    if (stars !== undefined || rating !== undefined) dataToUpdate.stars = Number(stars || rating);
+    if (icon !== undefined || image !== undefined) dataToUpdate.icon = String(icon || image || '').trim();
     if (status !== undefined) dataToUpdate.status = String(status);
     if (featured !== undefined) dataToUpdate.featured = Boolean(featured);
 
@@ -272,7 +274,7 @@ export const updateTestimonial = async (req: AuthenticatedRequest, res: Response
       dataToUpdate.biz = (dataToUpdate.position && dataToUpdate.company ? `${dataToUpdate.position}, ${dataToUpdate.company}` : dataToUpdate.company || dataToUpdate.position || '');
     }
 
-    const updated = await prisma.testimonial.update({
+    const updated = await (prisma as any).testimonial.update({
       where: { id },
       data: dataToUpdate,
     });
@@ -291,7 +293,7 @@ export const updateTestimonialStatus = async (req: AuthenticatedRequest, res: Re
     if (status !== undefined) dataToUpdate.status = String(status);
     if (featured !== undefined) dataToUpdate.featured = Boolean(featured);
 
-    const updated = await prisma.testimonial.update({
+    const updated = await (prisma as any).testimonial.update({
       where: { id },
       data: dataToUpdate,
     });
@@ -303,7 +305,8 @@ export const updateTestimonialStatus = async (req: AuthenticatedRequest, res: Re
 
 export const deleteTestimonial = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    await prisma.testimonial.delete({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    await (prisma as any).testimonial.delete({ where: { id } });
     res.json({ success: true });
   } catch (error) {
     next(error);

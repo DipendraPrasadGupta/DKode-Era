@@ -70,7 +70,7 @@ export const getTeam = async (req: Request, res: Response, next: NextFunction) =
 // GET Approved Testimonials (Public)
 export const getTestimonials = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const testimonials = await prisma.testimonial.findMany({
+    const testimonials = await (prisma as any).testimonial.findMany({
       where: {
         NOT: { status: 'Rejected' },
       },
@@ -101,27 +101,27 @@ export const submitTestimonial = async (req: Request, res: Response, next: NextF
     const reviewerEmail = String(email || '').trim().toLowerCase();
     const reviewerCompany = String(company || '').trim();
     const reviewerPosition = String(position || '').trim();
-    
-    // Combine company and position for display in `biz`
-    const combinedBiz = String(biz || '').trim() || 
+    const combinedBiz = String(biz || '').trim() ||
       (reviewerPosition && reviewerCompany ? `${reviewerPosition}, ${reviewerCompany}` : reviewerCompany || reviewerPosition || 'Valued Client');
 
     const numStars = Math.max(1, Math.min(5, Number(stars || rating || 5)));
     const avatarIcon = String(icon || image || '').trim();
 
-    const testimonial = await prisma.testimonial.create({
-      data: {
-        name: reviewerName,
-        email: reviewerEmail,
-        company: reviewerCompany,
-        position: reviewerPosition,
-        biz: combinedBiz,
-        quote: reviewerQuote,
-        stars: numStars,
-        icon: avatarIcon,
-        status: 'Pending',
-        featured: false,
-      },
+    const testimonialData: any = {
+      name: reviewerName,
+      email: reviewerEmail,
+      company: reviewerCompany,
+      position: reviewerPosition,
+      biz: combinedBiz,
+      quote: reviewerQuote,
+      stars: numStars,
+      icon: avatarIcon,
+      status: 'Pending',
+      featured: false,
+    };
+
+    const testimonial = await (prisma as any).testimonial.create({
+      data: testimonialData,
     });
 
     res.status(201).json({
