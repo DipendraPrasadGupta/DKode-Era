@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { apiFetch, API_URL } from '@/lib/api';
+import { apiFetch, API_URL, normalizeImageUrl } from '@/lib/api';
 import { getBlogBySlug, getBlogComments, getBlogs, likeBlog, postBlogComment, viewBlog } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
@@ -54,10 +54,7 @@ function formatCount(n: number) {
   return n.toString();
 }
 
-const norm = (u?: string | null) => {
-  if (!u) return '';
-  return u.startsWith('http') ? u : `${API_URL}${u.startsWith('/') ? u : '/' + u}`;
-};
+const norm = (u?: string | null) => normalizeImageUrl(u);
 
 function estimateWordCount(text: string) {
   return text.trim().split(/\s+/).length;
@@ -265,7 +262,7 @@ export default function BlogDetailPage() {
             style={{
               position: 'absolute', inset: 0,
               width: '100%', height: '100%',
-              objectFit: 'fill', objectPosition: 'center',
+              objectFit: 'cover', objectPosition: 'center',
               zIndex: 0,
             }}
           />

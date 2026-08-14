@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, normalizeImageUrl } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
 interface TeamSectionProps {
@@ -95,7 +95,7 @@ export default function TeamSection({ colors, t, lang }: TeamSectionProps) {
                 >
                   {hasPhoto ? (
                     <img 
-                      src={m.icon} 
+                      src={normalizeImageUrl(m.icon)} 
                       alt={m.name} 
                       style={{ 
                         width: '100%', 

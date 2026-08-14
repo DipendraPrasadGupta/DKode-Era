@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { apiFetch, API_URL } from '../../../lib/api';
+import { apiFetch, API_URL, normalizeImageUrl } from '../../../lib/api';
 import { getBlogs } from '@/lib/api/blogs';
 
 interface Blog {
@@ -648,9 +648,7 @@ export default function AdminBlogsPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
           {filtered.map((blog) => {
-            const imgSrc = blog.coverImage
-              ? (blog.coverImage.startsWith('http') ? blog.coverImage : `${API_URL}${blog.coverImage.startsWith('/') ? blog.coverImage : '/' + blog.coverImage}`)
-              : '';
+            const imgSrc = blog.coverImage ? normalizeImageUrl(blog.coverImage) : '';
             return (
             <div
               key={blog.id}

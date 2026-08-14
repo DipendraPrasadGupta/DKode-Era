@@ -1,5 +1,43 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+export function getFallbackApiUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    if (typeof window !== "undefined" && window.location?.hostname) {
+      const hostname = window.location.hostname;
+      if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+        return process.env.NEXT_PUBLIC_API_URL.replace(/localhost|127\.0\.0\.1/g, hostname);
+      }
+    }
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    const hostname = window.location.hostname;
+    return `http://${hostname}:5000`;
+  }
+
+  return "http://localhost:5000";
+}
+
+const API_URL = getFallbackApiUrl();
+
+export function normalizeImageUrl(url?: string | null): string {
+  if (!url) return '';
+
+  let normalized = url;
+
+  // Replace hardcoded localhost:5000 or 127.0.0.1:5000 with active API URL hostname when accessed on mobile/LAN IP
+  if (normalized.includes('localhost:5000') || normalized.includes('127.0.0.1:5000')) {
+    const activeApiUrl = getFallbackApiUrl();
+    normalized = normalized.replace(/http:\/\/(localhost|127\.0\.0\.1):5000/g, activeApiUrl);
+  }
+
+  if (normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('data:')) {
+    return normalized;
+  }
+
+  const activeApiUrl = getFallbackApiUrl();
+  const cleanPath = normalized.startsWith('/') ? normalized : '/' + normalized;
+  return `${activeApiUrl}${cleanPath}`;
+}
 
 function getStoredToken() {
   if (typeof window === "undefined") return null;
@@ -15,6 +53,7 @@ export async function apiFetch(
   options: RequestInit = {}
 ) {
   const token = getStoredToken();
+  const activeApiUrl = getFallbackApiUrl();
 
   const isFormData =
     typeof FormData !== "undefined" &&
@@ -38,7 +77,7 @@ export async function apiFetch(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${activeApiUrl}${endpoint}`, {
     ...options,
     headers,
     credentials: "include",
@@ -61,4 +100,4 @@ export async function apiFetch(
   return response.text();
 }
 
-export { API_URL };
+export { API_URL };

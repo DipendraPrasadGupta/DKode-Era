@@ -105,9 +105,7 @@ const upload = multer({
 
 router.post('/api/upload', authMiddleware, upload.single('image'), (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: 'No file provided.' }) as any;
-  const host = req.get('host') || `localhost:${process.env.PORT || '5000'}`;
-  const protocol = req.protocol || 'http';
-  const url = `${protocol}://${host}/uploads/${req.file.filename}`;
+  const url = `/uploads/${req.file.filename}`;
   res.json({ url });
 });
 

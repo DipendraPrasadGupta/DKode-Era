@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { getBlogs } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
-import { API_URL } from '@/lib/api';
+import { API_URL, normalizeImageUrl } from '@/lib/api';
 
-const norm = (u?: string | null) => {
-  if (!u) return '';
-  return u.startsWith('http') ? u : `${API_URL}${u.startsWith('/') ? u : '/' + u}`;
-};
+const norm = (u?: string | null) => normalizeImageUrl(u);
 
 interface Blog {
   id: number;
