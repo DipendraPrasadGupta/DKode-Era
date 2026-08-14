@@ -13,10 +13,16 @@ import prisma from './config/prisma';
 
 const app = express();
 
+// Trust reverse proxy (Cloudflare, Nginx, Vercel, Heroku) for accurate IP rate limiting
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
 // ─── SECURITY HEADERS ────────────────────────────────────────────────────────
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images to load cross-origin
   contentSecurityPolicy: false, // Disable CSP in dev — images served from :5000 load on :3000
+  noSniff: true,
+  xssFilter: true,
 }));
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
@@ -59,6 +65,9 @@ app.use('/admin/api/auth/login', strictLimiter);
 app.use('/api/contact', strictLimiter);
 app.use('/api/messages', strictLimiter);
 app.use('/api/orders', strictLimiter);
+app.use('/api/apply', strictLimiter);
+app.use('/api/cv-upload', strictLimiter);
+app.use('/api/blogs/:slug/comments', strictLimiter);
 
 // ─── BODY PARSING ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
@@ -67,9 +76,15 @@ app.use(express.urlencoded({ extended: true }));
 // ─── REQUEST LOGGER ───────────────────────────────────────────────────────────
 app.use(loggerMiddleware);
 
-// ─── STATIC ASSETS ────────────────────────────────────────────────────────────
+// ─── STATIC ASSETS & UPLOADS SECURITY ─────────────────────────────────────────
 app.use('/admin/assets', express.static(path.join(__dirname, '../admin/assets')));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Serve uploads with no-sniff security header
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
+
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {

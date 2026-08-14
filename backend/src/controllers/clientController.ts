@@ -99,26 +99,41 @@ export const getAboutPage = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+const isValidEmail = (email?: string): boolean => {
+  if (!email || typeof email !== 'string') return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+};
+
+const sanitizeText = (str?: string, maxLen = 2000): string => {
+  if (!str || typeof str !== 'string') return '';
+  return str.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, maxLen);
+};
+
 // POST Contact Form
 export const submitContactForm = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, phone, email, company, service, budget, timeline, message } = req.body;
 
-    if (!name || !email || !message) {
+    if (!name || !name.trim() || !email || !email.trim() || !message || !message.trim()) {
       res.status(400).json({ error: 'Name, email, and message are required.' });
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: 'Please provide a valid email address.' });
       return;
     }
 
     const newMessage = await prisma.contactMessage.create({
       data: {
-        name,
-        phone: phone || '',
-        email,
-        company: company || '',
-        serviceNeeded: service || '',
-        budget: budget || '',
-        timeline: timeline || '',
-        message
+        name: sanitizeText(name, 100),
+        phone: sanitizeText(phone, 30),
+        email: email.trim().toLowerCase().slice(0, 120),
+        company: sanitizeText(company, 100),
+        serviceNeeded: sanitizeText(service, 100),
+        budget: sanitizeText(budget, 50),
+        timeline: sanitizeText(timeline, 50),
+        message: sanitizeText(message, 3000)
       }
     });
 
@@ -138,18 +153,23 @@ export const submitJobApplication = async (req: Request, res: Response, next: Ne
       return;
     }
 
+    if (!isValidEmail(email)) {
+      res.status(400).json({ error: 'Please provide a valid email address.' });
+      return;
+    }
+
     const application = await (prisma as any).jobApplication.create({
       data: {
         careerId: Number(careerId),
-        careerTitle: careerTitle || '',
-        department: department || '',
-        name,
-        email,
-        phone: phone || '',
-        portfolio: portfolio || '',
-        cvUrl: cvUrl || '',
-        resumeLink: resumeLink || '',
-        coverNote,
+        careerTitle: sanitizeText(careerTitle, 150),
+        department: sanitizeText(department, 100),
+        name: sanitizeText(name, 100),
+        email: email.trim().toLowerCase().slice(0, 120),
+        phone: sanitizeText(phone, 30),
+        portfolio: sanitizeText(portfolio, 250),
+        cvUrl: sanitizeText(cvUrl, 250),
+        resumeLink: sanitizeText(resumeLink, 250),
+        coverNote: sanitizeText(coverNote, 3000),
         status: 'New',
       },
     });
@@ -170,15 +190,20 @@ export const submitOrder = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
+    if (!isValidEmail(userEmail)) {
+      res.status(400).json({ error: 'Please provide a valid email address.' });
+      return;
+    }
+
     const newOrder = await prisma.serviceOrder.create({
       data: {
-        serviceName,
-        tierName,
-        price,
-        userName,
-        userEmail,
-        userPhone,
-        message
+        serviceName: sanitizeText(serviceName, 100),
+        tierName: sanitizeText(tierName, 100),
+        price: sanitizeText(price, 50),
+        userName: sanitizeText(userName, 100),
+        userEmail: userEmail.trim().toLowerCase().slice(0, 120),
+        userPhone: sanitizeText(userPhone, 30),
+        message: sanitizeText(message, 2000)
       }
     });
 
@@ -462,13 +487,18 @@ export const postComment = async (req: Request, res: Response, next: NextFunctio
     });
     if (!blog) { res.status(404).json({ error: 'Blog not found' }); return; }
 
+    if (email && !isValidEmail(email)) {
+      res.status(400).json({ error: 'Please provide a valid email address.' });
+      return;
+    }
+
     const comment = await (prisma as any).blogComment.create({
       data: {
         blogId: blog.id,
-        name: name.trim().slice(0, 80),
-        email: (email || '').trim().slice(0, 120),
+        name: sanitizeText(name, 80),
+        email: email ? email.trim().toLowerCase().slice(0, 120) : '',
         avatar: name.trim().charAt(0).toUpperCase(),
-        content: content.trim().slice(0, 2000),
+        content: sanitizeText(content, 2000),
         approved: true,
       },
       select: { id: true, name: true, avatar: true, content: true, createdAt: true },

@@ -104,19 +104,7 @@ export default function AdminCareersPage() {
   };
 
   const getAuthToken = async (): Promise<string | null> => {
-    let token = localStorage.getItem('adminToken');
-    if (token) return token;
-    try {
-      const data = await apiFetch('/admin/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ username: 'admin', password: 'admin123' }),
-      });
-      if (data?.token) {
-        localStorage.setItem('adminToken', data.token);
-        return data.token;
-      }
-    } catch { }
-    return null;
+    return localStorage.getItem('adminToken');
   };
 
   const fetchCareers = async () => {

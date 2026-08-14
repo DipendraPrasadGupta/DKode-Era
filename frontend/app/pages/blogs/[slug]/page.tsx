@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiFetch, API_URL, normalizeImageUrl } from '@/lib/api';
 import { getBlogBySlug, getBlogComments, getBlogs, likeBlog, postBlogComment, viewBlog } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
+import { sanitizeHtml } from '@/lib/security';
 
 interface Blog {
   id: number;
@@ -532,7 +533,7 @@ export default function BlogDetailPage() {
             <div
               className="blog-content"
               style={{ fontSize: 17, lineHeight: 1.9, color: tk.text }}
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(blog.content) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderMarkdown(blog.content)) }}
             />
           </article>
 

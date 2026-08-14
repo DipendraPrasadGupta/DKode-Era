@@ -4,10 +4,12 @@ import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { env } from '../config/env';
 import { authMiddleware } from '../middleware/auth';
 import {
   login,
   getMe,
+  changePassword,
   createService,
   updateService,
   deleteService,
@@ -63,20 +65,19 @@ router.post('/api/blogs', authMiddleware, createBlogAdmin);
 router.put('/api/blogs/:id', authMiddleware, updateBlogAdmin);
 router.delete('/api/blogs/:id', authMiddleware, deleteBlogAdmin);
 
-// Helper to seed default admin on boot
+// Helper to seed/update default admin on boot
 async function ensureDefaultAdmin() {
   try {
-    const adminCount = await prisma.admin.count();
-    if (adminCount === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      await prisma.admin.create({
-        data: {
-          username: 'admin',
-          password: hashedPassword,
-        },
-      });
-      console.log('✅ Default admin user created (admin / admin123)');
-    }
+    const hashedPassword = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
+    await prisma.admin.upsert({
+      where: { username: 'admin' },
+      update: { password: hashedPassword },
+      create: {
+        username: 'admin',
+        password: hashedPassword,
+      },
+    });
+    console.log(`✅ Admin credentials synchronized for username: admin`);
   } catch (err) {
     console.error('❌ Error ensuring default admin user:', err);
   }
@@ -118,6 +119,7 @@ router.get('/', (_req: Request, res: Response) => {
 // ─── AUTH ENDPOINTS ───────────────────────────────────────────────────────────
 router.post('/api/auth/login', login);
 router.get('/api/auth/me', authMiddleware, getMe);
+router.post('/api/auth/change-password', authMiddleware, changePassword);
 
 // ─── SERVICES CRUD ───────────────────────────────────────────────────────────
 router.get('/api/services', authMiddleware, getServices);

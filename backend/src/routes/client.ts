@@ -41,10 +41,20 @@ const cvUpload = multer({
   storage: cvStorage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
   fileFilter: (_req, file, cb) => {
-    const allowed = ['.pdf', '.doc', '.docx'];
+    const allowedExts = ['.pdf', '.doc', '.docx'];
+    const allowedMimes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/x-pdf',
+    ];
+
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) cb(null, true);
-    else cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
+    if (allowedExts.includes(ext) && (allowedMimes.includes(file.mimetype) || !file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
+    }
   },
 });
 
@@ -52,7 +62,7 @@ router.post('/cv-upload', cvUpload.single('cv'), (req: Request, res: Response) =
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  const url = `http://localhost:5000/uploads/cv/${req.file.filename}`;
+  const url = `/uploads/cv/${req.file.filename}`;
   return res.json({ url, filename: req.file.filename });
 });
 

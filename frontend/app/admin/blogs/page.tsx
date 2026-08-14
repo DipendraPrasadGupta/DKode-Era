@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch, API_URL, normalizeImageUrl } from '../../../lib/api';
 import { getAdminBlogs } from '@/lib/api/blogs';
+import { sanitizeHtml } from '../../../lib/security';
 
 interface Blog {
   id: number;
@@ -96,22 +97,9 @@ export default function AdminBlogsPage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Helper to obtain a valid JWT token, with automatic fallback authentication if token expired/missing
+  // Helper to obtain a valid JWT token from localStorage
   const getAuthToken = async (): Promise<string | null> => {
-    let token = localStorage.getItem('adminToken');
-    if (token) return token;
-
-    try {
-      const data = await apiFetch('/admin/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ username: 'admin', password: 'admin123' }),
-      });
-      if (data?.token) {
-        localStorage.setItem('adminToken', data.token);
-        return data.token;
-      }
-    } catch { }
-    return null;
+    return localStorage.getItem('adminToken');
   };
 
   const fetchBlogs = async () => {
@@ -1284,7 +1272,7 @@ export default function AdminBlogsPage() {
                       {/* Body content — rendered */}
                       <div
                         className="blog-preview-content"
-                        dangerouslySetInnerHTML={{ __html: content ? renderMarkdown(content) : '<p style="color:#3f3f46;font-style:italic">Start writing content to see a live preview…</p>' }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content ? renderMarkdown(content) : '<p style="color:#3f3f46;font-style:italic">Start writing content to see a live preview…</p>') }}
                       />
                     </div>
                     {/* Preview styles */}

@@ -46,6 +46,46 @@ export const getMe = (req: AuthenticatedRequest, res: Response) => {
   res.json({ user: req.admin });
 };
 
+export const changePassword = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const adminId = req.admin?.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!adminId) {
+      res.status(401).json({ error: 'Unauthorized.' });
+      return;
+    }
+
+    if (!currentPassword || !newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+      res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+      return;
+    }
+
+    const admin = await prisma.admin.findUnique({ where: { id: adminId } });
+    if (!admin) {
+      res.status(404).json({ error: 'Admin account not found.' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+      res.status(400).json({ error: 'Incorrect current password.' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.admin.update({
+      where: { id: adminId },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ success: true, message: 'Password updated successfully.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 // ─── SERVICES CRUD ───────────────────────────────────────────────────────────
 
 
