@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch, API_URL, normalizeImageUrl } from '../../../lib/api';
-import { getBlogs } from '@/lib/api/blogs';
+import { getAdminBlogs } from '@/lib/api/blogs';
 
 interface Blog {
   id: number;
@@ -117,7 +117,7 @@ export default function AdminBlogsPage() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const data = await getBlogs();
+      const data = await getAdminBlogs();
       setBlogs(data);
     } catch (err) {
       console.error('Error fetching blogs:', err);
@@ -194,6 +194,7 @@ export default function AdminBlogsPage() {
       alert('Error uploading image');
     } finally {
       setUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -874,7 +875,7 @@ export default function AdminBlogsPage() {
                 </div>
                 {coverImage && (
                   <div style={{ marginTop: 8, height: 110, borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: '#090d18' }}>
-                    <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    <img src={normalizeImageUrl(coverImage)} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
               </div>
@@ -1043,7 +1044,7 @@ export default function AdminBlogsPage() {
                               </div>
                               {imgUrl && (
                                 <div style={{ background: '#04060f', borderRadius: 8, padding: 8, textAlign: 'center' }}>
-                                  <img src={imgUrl} alt="preview" style={{ maxHeight: 120, maxWidth: '100%', borderRadius: 6, objectFit: 'contain' }} />
+                                  <img src={normalizeImageUrl(imgUrl)} alt="preview" style={{ maxHeight: 120, maxWidth: '100%', borderRadius: 6, objectFit: 'contain' }} />
                                 </div>
                               )}
                             </div>
@@ -1253,14 +1254,14 @@ export default function AdminBlogsPage() {
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                         Article Preview — As it Appears on Blog
                       </span>
-                      {coverImage && <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="cover" style={{ height: 18, width: 30, objectFit: 'cover', borderRadius: 3, marginLeft: 'auto', opacity: 0.7 }} />}
+                      {coverImage && <img src={normalizeImageUrl(coverImage)} alt="cover" style={{ height: 18, width: 30, objectFit: 'cover', borderRadius: 3, marginLeft: 'auto', opacity: 0.7 }} />}
                     </div>
                     {/* Preview article */}
                     <div style={{ padding: '28px 32px', maxHeight: 520, overflowY: 'auto' }}>
                       {/* Cover image */}
                       {coverImage && (
                         <div style={{ marginBottom: 24, borderRadius: 12, overflow: 'hidden', maxHeight: 200 }}>
-                          <img src={coverImage.startsWith('http') ? coverImage : `${API_URL}${coverImage.startsWith('/') ? coverImage : '/' + coverImage}`} alt="cover" style={{ width: '100%', height: 200, objectFit: 'cover' }} />
+                          <img src={normalizeImageUrl(coverImage)} alt="cover" style={{ width: '100%', height: 200, objectFit: 'cover' }} />
                         </div>
                       )}
                       {/* Category + meta bar */}
