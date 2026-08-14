@@ -22,8 +22,32 @@ export async function updateTestimonial(id: number, data: unknown) {
   });
 }
 
+export async function submitTestimonial(data: {
+  name: string;
+  email?: string;
+  company?: string;
+  position?: string;
+  biz?: string;
+  quote: string;
+  stars?: number;
+  icon?: string;
+}) {
+  return apiFetch("/api/testimonials", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export async function deleteTestimonial(id: number) {
   return apiFetch(`/admin/api/testimonials/${id}`, {
     method: "DELETE",
   });
 }
+
+export async function updateTestimonialStatus(id: number, data: { status?: string; featured?: boolean }) {
+  return apiFetch(`/admin/api/testimonials/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+

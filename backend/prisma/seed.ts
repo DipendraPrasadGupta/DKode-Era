@@ -192,15 +192,8 @@ async function main() {
     ],
   });
 
-  // Testimonials
-  await prisma.testimonial.createMany({
-    data: [
-      { stars: 5, quote: 'D-Kode Era transformed our online presence completely. Highly recommended!', icon: '👩‍💼', name: 'Anita Sharma', biz: 'CEO, NepalMart' },
-      { stars: 5, quote: 'Professional, timely, and the quality exceeded our expectations.', icon: '👨‍💻', name: 'Bikash Tamang', biz: 'CTO, MedConnect' },
-      { stars: 5, quote: 'Their AI solutions helped us automate 60% of our manual processes.', icon: '👩‍🔬', name: 'Kavita Limbu', biz: 'Director, FarmLink' },
-      { stars: 5, quote: 'The best tech partner we have ever worked with. True experts in their field.', icon: '👨‍🏫', name: 'Deepak Adhikari', biz: 'Founder, LearnNepal' },
-    ],
-  });
+  // Testimonials (No seed data — managed via User Submissions & Admin Panel)
+  await prisma.testimonial.deleteMany();
 
   // About Page (singleton)
   await prisma.aboutPage.create({

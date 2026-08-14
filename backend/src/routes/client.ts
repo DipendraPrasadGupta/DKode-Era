@@ -8,6 +8,7 @@ import {
   getFAQs,
   getTeam, 
   getTestimonials,
+  submitTestimonial,
   getAboutPage,
   getProductEcosystem,
   getBlogs,
@@ -23,7 +24,16 @@ import {
   submitOrder
 } from '../controllers/clientController';
 
+import rateLimit from 'express-rate-limit';
+
 const router = Router();
+const testimonialLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many testimonials submitted. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ─── CV / Resume Upload (public) ─────────────────────────────────────────────
 const cvUploadsDir = path.join(__dirname, '../../uploads/cv');
@@ -32,28 +42,26 @@ if (!fs.existsSync(cvUploadsDir)) fs.mkdirSync(cvUploadsDir, { recursive: true }
 const cvStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, cvUploadsDir),
   filename: (_req, file, cb) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${Date.now()}_${safeName}`);
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
   },
 });
 
 const cvUpload = multer({
   storage: cvStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
   fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
     const allowedExts = ['.pdf', '.doc', '.docx'];
     const allowedMimes = [
       'application/pdf',
       'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/x-pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
-
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedExts.includes(ext) && (allowedMimes.includes(file.mimetype) || !file.mimetype)) {
+    if (allowedExts.includes(ext) && allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
+      cb(new Error('Invalid file type. Only PDF and Word documents (.pdf, .doc, .docx) are allowed.'));
     }
   },
 });
@@ -66,6 +74,38 @@ router.post('/cv-upload', cvUpload.single('cv'), (req: Request, res: Response) =
   return res.json({ url, filename: req.file.filename });
 });
 
+// ─── AVATAR / IMAGE UPLOAD (public for reviews) ─────────────────────────────
+const avatarUploadsDir = path.join(__dirname, '../../uploads/avatars');
+if (!fs.existsSync(avatarUploadsDir)) fs.mkdirSync(avatarUploadsDir, { recursive: true });
+
+const avatarStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, avatarUploadsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  },
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  fileFilter: (_req, file, cb) => {
+    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, WebP, or GIF image files are allowed.'));
+    }
+  },
+});
+
+router.post('/avatar-upload', avatarUpload.single('image'), (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No image file uploaded' });
+  }
+  const url = `/uploads/avatars/${req.file.filename}`;
+  return res.json({ url, filename: req.file.filename });
+});
+
 // GET endpoints for client landing page
 router.get('/services/:slug', getServiceBySlug);
 router.get('/services', getServices);
@@ -73,6 +113,8 @@ router.get('/faqs', getFAQs);
 
 router.get('/team', getTeam);
 router.get('/testimonials', getTestimonials);
+router.post('/testimonials', testimonialLimiter, submitTestimonial);
+
 router.get('/about', getAboutPage);
 router.get('/products', getProductEcosystem);
 router.get('/careers/:id', getCareerById);

@@ -20,8 +20,10 @@ import {
   createTeam,
   updateTeam,
   deleteTeam,
+  getTestimonialsAdmin,
   createTestimonial,
   updateTestimonial,
+  updateTestimonialStatus,
   deleteTestimonial,
   getMessages,
   deleteMessage,
@@ -152,9 +154,10 @@ router.put('/api/team/:id', authMiddleware, updateTeam);
 router.delete('/api/team/:id', authMiddleware, deleteTeam);
 
 // ─── TESTIMONIALS CRUD ────────────────────────────────────────────────────────
-router.get('/api/testimonials', authMiddleware, getTestimonials);
+router.get('/api/testimonials', authMiddleware, getTestimonialsAdmin);
 router.post('/api/testimonials', authMiddleware, createTestimonial);
 router.put('/api/testimonials/:id', authMiddleware, updateTestimonial);
+router.patch('/api/testimonials/:id/status', authMiddleware, updateTestimonialStatus);
 router.delete('/api/testimonials/:id', authMiddleware, deleteTestimonial);
 
 // ─── CONTACT MESSAGES (read-only) ─────────────────────────────────────────────

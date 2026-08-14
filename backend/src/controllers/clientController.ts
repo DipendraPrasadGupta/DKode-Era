@@ -67,11 +67,68 @@ export const getTeam = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-// GET Testimonials
+// GET Approved Testimonials (Public)
 export const getTestimonials = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const testimonials = await prisma.testimonial.findMany();
+    const testimonials = await prisma.testimonial.findMany({
+      where: {
+        NOT: { status: 'Rejected' },
+      },
+      orderBy: [
+        { featured: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    });
     res.json(testimonials);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST Submit Testimonial (Public User Review Submission)
+export const submitTestimonial = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, email, company, position, biz, quote, message, stars, rating, icon, image } = req.body;
+
+    const reviewerName = String(name || '').trim();
+    const reviewerQuote = String(quote || message || '').trim();
+
+    if (!reviewerName || !reviewerQuote) {
+      res.status(400).json({ error: 'Name and testimonial message are required.' });
+      return;
+    }
+
+    const reviewerEmail = String(email || '').trim().toLowerCase();
+    const reviewerCompany = String(company || '').trim();
+    const reviewerPosition = String(position || '').trim();
+    
+    // Combine company and position for display in `biz`
+    const combinedBiz = String(biz || '').trim() || 
+      (reviewerPosition && reviewerCompany ? `${reviewerPosition}, ${reviewerCompany}` : reviewerCompany || reviewerPosition || 'Valued Client');
+
+    const numStars = Math.max(1, Math.min(5, Number(stars || rating || 5)));
+    const avatarIcon = String(icon || image || '').trim();
+
+    const testimonial = await prisma.testimonial.create({
+      data: {
+        name: reviewerName,
+        email: reviewerEmail,
+        company: reviewerCompany,
+        position: reviewerPosition,
+        biz: combinedBiz,
+        quote: reviewerQuote,
+        stars: numStars,
+        icon: avatarIcon,
+        status: 'Pending',
+        featured: false,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Thank you! Your testimonial has been submitted and is pending admin approval.',
+      testimonial,
+    });
   } catch (error) {
     next(error);
   }

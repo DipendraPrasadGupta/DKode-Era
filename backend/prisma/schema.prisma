@@ -49,12 +49,19 @@ model TeamMember {
 }
 
 model Testimonial {
-  id    Int    @id @default(autoincrement())
-  stars Int
-  quote String
-  icon  String
-  name  String
-  biz   String
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @default("")
+  company   String   @default("")
+  position  String   @default("")
+  biz       String   @default("")
+  quote     String
+  stars     Int      @default(5)
+  icon      String   @default("")
+  status    String   @default("Pending") // Pending, Approved, Rejected
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ContactMessage {
