@@ -114,6 +114,71 @@ export default function BlogDetailPage() {
         setLikes(data.likes ?? 0);
         setLoading(false);
 
+        if (typeof document !== 'undefined') {
+          document.title = `${data.title} | D-Kode Era Blog`;
+
+          // Inject / update Open Graph + Twitter Card meta tags dynamically
+          const siteUrl = 'https://dkodeera.com';
+          const pageUrl = `${siteUrl}/pages/blogs/${data.slug}`;
+          const imgUrl = normalizeImageUrl(data.coverImage).replace(
+            /localhost:5000/,
+            'dkodeera.com'
+          );
+
+          const setMeta = (prop: string, val: string, attr = 'property') => {
+            let el = document.querySelector(`meta[${attr}="${prop}"]`) as HTMLMetaElement | null;
+            if (!el) {
+              el = document.createElement('meta');
+              el.setAttribute(attr, prop);
+              document.head.appendChild(el);
+            }
+            el.content = val;
+          };
+
+          setMeta('og:type',        'article');
+          setMeta('og:title',       `${data.title} | D-Kode Era`);
+          setMeta('og:description', data.excerpt);
+          setMeta('og:url',         pageUrl);
+          setMeta('og:image',       imgUrl || `${siteUrl}/og-default.png`);
+          setMeta('og:site_name',   'D-Kode Era');
+          setMeta('og:locale',      'en_US');
+
+          // Article-specific OG tags
+          setMeta('article:published_time',  data.createdAt);
+          setMeta('article:author',          data.author);
+          setMeta('article:section',         data.category);
+          if (data.tags) {
+            data.tags.split(',').map((t: string) => t.trim()).filter(Boolean).forEach((tag: string) => {
+              const el = document.createElement('meta');
+              el.setAttribute('property', 'article:tag');
+              el.content = tag;
+              document.head.appendChild(el);
+            });
+          }
+
+          // Twitter Card
+          setMeta('twitter:card',        'summary_large_image', 'name');
+          setMeta('twitter:title',       `${data.title} | D-Kode Era`, 'name');
+          setMeta('twitter:description', data.excerpt, 'name');
+          setMeta('twitter:image',       imgUrl || `${siteUrl}/og-default.png`, 'name');
+          setMeta('twitter:site',        '@dkodeera', 'name');
+
+          // Canonical link
+          let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+          if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+          }
+          canonical.href = pageUrl;
+
+          // Meta description
+          setMeta('description', data.excerpt, 'name');
+          // Meta keywords from tags + category
+          const keywords = [data.category, ...(data.tags ? data.tags.split(',').map((t: string) => t.trim()) : [])].join(', ');
+          setMeta('keywords', keywords, 'name');
+        }
+
         // Restore liked state from localStorage
         try {
           const saved = localStorage.getItem(LS_LIKED_KEY(slug));
@@ -239,6 +304,37 @@ export default function BlogDetailPage() {
   /* ════════════════════════════════════════════════════ */
   return (
     <div style={{ background: tk.bg, color: tk.text, minHeight: '100vh', fontFamily: tk.fontBody }}>
+      {/* ── JSON-LD Structured Data Schema for Google Search ── */}
+      {blog && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: blog.title,
+              description: blog.excerpt,
+              image: [norm(blog.coverImage)],
+              datePublished: blog.createdAt,
+              dateModified: blog.createdAt,
+              author: {
+                '@type': 'Person',
+                name: blog.author,
+                jobTitle: blog.authorRole,
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'D-Kode Era',
+                url: 'https://dkodeera.com',
+              },
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `https://dkodeera.com/pages/blogs/${blog.slug}`,
+              },
+            }),
+          }}
+        />
+      )}
 
       {/* ── Read Progress ── */}
       <div style={{
