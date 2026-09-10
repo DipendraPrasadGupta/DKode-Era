@@ -275,14 +275,14 @@ export const submitOrder = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-// GET Product Ecosystem items (auto-seeds defaults if empty)
+// GET Product Ecosystem items
 export const getProductEcosystem = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let items = await (prisma as any).productEcosystem.findMany({
       orderBy: { order: 'asc' },
     });
 
-    if (items.length === 0) {
+    if (false) {
       const DEFAULT_PRODUCTS = [
         {
           pillName: 'RESTRO MS',
@@ -385,7 +385,7 @@ export const getProductEcosystem = async (req: Request, res: Response, next: Nex
   }
 };
 
-// GET Blogs (Public, seeds defaults if empty)
+// GET Blogs (Public)
 export const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let blogs = await (prisma as any).blog.findMany({
@@ -393,7 +393,7 @@ export const getBlogs = async (req: Request, res: Response, next: NextFunction) 
       orderBy: { createdAt: 'desc' },
     });
 
-    if (blogs.length === 0) {
+    if (false) {
       const DEFAULT_BLOGS = [
         {
           title: 'Building Scalable Next.js 15 Applications in 2026: Best Practices',
@@ -579,8 +579,7 @@ export const getCareers = async (_req: Request, res: Response, next: NextFunctio
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    // Auto-seed initial openings if table is empty
-    if (careers.length === 0) {
+    if (false) {
       const initialOpenings = [
         {
           title: 'Senior Full-Stack Engineer (Next.js / Node / PostgreSQL)',

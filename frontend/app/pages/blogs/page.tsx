@@ -4,7 +4,47 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { getBlogs } from '@/lib/api/blogs';
 import { pageTokens as tk } from '@/lib/pageTokens';
-import { API_URL, normalizeImageUrl } from '@/lib/api';
+import { normalizeImageUrl } from '@/lib/api';
+import {
+  BookOpen,
+  BarChart3,
+  FileText,
+  Layers,
+  Users,
+  Search,
+  X,
+  Clock,
+  ArrowRight,
+  Maximize2,
+  Sparkles,
+  Calendar,
+  Eye,
+  Heart,
+  Mail,
+  CheckCircle2,
+  Flame,
+  Tag,
+  TrendingUp,
+  Share2,
+  Copy,
+  Check,
+  Filter,
+  MessageCircle,
+  Send,
+  CornerUpRight,
+} from 'lucide-react';
+
+const XTwitterIcon = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const LinkedInIcon = ({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+  </svg>
+);
 
 const norm = (u?: string | null) => normalizeImageUrl(u);
 
@@ -70,6 +110,10 @@ export default function BlogsPage() {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  // Share Modal state
+  const [sharePost, setSharePost] = useState<Blog | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -106,6 +150,8 @@ export default function BlogsPage() {
       if (e.key === 'Escape') {
         setIsSearchFocused(false);
         searchInputRef.current?.blur();
+        setSharePost(null);
+        setZoomImage(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -144,12 +190,14 @@ export default function BlogsPage() {
 
   // Top live search dropdown matching results (max 4)
   const searchSuggestions = searchQuery.trim()
-    ? blogs.filter(
-        (p) =>
-          p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 4)
+    ? blogs
+        .filter(
+          (p) =>
+            p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.category.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .slice(0, 4)
     : [];
 
   const featuredBlog = blogs.find((b) => b.featured) || blogs[0];
@@ -181,7 +229,6 @@ export default function BlogsPage() {
     setIsSearchFocused(true);
     if (searchQuery.trim()) {
       showToast(`Searching for "${searchQuery}"...`);
-      // Scroll down to articles grid if not already there
       const gridElem = document.getElementById('articles-main-section');
       if (gridElem) {
         gridElem.scrollIntoView({ behavior: 'smooth' });
@@ -191,10 +238,43 @@ export default function BlogsPage() {
     }
   };
 
+  // Share handler
+  const handleShareClick = async (e: React.MouseEvent, post: Blog) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/pages/blogs/${post.slug}` : `/pages/blogs/${post.slug}`;
+    
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: post.excerpt,
+          url: shareUrl,
+        });
+        showToast('Article shared successfully!');
+        return;
+      } catch (err) {
+        // User cancelled or share API fell back
+      }
+    }
+    setSharePost(post);
+  };
+
+  const handleCopyLink = (url: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      showToast('Link copied to clipboard!');
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
+  };
+
   return (
     <div style={{ background: tk.bg || '#050810', color: tk.text, minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
+      {/* Toast Notification */}
       {toastMsg && (
         <div
+          className="blog-toast-box"
           style={{
             position: 'fixed',
             bottom: 24,
@@ -202,40 +282,44 @@ export default function BlogsPage() {
             background: tk.cyan,
             color: '#050810',
             padding: '12px 20px',
-            borderRadius: 12,
+            borderRadius: 14,
             fontFamily: tk.fontMono,
-            fontWeight: 700,
-            fontSize: 12,
-            zIndex: 9999,
-            boxShadow: '0 8px 30px rgba(0,212,255,0.4)',
+            fontWeight: 800,
+            fontSize: 12.5,
+            zIndex: 99999,
+            boxShadow: '0 8px 30px rgba(0,212,255,0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          ✓ {toastMsg}
+          <CheckCircle2 size={16} strokeWidth={2.5} />
+          <span>{toastMsg}</span>
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════
-          HERO SECTION WITH VERTICAL STATS ON RIGHT
+          HERO SECTION WITH RESPONSIVE METRICS
       ═══════════════════════════════════════════════ */}
       <section
         style={{
           background: `radial-gradient(ellipse 900px 600px at 80% 20%, rgba(168,85,247,0.14), transparent 60%),
                        radial-gradient(ellipse 800px 700px at 20% 50%, rgba(0,212,255,0.12), transparent 60%),
                        ${tk.bg || '#050810'}`,
-          padding: '120px 20px 65px',
+          padding: 'clamp(90px, 10vw, 130px) 20px 65px',
           position: 'relative',
           borderBottom: `1px solid ${tk.border}`,
         }}
       >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          
-          {/* Top Row: Left Title & Description + Right Vertical Stats Card */}
+          {/* Top Split Row */}
           <div
             className="hero-split-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 310px',
-              gap: 40,
+              gap: 36,
               alignItems: 'center',
               marginBottom: 44,
             }}
@@ -254,17 +338,19 @@ export default function BlogsPage() {
                   color: tk.purple,
                   fontSize: 11,
                   fontFamily: tk.fontMono,
-                  letterSpacing: '0.15em',
+                  letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   marginBottom: 20,
+                  fontWeight: 700,
                 }}
               >
-                📰 D-Kode Era Knowledge Base & Blog
+                <BookOpen size={14} color={tk.purple} />
+                <span>D-Kode Era Knowledge Base & Blog</span>
               </div>
               <h1
                 style={{
                   fontFamily: tk.fontDisplay,
-                  fontSize: 'clamp(34px, 5.2vw, 58px)',
+                  fontSize: 'clamp(28px, 4.8vw, 56px)',
                   fontWeight: 900,
                   lineHeight: 1.12,
                   marginBottom: 18,
@@ -283,15 +369,16 @@ export default function BlogsPage() {
                   Digital Innovation
                 </span>
               </h1>
-              <p style={{ fontSize: 16.5, color: tk.textDim, lineHeight: 1.75, maxWidth: 680, margin: 0 }}>
+              <p style={{ fontSize: 'clamp(14px, 1.8vw, 16.5px)', color: tk.textDim, lineHeight: 1.75, maxWidth: 680, margin: 0 }}>
                 Explore tutorials, architectural blueprints, SaaS insights, and tech deep-dives published live from our engineering team.
               </p>
             </div>
 
-            {/* RIGHT SIDE: Vertical Stats Panel */}
+            {/* RIGHT SIDE: Platform Metrics Panel */}
             <div
+              className="hero-metrics-container"
               style={{
-                background: `linear-gradient(135deg, rgba(13,20,37,0.8), rgba(8,13,26,0.6))`,
+                background: `linear-gradient(135deg, rgba(13,20,37,0.85), rgba(8,13,26,0.65))`,
                 border: `1px solid ${tk.borderHover}`,
                 borderRadius: 24,
                 padding: '24px 26px',
@@ -302,12 +389,27 @@ export default function BlogsPage() {
                 gap: 16,
               }}
             >
-              <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.cyan, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>
-                📊 Platform Metrics
+              <div
+                style={{
+                  fontSize: 10,
+                  fontFamily: tk.fontMono,
+                  color: tk.cyan,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  marginBottom: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontWeight: 800,
+                }}
+              >
+                <BarChart3 size={13} color={tk.cyan} />
+                <span>Platform Metrics</span>
               </div>
 
-              {/* Stat 1: Articles Published */}
+              {/* Metric 1 */}
               <div
+                className="metric-item-box"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -328,11 +430,11 @@ export default function BlogsPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 20,
+                    color: tk.cyan,
                     flexShrink: 0,
                   }}
                 >
-                  📝
+                  <FileText size={20} />
                 </div>
                 <div>
                   <div style={{ fontSize: 22, fontWeight: 900, fontFamily: tk.fontDisplay, color: tk.text, lineHeight: 1 }}>
@@ -344,8 +446,9 @@ export default function BlogsPage() {
                 </div>
               </div>
 
-              {/* Stat 2: Tech Categories */}
+              {/* Metric 2 */}
               <div
+                className="metric-item-box"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -366,11 +469,11 @@ export default function BlogsPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 20,
+                    color: tk.purple,
                     flexShrink: 0,
                   }}
                 >
-                  🗂️
+                  <Layers size={20} />
                 </div>
                 <div>
                   <div style={{ fontSize: 22, fontWeight: 900, fontFamily: tk.fontDisplay, color: tk.text, lineHeight: 1 }}>
@@ -382,8 +485,9 @@ export default function BlogsPage() {
                 </div>
               </div>
 
-              {/* Stat 3: Monthly Readers */}
+              {/* Metric 3 */}
               <div
+                className="metric-item-box"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -404,11 +508,11 @@ export default function BlogsPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 20,
+                    color: tk.green,
                     flexShrink: 0,
                   }}
                 >
-                  👥
+                  <Users size={20} />
                 </div>
                 <div>
                   <div style={{ fontSize: 22, fontWeight: 900, fontFamily: tk.fontDisplay, color: tk.text, lineHeight: 1 }}>
@@ -420,11 +524,10 @@ export default function BlogsPage() {
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* ═══════════════════════════════════════════════
-              ENHANCED SEARCH BAR WITH CLICKABLE SEARCH BUTTON
+              ENHANCED RESPONSIVE SEARCH BAR WITH REAL ICON
           ═══════════════════════════════════════════════ */}
           <div ref={searchContainerRef} style={{ maxWidth: 640, margin: '0 auto', position: 'relative', zIndex: 100 }}>
             <form onSubmit={handleSearchExecute}>
@@ -443,6 +546,7 @@ export default function BlogsPage() {
                 }}
               >
                 <div
+                  className="search-input-wrapper"
                   style={{
                     background: 'rgba(9, 13, 26, 0.94)',
                     borderRadius: 20,
@@ -452,8 +556,8 @@ export default function BlogsPage() {
                     backdropFilter: 'blur(16px)',
                   }}
                 >
-                  <span style={{ fontSize: 18, color: isSearchFocused ? tk.cyan : tk.textDim, transition: 'color 0.2s', marginRight: 12, display: 'flex', alignItems: 'center' }}>
-                    🔍
+                  <span style={{ color: isSearchFocused ? tk.cyan : tk.textDim, transition: 'color 0.2s', marginRight: 10, display: 'flex', alignItems: 'center' }}>
+                    <Search size={18} />
                   </span>
 
                   <input
@@ -495,25 +599,26 @@ export default function BlogsPage() {
                         height: 28,
                         borderRadius: 8,
                         cursor: 'pointer',
-                        fontSize: 12,
                         marginRight: 8,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        flexShrink: 0,
                       }}
                     >
-                      ✕
+                      <X size={14} />
                     </button>
                   )}
 
-                  {/* CLICKABLE SEARCH BUTTON */}
+                  {/* CLICKABLE SEARCH BUTTON WITH REAL ICON */}
                   <button
                     type="submit"
+                    className="search-submit-btn"
                     style={{
                       background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
                       color: '#050810',
                       border: 'none',
-                      padding: '10px 20px',
+                      padding: '10px 18px',
                       borderRadius: 14,
                       fontSize: 13,
                       fontFamily: tk.fontMono,
@@ -527,7 +632,8 @@ export default function BlogsPage() {
                       transition: 'all 0.25s ease',
                     }}
                   >
-                    <span>Search</span> 🔍
+                    <span className="search-btn-label">Search</span>
+                    <Search size={14} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
@@ -567,7 +673,7 @@ export default function BlogsPage() {
                     Matching Articles ({filteredPosts.length})
                   </span>
                   <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.cyan }}>
-                    Press Esc to close
+                    Esc to close
                   </span>
                 </div>
 
@@ -618,12 +724,12 @@ export default function BlogsPage() {
                               >
                                 {item.category}
                               </span>
-                              <span style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono }}>
-                                ⏱️ {item.readTime}
+                              <span style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Clock size={11} /> {item.readTime}
                               </span>
                             </div>
                           </div>
-                          <span style={{ fontSize: 12, color: tk.cyan, fontFamily: tk.fontMono }}>→</span>
+                          <ArrowRight size={14} color={tk.cyan} />
                         </div>
                       </Link>
                     ))}
@@ -637,8 +743,20 @@ export default function BlogsPage() {
             )}
 
             {/* QUICK TRENDING CHIPS BELOW SEARCH BAR */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Trending:</span>
+            <div
+              className="trending-chips-container"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                marginTop: 14,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <TrendingUp size={12} color={tk.cyan} /> Trending:
+              </span>
               {QUICK_TRENDING_SEARCHES.map((query) => (
                 <button
                   key={query}
@@ -665,168 +783,210 @@ export default function BlogsPage() {
               ))}
             </div>
           </div>
-
         </div>
       </section>
 
       {/* Featured Banner (if available & no active search/tag query) */}
       {!loading && featuredBlog && !searchQuery && selectedCategory === 'All' && !selectedTag && (
         <section style={{ maxWidth: 1200, margin: '40px auto 0', padding: '0 20px' }}>
-          <Link href={`/pages/blogs/${featuredBlog.slug}`} style={{ textDecoration: 'none' }}>
-            <div
-              className="featured-blog-card"
-              style={{
-                background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
-                border: `1px solid ${tk.borderHover}`,
-                borderRadius: 24,
-                overflow: 'hidden',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-                cursor: 'pointer',
-                boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
-                transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {/* Cover Image Frame */}
-                  {featuredBlog.coverImage && (
-                <div
+          <div
+            className="featured-blog-card"
+            style={{
+              background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
+              border: `1px solid ${tk.borderHover}`,
+              borderRadius: 24,
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
+              transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            {/* Cover Image Frame */}
+            {featuredBlog.coverImage && (
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '16 / 10',
+                  maxHeight: 400,
+                  overflow: 'hidden',
+                  background: '#090d1a',
+                }}
+              >
+                <img
+                  src={norm(featuredBlog.coverImage)}
+                  alt={featuredBlog.title}
                   style={{
-                    position: 'relative',
                     width: '100%',
-                    minHeight: 320,
-                    maxHeight: 400,
-                    overflow: 'hidden',
-                    background: '#090d1a',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                    display: 'block',
+                    transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  className="featured-cover-img"
+                />
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setZoomImage(norm(featuredBlog.coverImage));
+                  }}
+                  title="Expand Full Image"
+                  style={{
+                    position: 'absolute',
+                    bottom: 16,
+                    right: 16,
+                    zIndex: 3,
+                    background: 'rgba(0,0,0,0.65)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: '#fff',
+                    padding: '6px 12px',
+                    borderRadius: 10,
+                    fontSize: 11,
+                    fontFamily: tk.fontMono,
+                    cursor: 'pointer',
+                    backdropFilter: 'blur(8px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                 >
-                  <img
-                    src={norm(featuredBlog.coverImage)}
-                    alt={featuredBlog.title}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                      display: 'block',
-                      transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                    }}
-                    className="featured-cover-img"
-                  />
+                  <Maximize2 size={13} />
+                  <span>Zoom</span>
+                </button>
+              </div>
+            )}
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setZoomImage(norm(featuredBlog.coverImage));
-                    }}
-                    title="Expand Full Image"
-                    style={{
-                      position: 'absolute',
-                      bottom: 16,
-                      right: 16,
-                      zIndex: 3,
-                      background: 'rgba(0,0,0,0.65)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      color: '#fff',
-                      padding: '6px 12px',
-                      borderRadius: 10,
-                      fontSize: 11,
-                      fontFamily: tk.fontMono,
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(8px)',
-                    }}
-                  >
-                    🔍 Zoom
-                  </button>
-                </div>
-              )}
+            <div
+              className="featured-content-padding"
+              style={{ padding: 'clamp(24px, 4vw, 44px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+            >
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 18, flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontFamily: tk.fontMono,
+                    padding: '4px 12px',
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,229,160,0.18))',
+                    color: tk.cyan,
+                    border: '1px solid rgba(0,212,255,0.35)',
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  <Sparkles size={12} /> FEATURED ARTICLE
+                </span>
+                <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={12} /> {featuredBlog.readTime}
+                </span>
+              </div>
 
-              <div style={{ padding: '40px 44px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 18 }}>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontFamily: tk.fontMono,
-                      padding: '4px 12px',
-                      borderRadius: 12,
-                      background: 'linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,229,160,0.18))',
-                      color: tk.cyan,
-                      border: '1px solid rgba(0,212,255,0.35)',
-                      fontWeight: 700,
-                      letterSpacing: '0.06em',
-                    }}
-                  >
-                    ★ FEATURED ARTICLE
-                  </span>
-                  <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>
-                    ⏱️ {featuredBlog.readTime}
-                  </span>
-                </div>
-
+              <Link href={`/pages/blogs/${featuredBlog.slug}`} style={{ textDecoration: 'none' }}>
                 <h2
                   style={{
                     fontFamily: tk.fontDisplay,
-                    fontSize: 'clamp(24px, 3.2vw, 34px)',
+                    fontSize: 'clamp(22px, 3.2vw, 34px)',
                     fontWeight: 800,
                     color: tk.text,
                     marginBottom: 16,
                     lineHeight: 1.25,
+                    cursor: 'pointer',
                   }}
                 >
                   {featuredBlog.title}
                 </h2>
+              </Link>
 
-                <p style={{ fontSize: 15, color: tk.textDim, lineHeight: 1.75, marginBottom: 28 }}>
-                  {featuredBlog.excerpt}
-                </p>
+              <p style={{ fontSize: 15, color: tk.textDim, lineHeight: 1.75, marginBottom: 28 }}>
+                {featuredBlog.excerpt}
+              </p>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div
-                      style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 12,
-                        background: 'rgba(0,212,255,0.15)',
-                        border: '1px solid rgba(0,212,255,0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontFamily: tk.fontDisplay,
-                        fontWeight: 800,
-                        color: tk.cyan,
-                        fontSize: 15,
-                      }}
-                    >
-                      {featuredBlog.author.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: tk.text }}>{featuredBlog.author}</div>
-                      <div style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>{featuredBlog.authorRole}</div>
-                    </div>
-                  </div>
-
-                  <button
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
                     style={{
-                      background: `linear-gradient(135deg, ${tk.cyan}, #00e5a0)`,
-                      color: '#050810',
-                      border: 'none',
-                      padding: '12px 24px',
+                      width: 38,
+                      height: 38,
+                      borderRadius: 12,
+                      background: 'rgba(0,212,255,0.15)',
+                      border: '1px solid rgba(0,212,255,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: tk.fontDisplay,
+                      fontWeight: 800,
+                      color: tk.cyan,
+                      fontSize: 15,
+                    }}
+                  >
+                    {featuredBlog.author.charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: tk.text }}>{featuredBlog.author}</div>
+                    <div style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>{featuredBlog.authorRole}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {/* Share Button for Featured Blog */}
+                  <button
+                    onClick={(e) => handleShareClick(e, featuredBlog)}
+                    title="Share this article"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${tk.borderHover}`,
+                      color: tk.text,
+                      padding: '11px 16px',
                       borderRadius: 12,
                       fontSize: 12.5,
                       fontFamily: tk.fontMono,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      boxShadow: '0 4px 20px rgba(0,212,255,0.35)',
-                      letterSpacing: '0.04em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      transition: 'all 0.2s ease',
                     }}
+                    className="share-btn-hover"
                   >
-                    Read Full Article →
+                    <Share2 size={15} color={tk.cyan} />
+                    <span>Share</span>
                   </button>
+
+                  <Link href={`/pages/blogs/${featuredBlog.slug}`} style={{ textDecoration: 'none' }}>
+                    <button
+                      style={{
+                        background: `linear-gradient(135deg, ${tk.cyan}, #00e5a0)`,
+                        color: '#050810',
+                        border: 'none',
+                        padding: '12px 22px',
+                        borderRadius: 12,
+                        fontSize: 12.5,
+                        fontFamily: tk.fontMono,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 20px rgba(0,212,255,0.35)',
+                        letterSpacing: '0.04em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      <span>Read Full Article</span>
+                      <ArrowRight size={15} strokeWidth={2.5} />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         </section>
       )}
 
@@ -850,7 +1010,8 @@ export default function BlogsPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontFamily: tk.fontMono }}>
-              <span style={{ color: tk.cyan, fontWeight: 700 }}>🔍 Filtered Results:</span>
+              <Filter size={15} color={tk.cyan} />
+              <span style={{ color: tk.cyan, fontWeight: 700 }}>Filtered Results:</span>
               <span style={{ color: tk.text }}>
                 Showing <strong>{filteredPosts.length}</strong> article{filteredPosts.length !== 1 ? 's' : ''}
                 {searchQuery && <> for "<strong>{searchQuery}</strong>"</>}
@@ -875,15 +1036,22 @@ export default function BlogsPage() {
                 fontFamily: tk.fontMono,
                 fontWeight: 700,
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
               }}
             >
-              Reset All Filters ✕
+              <span>Reset All Filters</span>
+              <X size={13} />
             </button>
           </div>
         )}
 
         {/* Categories Bar */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 36, alignItems: 'center' }}>
+        <div
+          className="categories-scroll-wrapper"
+          style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 36, alignItems: 'center' }}
+        >
           <span style={{ fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, marginRight: 6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             Categories:
           </span>
@@ -929,12 +1097,13 @@ export default function BlogsPage() {
                 gap: 6,
               }}
             >
-              Tag: #{selectedTag} ✕
+              <span>Tag: #{selectedTag}</span>
+              <X size={13} />
             </button>
           )}
         </div>
 
-        {/* 2-Column Grid */}
+        {/* 2-Column Responsive Grid Layout */}
         <div
           className="blog-listing-grid"
           style={{
@@ -953,7 +1122,9 @@ export default function BlogsPage() {
               </div>
             ) : filteredPosts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 80, color: tk.textDim, background: tk.surfaceMuted, borderRadius: 24, border: `1px solid ${tk.border}` }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+                <div style={{ color: tk.cyan, marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+                  <Search size={48} strokeWidth={1.5} />
+                </div>
                 <h3 style={{ fontFamily: tk.fontDisplay, color: tk.text, fontSize: 20, marginBottom: 8 }}>No Articles Found</h3>
                 <p style={{ fontSize: 14, color: tk.textDim, marginBottom: 20 }}>
                   We couldn't find any articles matching "{searchQuery || selectedCategory || selectedTag}".
@@ -980,37 +1151,41 @@ export default function BlogsPage() {
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
+              <div
+                className="articles-cards-grid"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}
+              >
                 {filteredPosts.map((post) => (
-                  <Link key={post.id} href={`/pages/blogs/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-                    <article
-                      className="blog-card-item"
-                      style={{
-                        background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
-                        border: `1px solid ${tk.border}`,
-                        borderRadius: 20,
-                        overflow: 'hidden',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        height: '100%',
-                        transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <div>
-                        {/* Cover Image Frame */}
-                        {post.coverImage && (
-                          <div
-                            style={{
-                              position: 'relative',
-                              width: '100%',
-                              height: 200,
-                              overflow: 'hidden',
-                              background: '#090d1a',
-                              borderBottom: `1px solid ${tk.border}`,
-                            }}
-                          >
+                  <div
+                    key={post.id}
+                    className="blog-card-item"
+                    style={{
+                      background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
+                      border: `1px solid ${tk.border}`,
+                      borderRadius: 20,
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      height: '100%',
+                      transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                      position: 'relative',
+                    }}
+                  >
+                    <div>
+                      {/* Cover Image Frame */}
+                      {post.coverImage && (
+                        <div
+                          style={{
+                            position: 'relative',
+                            width: '100%',
+                            aspectRatio: '16 / 9',
+                            overflow: 'hidden',
+                            background: '#090d1a',
+                            borderBottom: `1px solid ${tk.border}`,
+                          }}
+                        >
+                          <Link href={`/pages/blogs/${post.slug}`}>
                             <img
                               src={norm(post.coverImage)}
                               alt={post.title}
@@ -1024,6 +1199,30 @@ export default function BlogsPage() {
                               }}
                               className="card-cover-img"
                             />
+                          </Link>
+
+                          {/* Top-Right Action Buttons: Zoom & Share */}
+                          <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 3, display: 'flex', gap: 6 }}>
+                            <button
+                              onClick={(e) => handleShareClick(e, post)}
+                              title="Share Article"
+                              style={{
+                                background: 'rgba(0,0,0,0.65)',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                color: '#fff',
+                                width: 30,
+                                height: 30,
+                                borderRadius: 8,
+                                cursor: 'pointer',
+                                backdropFilter: 'blur(8px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <Share2 size={13} color={tk.cyan} />
+                            </button>
 
                             <button
                               onClick={(e) => {
@@ -1033,132 +1232,159 @@ export default function BlogsPage() {
                               }}
                               title="Zoom Image"
                               style={{
-                                position: 'absolute',
-                                top: 12,
-                                right: 12,
-                                zIndex: 3,
                                 background: 'rgba(0,0,0,0.65)',
                                 border: '1px solid rgba(255,255,255,0.2)',
                                 color: '#fff',
-                                padding: '5px 9px',
+                                width: 30,
+                                height: 30,
                                 borderRadius: 8,
-                                fontSize: 10,
-                                fontFamily: tk.fontMono,
                                 cursor: 'pointer',
                                 backdropFilter: 'blur(8px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}
                             >
-                              🔍
+                              <Maximize2 size={13} />
                             </button>
                           </div>
-                        )}
+                        </div>
+                      )}
 
-                        <div style={{ padding: '24px 24px 16px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                            <span
-                              style={{
-                                fontSize: 10,
-                                fontFamily: tk.fontMono,
-                                padding: '3px 10px',
-                                borderRadius: 12,
-                                background: `${CATEGORY_COLORS[post.category] || tk.cyan}18`,
-                                color: CATEGORY_COLORS[post.category] || tk.cyan,
-                                border: `1px solid ${CATEGORY_COLORS[post.category] || tk.cyan}40`,
-                                fontWeight: 700,
-                                letterSpacing: '0.05em',
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              {post.category}
-                            </span>
-                            <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>
-                              ⏱️ {post.readTime}
-                            </span>
-                          </div>
+                      <div style={{ padding: '22px 22px 16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontFamily: tk.fontMono,
+                              padding: '3px 10px',
+                              borderRadius: 12,
+                              background: `${CATEGORY_COLORS[post.category] || tk.cyan}18`,
+                              color: CATEGORY_COLORS[post.category] || tk.cyan,
+                              border: `1px solid ${CATEGORY_COLORS[post.category] || tk.cyan}40`,
+                              fontWeight: 700,
+                              letterSpacing: '0.05em',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {post.category}
+                          </span>
+                          <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Clock size={11} /> {post.readTime}
+                          </span>
+                        </div>
 
+                        <Link href={`/pages/blogs/${post.slug}`} style={{ textDecoration: 'none' }}>
                           <h3 style={{ fontFamily: tk.fontDisplay, fontSize: 18, fontWeight: 800, marginBottom: 10, lineHeight: 1.4, color: tk.text }}>
                             {post.title}
                           </h3>
-                          <p style={{ fontSize: 13.5, color: tk.textDim, lineHeight: 1.65, marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {post.excerpt}
-                          </p>
+                        </Link>
 
-                          {/* Stats strip */}
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              borderTop: `1px solid ${tk.border}`,
-                              paddingTop: 12,
-                              flexWrap: 'wrap',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
-                              <span>📅</span>
-                              <span>{formatShortDate(post.createdAt)}</span>
-                            </div>
-                            <div style={{ width: 1, height: 12, background: tk.border }} />
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
-                              <span>👁️</span>
-                              <span style={{ fontWeight: 700, color: tk.text }}>{formatCount(post.views ?? 0)}</span>
-                            </div>
-                            <div style={{ width: 1, height: 12, background: tk.border }} />
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
-                              <span>❤️</span>
-                              <span style={{ fontWeight: 700, color: tk.text }}>{formatCount(post.likes ?? 0)}</span>
-                            </div>
+                        <p style={{ fontSize: 13.5, color: tk.textDim, lineHeight: 1.65, marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {post.excerpt}
+                        </p>
+
+                        {/* Stats strip */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            borderTop: `1px solid ${tk.border}`,
+                            paddingTop: 12,
+                            flexWrap: 'wrap',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
+                            <Calendar size={11} />
+                            <span>{formatShortDate(post.createdAt)}</span>
+                          </div>
+                          <div style={{ width: 1, height: 12, background: tk.border }} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
+                            <Eye size={11} />
+                            <span style={{ fontWeight: 700, color: tk.text }}>{formatCount(post.views ?? 0)}</span>
+                          </div>
+                          <div style={{ width: 1, height: 12, background: tk.border }} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: tk.textDim, fontFamily: tk.fontMono }}>
+                            <Heart size={11} color="#ff6b6b" />
+                            <span style={{ fontWeight: 700, color: tk.text }}>{formatCount(post.likes ?? 0)}</span>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Author row */}
-                      <div style={{ padding: '16px 24px 20px', borderTop: `1px solid ${tk.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div
-                            style={{
-                              width: 30,
-                              height: 30,
-                              borderRadius: 10,
-                              background: 'rgba(168,85,247,0.15)',
-                              border: '1px solid rgba(168,85,247,0.3)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontFamily: tk.fontDisplay,
-                              fontWeight: 800,
-                              color: tk.purple,
-                              fontSize: 12,
-                            }}
-                          >
-                            {post.author.charAt(0)}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 11.5, fontWeight: 700, color: tk.text }}>{post.author}</div>
-                            <div style={{ fontSize: 9.5, color: tk.textDim, fontFamily: tk.fontMono }}>{post.authorRole}</div>
-                          </div>
+                    {/* Author & Share Row */}
+                    <div style={{ padding: '14px 22px 18px', borderTop: `1px solid ${tk.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 10,
+                            background: 'rgba(168,85,247,0.15)',
+                            border: '1px solid rgba(168,85,247,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontFamily: tk.fontDisplay,
+                            fontWeight: 800,
+                            color: tk.purple,
+                            fontSize: 12,
+                          }}
+                        >
+                          {post.author.charAt(0)}
                         </div>
+                        <div>
+                          <div style={{ fontSize: 11.5, fontWeight: 700, color: tk.text }}>{post.author}</div>
+                          <div style={{ fontSize: 9.5, color: tk.textDim, fontFamily: tk.fontMono }}>{post.authorRole}</div>
+                        </div>
+                      </div>
 
-                        <span
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button
+                          onClick={(e) => handleShareClick(e, post)}
+                          title="Share"
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: tk.textDim,
+                            cursor: 'pointer',
+                            padding: 4,
+                            display: 'flex',
+                            alignItems: 'center',
+                            transition: 'color 0.2s',
+                          }}
+                          className="card-share-icon-btn"
+                        >
+                          <Share2 size={14} />
+                        </button>
+
+                        <Link
+                          href={`/pages/blogs/${post.slug}`}
                           style={{
                             fontSize: 11,
                             fontFamily: tk.fontMono,
                             color: tk.cyan,
                             fontWeight: 700,
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
                           }}
                         >
-                          Read →
-                        </span>
+                          <span>Read</span>
+                          <ArrowRight size={12} />
+                        </Link>
                       </div>
-                    </article>
-                  </Link>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* RIGHT: Sidebar Widget Panel */}
-          <aside style={{ position: 'sticky', top: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* RIGHT: Responsive Sidebar Panel */}
+          <aside className="blog-sidebar-panel" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             
             {/* 1. SUBSCRIBE NEWSLETTER WIDGET */}
             <div
@@ -1171,7 +1397,9 @@ export default function BlogsPage() {
                 overflow: 'hidden',
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 8 }}>📩</div>
+              <div style={{ color: tk.cyan, marginBottom: 12 }}>
+                <Mail size={26} strokeWidth={2} />
+              </div>
               <h3 style={{ fontFamily: tk.fontDisplay, fontSize: 18, fontWeight: 800, color: tk.text, margin: '0 0 8px' }}>
                 Subscribe to Insights
               </h3>
@@ -1191,9 +1419,14 @@ export default function BlogsPage() {
                     fontFamily: tk.fontMono,
                     fontWeight: 700,
                     textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
                   }}
                 >
-                  ✓ You're subscribed! Welcome aboard.
+                  <CheckCircle2 size={16} />
+                  <span>You're subscribed! Welcome aboard.</span>
                 </div>
               ) : (
                 <form onSubmit={handleSubscribeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1231,9 +1464,14 @@ export default function BlogsPage() {
                       cursor: submitting ? 'not-allowed' : 'pointer',
                       transition: 'all 0.25s ease',
                       boxShadow: `0 4px 16px ${tk.cyan}35`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
                     }}
                   >
-                    {submitting ? 'Subscribing...' : 'Subscribe Now →'}
+                    <span>{submitting ? 'Subscribing...' : 'Subscribe Now'}</span>
+                    <Send size={13} strokeWidth={2.5} />
                   </button>
                 </form>
               )}
@@ -1261,9 +1499,12 @@ export default function BlogsPage() {
                   justifyContent: 'space-between',
                   borderBottom: `1px solid ${tk.border}`,
                   paddingBottom: 10,
+                  fontWeight: 700,
                 }}
               >
-                <span>🔥 Recent Posts</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Flame size={14} color="#ff9a3c" /> Recent Posts
+                </span>
                 <span style={{ fontSize: 10, color: tk.textDim }}>{blogs.length} articles</span>
               </div>
 
@@ -1279,7 +1520,6 @@ export default function BlogsPage() {
                         transition: 'all 0.2s ease',
                       }}
                     >
-                      {/* Image Thumbnail */}
                       <div
                         style={{
                           width: 60,
@@ -1294,7 +1534,9 @@ export default function BlogsPage() {
                         {post.coverImage ? (
                           <img src={norm(post.coverImage)} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>📰</div>
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: tk.cyan }}>
+                            <FileText size={18} />
+                          </div>
                         )}
                       </div>
 
@@ -1314,9 +1556,10 @@ export default function BlogsPage() {
                         >
                           {post.title}
                         </div>
-                        <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', gap: 8 }}>
-                          <span>⏱️ {post.readTime}</span>
-                          <span>· 👁️ {formatCount(post.views ?? 0)}</span>
+                        <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={10} /> {post.readTime}</span>
+                          <span>·</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Eye size={10} /> {formatCount(post.views ?? 0)}</span>
                         </div>
                       </div>
                     </div>
@@ -1344,9 +1587,13 @@ export default function BlogsPage() {
                   marginBottom: 16,
                   borderBottom: `1px solid ${tk.border}`,
                   paddingBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontWeight: 700,
                 }}
               >
-                🏷️ Popular Tags
+                <Tag size={14} color={tk.purple} /> Popular Tags
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -1382,7 +1629,7 @@ export default function BlogsPage() {
               </div>
             </div>
 
-            {/* 4. TRENDING / RELATED POSTS WIDGET */}
+            {/* 4. TRENDING / MOST LIKED WIDGET */}
             <div
               style={{
                 background: `linear-gradient(135deg, ${tk.surface}, ${tk.surfaceMuted})`,
@@ -1401,9 +1648,13 @@ export default function BlogsPage() {
                   marginBottom: 16,
                   borderBottom: `1px solid ${tk.border}`,
                   paddingBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontWeight: 700,
                 }}
               >
-                ⭐ Trending & Most Liked
+                <TrendingUp size={14} color={tk.green} /> Trending & Most Liked
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1452,9 +1703,9 @@ export default function BlogsPage() {
                         >
                           {post.title}
                         </div>
-                        <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', gap: 8, marginTop: 2 }}>
-                          <span>👁️ {formatCount(post.views ?? 0)}</span>
-                          <span>❤️ {formatCount(post.likes ?? 0)}</span>
+                        <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono, display: 'flex', gap: 8, marginTop: 2, alignItems: 'center' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Eye size={10} /> {formatCount(post.views ?? 0)}</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Heart size={10} color="#ff6b6b" /> {formatCount(post.likes ?? 0)}</span>
                         </div>
                       </div>
                     </div>
@@ -1467,6 +1718,233 @@ export default function BlogsPage() {
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════
+          INTERACTIVE SHARE MODAL / DIALOG
+      ═══════════════════════════════════════════════ */}
+      {sharePost && (
+        <div
+          onClick={() => setSharePost(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(5, 8, 16, 0.85)',
+            backdropFilter: 'blur(16px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            animation: 'fadeIn 0.25s ease',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: `linear-gradient(135deg, ${tk.surface}, ${tk.surfaceMuted})`,
+              border: `1px solid ${tk.borderHover}`,
+              borderRadius: 24,
+              padding: '28px 28px',
+              maxWidth: 480,
+              width: '100%',
+              boxShadow: '0 24px 70px rgba(0,0,0,0.8), 0 0 30px rgba(0,212,255,0.15)',
+              position: 'relative',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, fontFamily: tk.fontDisplay, color: tk.text }}>
+                <Share2 size={18} color={tk.cyan} />
+                <span>Share Article</span>
+              </div>
+              <button
+                onClick={() => setSharePost(null)}
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${tk.border}`,
+                  color: tk.textDim,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Article Snippet */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${tk.border}`, borderRadius: 14, padding: '12px 14px', marginBottom: 20 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: tk.text, marginBottom: 4, lineHeight: 1.35 }}>
+                {sharePost.title}
+              </div>
+              <div style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>
+                By {sharePost.author} · {sharePost.category}
+              </div>
+            </div>
+
+            {/* Copy Link Input Box */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Article Link
+              </label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`}
+                  style={{
+                    flex: 1,
+                    padding: '10px 14px',
+                    background: 'rgba(5,8,16,0.8)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 12,
+                    color: tk.text,
+                    fontSize: 12,
+                    fontFamily: tk.fontMono,
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={() => handleCopyLink(`${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`)}
+                  style={{
+                    background: copiedLink ? tk.green : `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
+                    color: copiedLink ? '#050810' : '#050810',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: 12,
+                    fontSize: 12,
+                    fontFamily: tk.fontMono,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    flexShrink: 0,
+                    transition: 'all 0.25s ease',
+                  }}
+                >
+                  {copiedLink ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
+                  <span>{copiedLink ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Social Share Buttons */}
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Quick Share To
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+                {/* Twitter / X */}
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(sharePost.title)}&url=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '12px 8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 14,
+                    color: tk.text,
+                    textDecoration: 'none',
+                    fontSize: 11,
+                    fontFamily: tk.fontMono,
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="social-share-chip"
+                >
+                  <XTwitterIcon size={18} color="#1DA1F2" />
+                  <span>X / Twitter</span>
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '12px 8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 14,
+                    color: tk.text,
+                    textDecoration: 'none',
+                    fontSize: 11,
+                    fontFamily: tk.fontMono,
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="social-share-chip"
+                >
+                  <LinkedInIcon size={18} color="#0A66C2" />
+                  <span>LinkedIn</span>
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${sharePost.title}: ${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '12px 8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 14,
+                    color: tk.text,
+                    textDecoration: 'none',
+                    fontSize: 11,
+                    fontFamily: tk.fontMono,
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="social-share-chip"
+                >
+                  <MessageCircle size={18} color="#25D366" />
+                  <span>WhatsApp</span>
+                </a>
+
+                {/* Email */}
+                <a
+                  href={`mailto:?subject=${encodeURIComponent(sharePost.title)}&body=${encodeURIComponent(`Check out this article on D-Kode Era: ${typeof window !== 'undefined' ? window.location.origin : ''}/pages/blogs/${sharePost.slug}`)}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '12px 8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 14,
+                    color: tk.text,
+                    textDecoration: 'none',
+                    fontSize: 11,
+                    fontFamily: tk.fontMono,
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="social-share-chip"
+                >
+                  <Mail size={18} color={tk.purple} />
+                  <span>Email</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* FULLSCREEN IMAGE LIGHTBOX MODAL */}
       {zoomImage && (
         <div
@@ -1476,19 +1954,19 @@ export default function BlogsPage() {
             inset: 0,
             background: 'rgba(0,0,0,0.92)',
             backdropFilter: 'blur(20px)',
-            zIndex: 2000,
+            zIndex: 20000,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 30,
+            padding: 20,
           }}
         >
           <button
             onClick={() => setZoomImage(null)}
             style={{
               position: 'absolute',
-              top: 28,
-              right: 28,
+              top: 24,
+              right: 24,
               background: 'rgba(255,255,255,0.1)',
               border: '1px solid rgba(255,255,255,0.2)',
               color: '#fff',
@@ -1496,10 +1974,12 @@ export default function BlogsPage() {
               height: 44,
               borderRadius: 12,
               cursor: 'pointer',
-              fontSize: 20,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            ✕
+            <X size={22} />
           </button>
           <img
             src={zoomImage}
@@ -1515,7 +1995,7 @@ export default function BlogsPage() {
         </div>
       )}
 
-      {/* CSS Micro-Interactions & Responsive Layouts */}
+      {/* CSS Micro-Interactions & Complete Responsive Layout Queries */}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -1540,6 +2020,16 @@ export default function BlogsPage() {
           transform: scale(1.08);
         }
 
+        .card-share-icon-btn:hover {
+          color: ${tk.cyan} !important;
+          transform: scale(1.15);
+        }
+
+        .share-btn-hover:hover {
+          background: rgba(0, 212, 255, 0.12) !important;
+          border-color: ${tk.cyan} !important;
+        }
+
         .sidebar-recent-card:hover div {
           color: ${tk.cyan} !important;
         }
@@ -1549,15 +2039,76 @@ export default function BlogsPage() {
           border-color: rgba(0, 212, 255, 0.25) !important;
         }
 
-        @media (max-width: 960px) {
+        .social-share-chip:hover {
+          background: rgba(0, 212, 255, 0.1) !important;
+          border-color: ${tk.cyan} !important;
+          transform: translateY(-2px);
+        }
+
+        /* Sticky sidebar on large screens */
+        @media (min-width: 993px) {
+          .blog-sidebar-panel {
+            position: sticky;
+            top: 24px;
+          }
+        }
+
+        /* RESPONSIVE BREAKPOINTS */
+
+        /* Mobile & Tablet (< 992px) */
+        @media (max-width: 992px) {
           .hero-split-grid {
             grid-template-columns: 1fr !important;
+            gap: 28px !important;
           }
           .blog-listing-grid {
             grid-template-columns: 1fr !important;
+            gap: 32px !important;
           }
-          aside {
-            position: static !important;
+          .hero-metrics-container {
+            flex-direction: row !important;
+            justify-content: space-between;
+          }
+          .metric-item-box {
+            flex: 1;
+          }
+        }
+
+        /* Mobile screens (< 680px) */
+        @media (max-width: 680px) {
+          .hero-metrics-container {
+            flex-direction: column !important;
+          }
+          .articles-cards-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .featured-blog-card {
+            grid-template-columns: 1fr !important;
+          }
+          .search-btn-label {
+            display: none;
+          }
+          .search-submit-btn {
+            padding: 10px 12px !important;
+          }
+          .blog-toast-box {
+            left: 20px !important;
+            right: 20px !important;
+            bottom: 20px !important;
+            justify-content: center;
+          }
+        }
+
+        /* Extra small mobile (< 420px) */
+        @media (max-width: 420px) {
+          .search-input-wrapper {
+            padding: 4px 6px 4px 12px !important;
+          }
+          .categories-scroll-wrapper {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
           }
         }
       `}</style>

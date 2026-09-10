@@ -17,86 +17,6 @@ interface ProductItem {
   accent?: string;
 }
 
-const DEFAULT_PRODUCTS: ProductItem[] = [
-  {
-    id: 1,
-    pillName: 'RESTRO MS',
-    badge: 'HOSPITALITY & RESTAURANT POS',
-    title: 'Restro MS',
-    icon: '🍽️',
-    accent: '#06b6d4',
-    description:
-      'Next-generation restaurant management suite featuring direct-to-kitchen KDT, POS billing, inventory tracking, and multi-table order management.',
-    features: ['Instant Kitchen KDT Display', 'Table & Room Order Sync', 'eSewa & Khalti QR Ready', 'Live Daily Revenue Analytics'],
-  },
-  {
-    id: 2,
-    pillName: 'SMART KAROBAR',
-    badge: 'ENTERPRISE ERP & ACCOUNTING',
-    title: 'Smart Karobar',
-    icon: '💼',
-    accent: '#3b82f6',
-    description:
-      'Comprehensive business management ERP designed for modern enterprises to track inventory stock, manage multi-branch sales, automate IRD invoicing, and analyze profits.',
-    features: ['Multi-Branch Inventory Sync', 'IRD Approved Invoicing', 'Credit & Supplier Tracking', 'Profit & Loss Reports'],
-  },
-  {
-    id: 3,
-    pillName: 'UPASTHITI',
-    badge: 'BIOMETRIC & HR ECOSYSTEM',
-    title: 'Upasthiti HR',
-    icon: '⏱️',
-    accent: '#10b981',
-    description:
-      'AI-powered employee attendance and HR portal supporting facial recognition, geo-fenced mobile check-ins, automated salary calculation, and leave management.',
-    features: ['Biometric & Geo-Fence Checkin', 'Automated Payroll & Tax', 'Shift & Overtime Manager', 'Employee Self-Service App'],
-  },
-  {
-    id: 4,
-    pillName: 'MENU MA K CHHA',
-    badge: 'DIGITAL QR MENU & ORDERING',
-    title: 'Menu Ma K Chha',
-    icon: '📱',
-    accent: '#f59e0b',
-    description:
-      'Contactless QR code menu system allowing restaurant diners to view live menus, place orders directly from their phones, and pay digitally.',
-    features: ['Instant QR Code Scan', 'No App Download Needed', 'Live Menu Price Updates', 'Direct Kitchen Notification'],
-  },
-  {
-    id: 5,
-    pillName: 'ATITHYA',
-    badge: 'HOTEL & RESORT MANAGEMENT',
-    title: 'Atithya PMS',
-    icon: '🏨',
-    accent: '#8b5cf6',
-    description:
-      'All-in-one Property Management System (PMS) for hotels and resorts to streamline room bookings, guest check-in/out, housekeeping tasks, and channel management.',
-    features: ['Visual Room Grid Matrix', 'OTA & Direct Booking Sync', 'Guest Registration (NIDC/Passport)', 'Housekeeping Task Board'],
-  },
-  {
-    id: 6,
-    pillName: 'SMART TRAINING',
-    badge: 'LMS & SKILL ACADEMY',
-    title: 'Smart Training LMS',
-    icon: '🎓',
-    accent: '#ec4899',
-    description:
-      'Interactive Learning Management System for educational institutes and corporate training centers with video lessons, quizzes, and automated certification.',
-    features: ['Course Content Hosting', 'Live Quiz & Assessment', 'Student Progress Tracker', 'Digital Certificate Generator'],
-  },
-  {
-    id: 7,
-    pillName: 'N-CARD',
-    badge: 'DIGITAL NFC BUSINESS CARD',
-    title: 'N-Card Smart Profile',
-    icon: '🎴',
-    accent: '#06b6d4',
-    description:
-      'Smart NFC business cards and dynamic QR networking profile that shares your contact details, portfolio, and social links with a single tap.',
-    features: ['One-Tap NFC Contact Share', 'Dynamic QR Profile Page', 'Lead Generation Contact Form', 'Analytics & Tap Counter'],
-  },
-];
-
 interface ProductEcosystemProps {
   colors: ThemeColors;
   t?: any;
@@ -109,7 +29,7 @@ export default function ProductEcosystemSection({
   scrollTo,
   setQuoteOpen,
 }: ProductEcosystemProps) {
-  const [products, setProducts] = useState<ProductItem[]>(DEFAULT_PRODUCTS);
+  const [products, setProducts] = useState<ProductItem[]>([]);
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
@@ -117,22 +37,15 @@ export default function ProductEcosystemSection({
   useEffect(() => {
     apiFetch('/api/products')
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          // Merge API data with default icons/features if missing
-          const merged = data.map((d: any, idx: number) => ({
-            ...DEFAULT_PRODUCTS[idx % DEFAULT_PRODUCTS.length],
-            ...d,
-          }));
-          setProducts(merged);
+        if (Array.isArray(data)) {
+          setProducts(data);
         }
       })
-      .catch(() => {
-        // Fallback to DEFAULT_PRODUCTS on error
-      });
+      .catch(() => setProducts([]));
   }, []);
 
   useEffect(() => {
-    if (isAutoPlay) {
+    if (isAutoPlay && products.length > 0) {
       autoPlayRef.current = setInterval(() => {
         setActiveIdx((prev) => (prev + 1) % products.length);
       }, 5000);
@@ -142,7 +55,17 @@ export default function ProductEcosystemSection({
     };
   }, [isAutoPlay, products.length]);
 
-  const activeProduct = products[activeIdx] || products[0] || DEFAULT_PRODUCTS[0];
+  const activeProduct = products[activeIdx];
+  if (!activeProduct) {
+    return (
+      <section id="products" style={{ padding: 'clamp(60px, 8vh, 100px) 24px', background: colors.bg, color: colors.text }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif" }}>Product Ecosystem</h2>
+          <p style={{ color: colors.muted }}>No products available.</p>
+        </div>
+      </section>
+    );
+  }
   const activeAccent = activeProduct.accent || colors.cyan;
 
   const handleDemoClick = () => {

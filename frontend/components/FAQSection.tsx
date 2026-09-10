@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
-import { faqs as DEFAULT_FAQS } from '@/lib/data';
 
 interface FAQSectionProps {
   colors: ThemeColors;
@@ -12,18 +11,16 @@ interface FAQSectionProps {
 
 export default function FAQSection({ colors, t }: FAQSectionProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [faqs, setFaqs] = useState<any[]>(DEFAULT_FAQS);
+  const [faqs, setFaqs] = useState<any[]>([]);
 
   useEffect(() => {
     apiFetch('/api/faqs')
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setFaqs(data);
-        } else {
-          setFaqs(DEFAULT_FAQS);
         }
       })
-      .catch(() => setFaqs(DEFAULT_FAQS));
+      .catch(() => setFaqs([]));
   }, []);
 
   const eyeText = t?.faqEye || 'FAQ';

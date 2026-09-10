@@ -26,60 +26,6 @@ interface Service {
   pricing: PricingTier[];
 }
 
-const fallbackPackages: PricingTier[] = [
-  {
-    tier: 'Starter',
-    price: '15K',
-    desc: 'Perfect for small businesses needing a strong online presence fast.',
-    features: [
-      '5-page professional website',
-      'Mobile responsive design',
-      'Contact form & Google Maps',
-      'Basic SEO setup',
-      'Social media links',
-      '1 month free support',
-      'Delivery in 7 days',
-    ],
-    notIncluded: ['Admin CMS panel', 'Payment gateway', 'Custom integrations'],
-    highlight: false,
-  },
-  {
-    tier: 'Growth',
-    price: '35K',
-    desc: 'Ideal for growing businesses needing advanced features and digital marketing.',
-    features: [
-      '10-page custom website',
-      'Admin dashboard / CMS',
-      'eSewa / Khalti integration',
-      'WhatsApp chat widget',
-      'Facebook Pixel + Analytics',
-      '1 month digital marketing',
-      '3 months free support',
-      'Delivery in 14 days',
-      'Staff training included',
-    ],
-    notIncluded: ['Multi-vendor marketplace', 'Native mobile app'],
-    highlight: true,
-  },
-  {
-    tier: 'Enterprise',
-    price: 'Custom',
-    desc: 'Full custom apps, management systems, and SaaS products.',
-    features: [
-      'Full custom web/mobile app',
-      'Hotel / School / ERP system',
-      'Multi-user role management',
-      'All Nepal payment gateways',
-      'API & 3rd party integrations',
-      'Staff training program',
-      '6 months priority support',
-      'Source code ownership',
-    ],
-    notIncluded: [],
-    highlight: false,
-  },
-];
-
 export default function PricingSection({ colors, t, scrollTo }: PricingSectionProps) {
   const [services, setServices] = useState<Service[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -110,7 +56,7 @@ export default function PricingSection({ colors, t, scrollTo }: PricingSectionPr
   // Determine active plans
   const hasDbPlans = services.length > 0;
   const currentService = hasDbPlans ? services[activeTab] : null;
-  const activePlans = currentService ? currentService.pricing : fallbackPackages;
+  const activePlans = currentService?.pricing ?? [];
 
   return (
     <section id="packages" style={{ background: colors.bg, position: 'relative', zIndex: 1 }}>

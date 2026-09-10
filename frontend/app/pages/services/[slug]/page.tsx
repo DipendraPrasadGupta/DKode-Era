@@ -36,19 +36,7 @@ export default function ServicePage() {
         setLoading(true);
         setError(null);
 
-        // Fetch direct slug endpoint from backend
-        let data: any = null;
-        try {
-          data = await apiFetch(`/api/services/${slug}`);
-        } catch {
-          // Fallback: fetch all services and match locally
-          const allServices = await apiFetch('/api/services');
-          const formattedSlug = slug.toLowerCase().replace(/-/g, ' ');
-          data = allServices.find((s: any) =>
-            s.title.toLowerCase() === formattedSlug ||
-            s.title.toLowerCase().replace(/\s+/g, '-') === slug
-          );
-        }
+        const data = await apiFetch(`/api/services/${slug}`);
 
         if (!data) {
           setError('Service not found');
@@ -63,47 +51,17 @@ export default function ServicePage() {
         // Build rich transformed service object
         const transformed = {
           slug: slug,
-          icon: data.icon || '⚡',
+          icon: data.icon || '',
           title: data.title,
           shortDesc: data.desc,
           longDescription: data.desc,
-          price: data.price || (rawPricing.length > 0 ? rawPricing[0].price : 'Custom Quote'),
-          features: tags.length > 0 ? tags.map((t: string) => `${t} Integration & Implementation`) : [
-            'Custom Architecture & Clean Code',
-            'Full Responsive & Mobile Optimization',
-            'API & Payment Gateway Integration',
-            'Security Hardening & SSL Setup',
-            'Performance Optimization & Caching',
-            '30 Days Free Support & Maintenance',
-          ],
-          benefits: [
-            `Tailored ${data.title} engineered specifically for your business goals`,
-            'Fast delivery with regular milestone updates',
-            'Full code ownership — no lock-in fees',
-            'Seamless integration with eSewa, Khalti & global payment providers',
-            'Post-launch maintenance & dedicated local support in Butwal',
-            'SEO-optimized for max visibility in Nepal & global markets',
-          ],
-          process: [
-            { step: 1, title: 'Discovery & Consultation', description: 'We analyze your business model, target audience, and functional requirements.' },
-            { step: 2, title: 'Architecture & UI Design', description: 'Wireframing and high-fidelity prototype design with your feedback at every step.' },
-            { step: 3, title: 'Development & Testing', description: 'Clean, scalable code built with modern frameworks, rigorously tested across devices.' },
-            { step: 4, title: 'Deployment & Training', description: 'Smooth launch on secure servers with full team training and documentation.' },
-            { step: 5, title: 'Ongoing Support', description: '30 days free post-launch monitoring, updates, and maintenance support.' },
-          ],
-          technologies: tags.length > 0 ? tags : ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'],
-          pricing: rawPricing.length > 0 ? rawPricing : [
-            { tier: 'Starter', price: 'Rs. 25,000', features: ['Core features', 'Mobile responsive', 'Basic SEO', '1 month support'] },
-            { tier: 'Professional', price: 'Rs. 50,000', features: ['Full customization', 'API integrations', 'Advanced SEO', 'Priority support'] },
-            { tier: 'Enterprise', price: 'Custom Quote', features: ['Dedicated team', 'SLA guarantee', 'Custom architecture', '24/7 support'] },
-          ],
-          faqs: [
-            { question: `How long does a ${data.title} project take?`, answer: `Most ${data.title} projects take between 2 to 6 weeks depending on project scope. We provide a guaranteed delivery date before starting.` },
-            { question: 'Do I own the source code and assets?', answer: 'Yes! Upon project completion, 100% of the code, IP rights, and assets belong to you. No ongoing license fees.' },
-            { question: 'Can we pay via eSewa, Khalti, or bank transfer?', answer: 'Yes, we accept eSewa, Khalti, local NPR bank transfers, as well as international cards & wire transfers.' },
-            { question: 'What happens after the 30 days of free support?', answer: 'You can extend support with our monthly maintenance plans starting from Rs. 3,000/month, or handle maintenance independently.' },
-            { question: 'Where is D-Kode Era based?', answer: 'We are headquartered in Butwal-10, Rupandehi. You can visit our office or meet us virtually anytime.' },
-          ],
+          price: data.price || (rawPricing[0]?.price || ''),
+          features: tags.map((tag: string) => `${tag} Integration & Implementation`),
+          benefits: [],
+          process: [],
+          technologies: tags,
+          pricing: rawPricing,
+          faqs: [],
         };
 
         setService(transformed);

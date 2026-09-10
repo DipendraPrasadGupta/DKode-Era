@@ -17,42 +17,6 @@ interface JobOpening {
   color: string;
 }
 
-const fallbackOpenings: JobOpening[] = [
-  {
-    id: 1,
-    title: 'Senior Full-Stack Engineer (Next.js / Node / PostgreSQL)',
-    type: 'Full-time',
-    location: 'Butwal / Remote (Nepal)',
-    department: 'Engineering',
-    experience: '3+ Years',
-    description: 'Lead the architecture and implementation of scalable web applications, custom SaaS products, and high-throughput APIs.',
-    tags: ['React', 'Next.js', 'TypeScript', 'Prisma', 'PostgreSQL'],
-    color: tk.cyan,
-  },
-  {
-    id: 2,
-    title: 'AI / LLM Integration Specialist',
-    type: 'Full-time',
-    location: 'Remote / Office',
-    department: 'AI Research',
-    experience: '2+ Years',
-    description: 'Develop multi-agent workflows, vector database RAG pipelines, and intelligent chatbots for business automation.',
-    tags: ['Python', 'LangChain', 'OpenAI API', 'Vector DBs'],
-    color: tk.purple,
-  },
-  {
-    id: 3,
-    title: 'Product Designer (UI/UX & Glassmorphism Aesthetics)',
-    type: 'Full-time / Contract',
-    location: 'Butwal / Remote',
-    department: 'Design',
-    experience: '2+ Years',
-    description: 'Craft intuitive web interfaces, mobile app visual languages, design systems, and modern interactive prototypes.',
-    tags: ['Figma', 'Design Systems', 'Prototyping', 'CSS/Web Aesthetics'],
-    color: tk.green,
-  },
-];
-
 const perks = [
   { icon: '🚀', title: 'High-Impact Work', desc: 'Build software that powers hotels, schools, retail, and tech ventures across Nepal & abroad.' },
   { icon: '💸', title: 'Competitive Compensation', desc: 'Industry-leading salary, performance bonuses, and annual growth reviews.' },
@@ -61,20 +25,18 @@ const perks = [
 ];
 
 export default function CareersPage() {
-  const [openings, setOpenings] = useState<JobOpening[]>(fallbackOpenings);
+  const [openings, setOpenings] = useState<JobOpening[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDept, setActiveDept] = useState('All');
 
   useEffect(() => {
     getJobs()
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setOpenings(data);
         }
       })
-      .catch((err) => {
-        console.warn('Using fallback career openings:', err);
-      })
+      .catch(() => setOpenings([]))
       .finally(() => setLoading(false));
   }, []);
 
