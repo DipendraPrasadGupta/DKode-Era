@@ -24,6 +24,10 @@ const mainNavItems = [
     icon: '▣', desc: 'Our Software Ecosystem', tag: '7+ Products', badge: '7+', badgeColor: 'rgba(168,85,247,0.15)', badgeTextColor: '#a855f7'
   },
   {
+    label: 'IoT Projects', labelNp: 'IoT परियोजनाहरू', page: '/pages/iot-projects',
+    icon: '⚡', desc: 'Hardware & Smart Solutions', tag: '30+ Projects', badge: 'NEW', badgeColor: 'rgba(0,212,255,0.15)', badgeTextColor: '#00d4ff'
+  },
+  {
     label: 'Tools', labelNp: 'उपकरणहरू', page: '/pages/tools',
     icon: '🛠️', desc: 'Dev & AI Suite', tag: 'Free Utilities', badge: 'FREE', badgeColor: 'rgba(0,212,255,0.15)', badgeTextColor: '#00d4ff'
   },
@@ -31,16 +35,16 @@ const mainNavItems = [
     label: 'Blogs', labelNp: 'ब्लगहरू', page: '/pages/blogs',
     icon: '📰', desc: 'Tech Insights & News', tag: 'Articles', badge: 'NEW', badgeColor: 'rgba(0,229,160,0.15)', badgeTextColor: '#00e5a0'
   },
-  {
-    label: 'Career', labelNp: 'करियर', page: '/pages/careers',
-    icon: '💼', desc: 'Join Our Team', tag: 'We\'re Hiring', badge: 'HIRING', badgeColor: 'rgba(245,200,66,0.15)', badgeTextColor: '#f5c842'
-  },
 ];
 
 const moreNavItems = [
   {
     label: 'Services', labelNp: 'सेवाहरू', page: '/pages/services',
     icon: '⚡', desc: 'Web, Mobile, SaaS & More', tag: 'Full-Stack',
+  },
+  {
+    label: 'Career', labelNp: 'करियर', page: '/pages/careers',
+    icon: '💼', desc: 'Join Our Team', tag: 'We\'re Hiring',
   },
   {
     label: 'Pricing', labelNp: 'मूल्य', page: '/pages/pricing',

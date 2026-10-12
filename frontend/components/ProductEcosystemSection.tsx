@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { ThemeColors } from '@/lib/styles';
 
@@ -580,6 +581,87 @@ export default function ProductEcosystemSection({
               <span style={{ color: activeAccent, fontWeight: 700 }}>v2.4 Live</span>
             </div>
           </div>
+        </div>
+
+        {/* ─── D-KODE ERA IOT HARDWARE HIGHLIGHT BANNER ─────────────────── */}
+        <div
+          style={{
+            marginTop: 48,
+            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(168, 85, 247, 0.06) 100%)',
+            border: `1px solid rgba(0, 212, 255, 0.25)`,
+            borderRadius: 18,
+            padding: '24px 30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 20,
+            boxShadow: '0 12px 30px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 14,
+                background: 'rgba(0, 212, 255, 0.15)',
+                border: '1px solid rgba(0, 212, 255, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 26,
+              }}
+            >
+              ⚡
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 10,
+                    background: 'rgba(0, 212, 255, 0.2)',
+                    color: '#00d4ff',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  NEW INITIATIVE
+                </span>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 800, color: '#fff' }}>
+                  IoT & Smart Hardware Solutions
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 13.5, color: colors.muted, lineHeight: 1.5, maxWidth: 640 }}>
+                From simple sensors to intelligent systems — explore <strong>30 practical IoT projects</strong> across 3 progression levels (Blind Stick, Smart City, Robot Cars, and more).
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/pages/iot-projects"
+            style={{
+              background: 'linear-gradient(135deg, #00d4ff 0%, #0077ff 100%)',
+              color: '#050810',
+              padding: '11px 22px',
+              borderRadius: 10,
+              fontWeight: 800,
+              fontSize: 13,
+              fontFamily: "'JetBrains Mono', monospace",
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 4px 16px rgba(0, 212, 255, 0.3)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Explore IoT Lab →
+          </Link>
         </div>
       </div>
     </section>

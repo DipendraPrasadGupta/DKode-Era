@@ -29,16 +29,16 @@ const SCHEMA: Setting[] = [
   // ── Agency Profile ──────────────────────────────────
   { id: 'agency_name',      label: 'Agency Name',           defaultValue: 'D-Kode Era',              type: 'text',   category: 'agency', description: 'Your agency or company display name' },
   { id: 'agency_tagline',   label: 'Tagline / Slogan',      defaultValue: 'We Build Digital Futures', type: 'text',   category: 'agency', description: 'Short tagline shown on hero sections' },
-  { id: 'agency_email',     label: 'Primary Email',         defaultValue: 'hello@dkodeera.com',       type: 'email',  category: 'agency', description: 'Main business contact email address' },
-  { id: 'support_email',    label: 'Support Email',         defaultValue: 'support@dkodeera.com',     type: 'email',  category: 'agency', description: 'Client support and helpdesk email' },
-  { id: 'agency_phone',     label: 'Phone / WhatsApp',      defaultValue: '+977-9800000000',          type: 'text',   category: 'agency', description: 'Primary phone for WhatsApp and calls' },
+  { id: 'agency_email',     label: 'Primary Email',         defaultValue: 'dkodeera2026@gmail.com',   type: 'email',  category: 'agency', description: 'Main business contact email address' },
+  { id: 'support_email',    label: 'Support Email',         defaultValue: 'dkodeera2026@gmail.com',   type: 'email',  category: 'agency', description: 'Client support and helpdesk email' },
+  { id: 'agency_phone',     label: 'Phone / WhatsApp',      defaultValue: '+977 9807544395',          type: 'text',   category: 'agency', description: 'Primary phone for WhatsApp and calls' },
   { id: 'agency_website',   label: 'Website URL',           defaultValue: 'https://dkodeera.com',     type: 'url',    category: 'agency', description: 'Your live public-facing website URL' },
-  { id: 'agency_address',   label: 'Office Address',        defaultValue: 'Butwal-10, Rupandehi, Nepal', type: 'text', category: 'agency', description: 'Physical office or mailing address' },
+  { id: 'agency_address',   label: 'Office Address',        defaultValue: 'Manigram, Butwal, Nepal',   type: 'text',   category: 'agency', description: 'Physical office or mailing address' },
   { id: 'agency_country',   label: 'Country',               defaultValue: 'Nepal',                    type: 'select', category: 'agency', options: [{ label: 'Nepal', value: 'Nepal' }, { label: 'India', value: 'India' }, { label: 'USA', value: 'USA' }, { label: 'UK', value: 'UK' }], description: 'Country of registration' },
   { id: 'agency_currency',  label: 'Default Currency',      defaultValue: 'NPR',                      type: 'select', category: 'agency', options: [{ label: 'NPR - Nepali Rupee', value: 'NPR' }, { label: 'INR - Indian Rupee', value: 'INR' }, { label: 'USD - US Dollar', value: 'USD' }], description: 'Default currency for pricing and invoices' },
   { id: 'agency_founded',   label: 'Founded Year',          defaultValue: '2026',                     type: 'number', category: 'agency', description: 'Year the agency was founded' },
   { id: 'agency_team_size', label: 'Team Size Range',       defaultValue: '5-10',                     type: 'select', category: 'agency', options: [{ label: '1-5', value: '1-5' }, { label: '5-10', value: '5-10' }, { label: '10-25', value: '10-25' }, { label: '25-50', value: '25-50' }, { label: '50+', value: '50+' }], description: 'Company headcount range' },
-  { id: 'business_hours',   label: 'Business Hours',        defaultValue: 'Sun–Fri 9AM–6PM NST',      type: 'text',   category: 'agency', description: 'Working hours shown on contact pages' },
+  { id: 'business_hours',   label: 'Business Hours',        defaultValue: 'Sun–Fri 9:00 AM – 6:00 PM NST', type: 'text', category: 'agency', description: 'Working hours shown on contact pages' },
 
   // ── Social & External Links ──────────────────────────
   { id: 'social_linkedin',  label: 'LinkedIn Profile',      defaultValue: 'https://linkedin.com/company/d-kode-era', type: 'url',  category: 'social', description: 'Agency LinkedIn company page URL' },
@@ -47,7 +47,7 @@ const SCHEMA: Setting[] = [
   { id: 'social_twitter',   label: 'Twitter / X Profile',   defaultValue: 'https://twitter.com/dkodeera',            type: 'url',  category: 'social', description: 'Agency Twitter (X) account URL' },
   { id: 'social_youtube',   label: 'YouTube Channel URL',   defaultValue: '',                                        type: 'url',  category: 'social', description: 'Agency YouTube channel link (optional)' },
   { id: 'social_github',    label: 'GitHub Organization',   defaultValue: 'https://github.com/d-kode-era',           type: 'url',  category: 'social', description: 'Public GitHub organization profile' },
-  { id: 'whatsapp_number',  label: 'WhatsApp Business No.', defaultValue: '+977-9800000000',                         type: 'text', category: 'social', description: 'WhatsApp number for direct client chat' },
+  { id: 'whatsapp_number',  label: 'WhatsApp Business No.', defaultValue: '+977 9807544395',                         type: 'text', category: 'social', description: 'WhatsApp number for direct client chat' },
   { id: 'calendly_link',    label: 'Calendly Booking Link', defaultValue: 'https://calendly.com/d-kode-era',         type: 'url',  category: 'social', description: 'Meeting booking link for client discovery calls' },
 
   // ── SEO & Meta ──────────────────────────────────────

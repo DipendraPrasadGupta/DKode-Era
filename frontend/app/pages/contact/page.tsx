@@ -24,9 +24,9 @@ export default function ContactPage() {
   const { settings } = useSiteSettings();
 
   const contactInfo = [
-    { icon: '📍', label: 'Our Office', value: settings.agency_address || 'Butwal-10, Rupandehi, Lumbini Province, Nepal', color: tk.cyan },
-    { icon: '📧', label: 'Email Us', value: settings.agency_email || 'hello@dkodeera.com', color: tk.purple },
-    { icon: '📱', label: 'Call / WhatsApp', value: settings.agency_phone || '+977-9800000000', color: tk.green },
+    { icon: '📍', label: 'Our Office', value: settings.agency_address || 'Manigram, Butwal, Nepal', color: tk.cyan },
+    { icon: '📧', label: 'Email Us', value: settings.agency_email || 'dkodeera2026@gmail.com', color: tk.purple },
+    { icon: '📱', label: 'Call / WhatsApp', value: settings.agency_phone || '+977 9807544395', color: tk.green },
     { icon: '🕐', label: 'Office Hours', value: settings.business_hours || 'Sunday – Friday: 9AM – 6PM NST', color: tk.gold },
   ];
   const [form, setForm] = useState({

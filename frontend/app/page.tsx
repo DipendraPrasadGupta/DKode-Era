@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { getFallbackApiUrl } from '@/lib/api';
 import HeroSection from '@/components/HeroSection';
 
 import ServicesSection from '@/components/ServicesSection';
@@ -36,17 +37,31 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // ── Real visitor tracking ─────────────────────────────────────────
+  // POST /api/visitors/ping on mount → registers this visit and returns
+  // { total, today }. Poll every 30 s so the count stays fresh.
   useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((v) => v + Math.floor(Math.random() * 2));
-      setCounters((c) => ({
-        p: Math.min(c.p + 1, 25),
-        c: Math.min(c.c + 1, 18),
-        i: Math.min(c.i + 1, 15),
-        s: Math.min(c.s + 1, 5),
-      }));
-    }, 100);
-    return () => clearInterval(timer);
+    const apiBase = getFallbackApiUrl();
+
+    const ping = async () => {
+      try {
+        const res = await fetch(`${apiBase}/api/visitors/ping`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Show today's unique visitor count as the "live" number
+          setVisitors(data.today ?? data.total ?? 0);
+        }
+      } catch {
+        // Backend unreachable in dev — silently ignore
+      }
+    };
+
+    ping();
+    const interval = setInterval(ping, 30_000);
+    return () => clearInterval(interval);
   }, []);
 
   const hasTriggeredRef = useRef(false);

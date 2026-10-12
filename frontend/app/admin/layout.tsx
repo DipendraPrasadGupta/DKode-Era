@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/api/auth';
 const NAV = [
   { name: 'Dashboard', path: '/admin', icon: '⊞', group: 'overview' },
   { name: 'Products', path: '/admin/products', icon: '🚀', group: 'content' },
+  { name: 'IoT Projects', path: '/admin/iot-projects', icon: '⚡', group: 'content' },
   { name: 'Blogs & Articles', path: '/admin/blogs', icon: '📰', group: 'content' },
   { name: 'Careers', path: '/admin/careers', icon: '💼', group: 'content' },
   { name: 'Job Applications', path: '/admin/applications', icon: '📄', group: 'content' },

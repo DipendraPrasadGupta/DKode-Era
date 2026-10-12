@@ -24,6 +24,7 @@ import {
   submitOrder
 } from '../controllers/clientController';
 import { getSiteSettings } from '../controllers/adminController';
+import { pingVisitor, getVisitorStats } from '../controllers/visitorController';
 
 import rateLimit from 'express-rate-limit';
 
@@ -135,6 +136,12 @@ router.post('/apply', submitJobApplication); // Job application submission
 
 // Public site settings (no auth required — used by frontend pages)
 router.get('/settings', getSiteSettings);
+
+// ─── REAL VISITOR TRACKING ───────────────────────────────────────────────────
+// POST: called on page load to register/refresh a visit (IP+UA fingerprinted)
+router.post('/visitors/ping', pingVisitor);
+// GET: read-only stats for fetching current counts without registering a visit
+router.get('/visitors', getVisitorStats);
 
 export default router;
 

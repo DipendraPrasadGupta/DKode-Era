@@ -222,3 +222,20 @@ model Subscriber {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+// Real visitor tracking — one row per unique fingerprint per calendar day
+model PageVisitor {
+  id          Int      @id @default(autoincrement())
+  fingerprint String   // SHA-256 of IP + UA (no PII stored raw)
+  day         String   // YYYY-MM-DD for easy dedup within a day
+  lastSeenAt  DateTime @default(now()) @updatedAt
+
+  @@unique([fingerprint, day])
+  @@index([day])
+}
+
+// Cumulative total visitor counter (avoids counting all PageVisitor rows)
+model VisitorCounter {
+  id    Int @id @default(autoincrement())
+  total Int @default(0)
+}

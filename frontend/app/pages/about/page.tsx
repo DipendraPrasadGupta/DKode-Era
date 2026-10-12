@@ -70,10 +70,10 @@ export default function AboutPage() {
   ];
 
   const liveContactRows: [string, string][] = [
-    ['📧', settings.agency_email || 'hello@dkodeera.com'],
-    ['📱', settings.agency_phone || '+977-9800000000'],
-    ['💬', `WhatsApp: ${settings.whatsapp_number || '+977-9800000000'}`],
-    ['🕐', settings.business_hours || 'Sun–Fri 9AM–6PM NST'],
+    ['📧', settings.agency_email || 'dkodeera2026@gmail.com'],
+    ['📱', settings.agency_phone || '+977 9807544395'],
+    ['💬', `WhatsApp: ${settings.whatsapp_number || '+977 9807544395'}`],
+    ['🕐', settings.business_hours || 'Sun–Fri 9:00 AM – 6:00 PM NST'],
   ];
 
   return (

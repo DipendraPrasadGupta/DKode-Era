@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '../../lib/api';
+import { getStoredProjects } from '@/lib/iotProjectsStore';
 
 interface Stats {
   services: number;
@@ -53,6 +54,7 @@ export default function AdminDashboard() {
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [recentApps, setRecentApps] = useState<Application[]>([]);
+  const [iotCount, setIotCount] = useState(30);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,6 +73,14 @@ export default function AdminDashboard() {
     const fetchApps = apiFetch('/admin/api/applications')
       .then((data) => data)
       .catch(() => []);
+
+    // Load IoT Projects count
+    try {
+      const storedIot = getStoredProjects();
+      setIotCount(storedIot.length);
+    } catch {
+      setIotCount(30);
+    }
 
     Promise.all([fetchStats, fetchMessages, fetchOrders, fetchApps])
       .then(([statsData, messagesData, ordersData, appsData]) => {
@@ -107,6 +117,7 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
+    { title: 'IoT & Embedded Projects', count: iotCount, icon: '⚡', color: '#00d4ff', glow: 'rgba(0,212,255,0.3)', desc: 'Hardware lab projects & firmware', link: '/admin/iot-projects' },
     { title: 'Job Applications', count: stats?.applications ?? 0, icon: '📄', color: '#00e5a0', glow: 'rgba(0,229,160,0.25)', desc: 'Received candidate CVs & pitches', link: '/admin/applications' },
     { title: 'Active Services', count: stats?.services ?? 0, icon: '💼', color: '#06b6d4', glow: 'rgba(6,182,212,0.25)', desc: 'Main agency service offerings', link: '/admin/services' },
     { title: 'Order Inquiries', count: stats?.orders ?? 0, icon: '📦', color: '#3b82f6', glow: 'rgba(59,130,246,0.25)', desc: 'Client package requests', link: '/admin/orders' },
