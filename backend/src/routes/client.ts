@@ -42,11 +42,17 @@ const testimonialLimiter = rateLimit({
 const cvUploadsDir = path.join(__dirname, '../../uploads/cv');
 if (!fs.existsSync(cvUploadsDir)) fs.mkdirSync(cvUploadsDir, { recursive: true });
 
+const MIME_TO_CV_EXT: Record<string, string> = {
+  'application/pdf': '.pdf',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx'
+};
+
 const cvStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, cvUploadsDir),
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    const ext = MIME_TO_CV_EXT[file.mimetype] || '.pdf';
+    cb(null, `cv-${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`);
   },
 });
 
@@ -55,13 +61,8 @@ const cvUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const allowedExts = ['.pdf', '.doc', '.docx'];
-    const allowedMimes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
-    if (allowedExts.includes(ext) && allowedMimes.includes(file.mimetype)) {
+    const safeExt = MIME_TO_CV_EXT[file.mimetype];
+    if (safeExt && ['.pdf', '.doc', '.docx'].includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Invalid file type. Only PDF and Word documents (.pdf, .doc, .docx) are allowed.'));
@@ -81,11 +82,18 @@ router.post('/cv-upload', cvUpload.single('cv'), (req: Request, res: Response) =
 const avatarUploadsDir = path.join(__dirname, '../../uploads/avatars');
 if (!fs.existsSync(avatarUploadsDir)) fs.mkdirSync(avatarUploadsDir, { recursive: true });
 
+const MIME_TO_IMG_EXT: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
+
 const avatarStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, avatarUploadsDir),
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    const ext = MIME_TO_IMG_EXT[file.mimetype] || '.jpg';
+    cb(null, `avatar-${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`);
   },
 });
 
@@ -93,7 +101,9 @@ const avatarUpload = multer({
   storage: avatarStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
   fileFilter: (_req, file, cb) => {
-    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowed = MIME_TO_IMG_EXT[file.mimetype];
+    if (allowed && ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Only JPEG, PNG, WebP, or GIF image files are allowed.'));

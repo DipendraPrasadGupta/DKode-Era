@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { loggerMiddleware } from './middleware/logger';
 import { errorHandler } from './middleware/error';
+import { securityHeaders, csrfOriginGuard, rejectOversizedBody } from './middleware/security';
 import clientRoutes from './routes/client';
 import adminRoutes from './routes/admin';
 import prisma from './config/prisma';
@@ -19,11 +20,17 @@ app.disable('x-powered-by');
 
 // ─── SECURITY HEADERS ────────────────────────────────────────────────────────
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images to load cross-origin
-  contentSecurityPolicy: false, // Disable CSP in dev — images served from :5000 load on :3000
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: false,
   noSniff: true,
   xssFilter: true,
 }));
+
+// ─── ADDITIONAL SECURITY HEADERS ─────────────────────────────────────────────
+app.use(securityHeaders);
+
+// ─── CSRF ORIGIN GUARD ────────────────────────────────────────────────────────
+app.use(csrfOriginGuard);
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 app.use(cors({
@@ -69,9 +76,10 @@ app.use('/api/apply', strictLimiter);
 app.use('/api/cv-upload', strictLimiter);
 app.use('/api/blogs/:slug/comments', strictLimiter);
 
-// ─── BODY PARSING ─────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// ─── BODY PARSING (with per-route size limits) ───────────────────────────────
+app.use(rejectOversizedBody(2 * 1024 * 1024)); // 2MB hard cap before parsing
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ─── REQUEST LOGGER ───────────────────────────────────────────────────────────
 app.use(loggerMiddleware);
@@ -79,9 +87,11 @@ app.use(loggerMiddleware);
 // ─── STATIC ASSETS & UPLOADS SECURITY ─────────────────────────────────────────
 app.use('/admin/assets', express.static(path.join(__dirname, '../admin/assets')));
 
-// Serve uploads with no-sniff security header
+// Serve uploads with strict isolation: no-sniff, CSP sandbox, disable script execution
 app.use('/uploads', (req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(path.join(__dirname, '../uploads')));
 

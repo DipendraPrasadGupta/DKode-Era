@@ -80,7 +80,12 @@ import {
 } from '../controllers/iotController';
 
 
+import { requireJson } from '../middleware/security';
+
 const router = Router();
+
+// Enforce Content-Type on all mutation requests to admin API
+router.use('/api', requireJson);
 
 // ─── BLOGS CRUD ─────────────────────────────────────────────────────────────
 router.get('/api/blogs', authMiddleware, getBlogsAdmin);
@@ -111,19 +116,31 @@ ensureDefaultAdmin();
 const uploadsDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
+const MIME_TO_ADMIN_IMG_EXT: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    const ext = MIME_TO_ADMIN_IMG_EXT[file.mimetype] || '.jpg';
+    cb(null, `upload-${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`);
   },
 });
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
   fileFilter: (_req, file, cb) => {
-    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true);
-    else cb(new Error('Only JPEG, PNG, WebP, or GIF images are allowed.'));
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowed = MIME_TO_ADMIN_IMG_EXT[file.mimetype];
+    if (allowed && ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, WebP, or GIF images are allowed.'));
+    }
   },
 });
 

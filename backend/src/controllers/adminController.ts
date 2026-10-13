@@ -9,33 +9,46 @@ import { AuthenticatedRequest } from '../middleware/auth';
 
 export const login = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      res.status(400).json({ error: 'Username and password are required' });
+    const rawUsername = req.body?.username;
+    const rawPassword = req.body?.password;
+
+    // Input type + length guards
+    if (!rawUsername || !rawPassword ||
+        typeof rawUsername !== 'string' || typeof rawPassword !== 'string') {
+      res.status(400).json({ error: 'Username and password are required.' });
       return;
     }
+    if (rawUsername.length > 64 || rawPassword.length > 128) {
+      res.status(400).json({ error: 'Invalid credentials.' });
+      return;
+    }
+
+    // Sanitize before DB lookup (no HTML, trim whitespace)
+    const username = rawUsername.trim().replace(/<[^>]*>/g, '');
 
     const admin = await prisma.admin.findUnique({ where: { username } });
     if (!admin) {
-      res.status(401).json({ error: 'Invalid username or password' });
+      // Constant-time: still hash compare even on miss to prevent timing attacks
+      await bcrypt.compare(rawPassword, '$2b$10$invalidhashfortimingprotection...........');
+      res.status(401).json({ error: 'Invalid username or password.' });
       return;
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = await bcrypt.compare(rawPassword, admin.password);
     if (!isMatch) {
-      res.status(401).json({ error: 'Invalid username or password' });
+      res.status(401).json({ error: 'Invalid username or password.' });
       return;
     }
 
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
       env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '8h' }  // Reduced from 1d to 8h
     );
 
-    res.json({ 
-      token, 
-      user: { id: admin.id, username: admin.username } 
+    res.json({
+      token,
+      user: { id: admin.id, username: admin.username },
     });
   } catch (error) {
     next(error);
