@@ -15,10 +15,10 @@ export interface ToolItem {
 export const toolsList: ToolItem[] = [
   {
     id: 'image-converter',
-    icon: '🖼️',
-    title: 'Universal Image Format Converter',
-    desc: 'Convert single or batch images to WebP, PNG, JPG, AVIF, BMP, ICO Favicon, and Base64 with custom compression and resizing.',
-    badge: 'New · Multi-Format',
+    icon: '📑',
+    title: 'Universal File & Document Converter',
+    desc: 'Convert PDF to Word, Word to PDF, Images to PDF, WebP, PNG, JPG, AVIF, and Favicon with 100% in-browser privacy.',
+    badge: 'All-in-One · Free',
     category: 'Utility',
     color: tk.purple,
     href: '/pages/tools/image-converter',

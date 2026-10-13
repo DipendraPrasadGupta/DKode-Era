@@ -4,8 +4,33 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { pageTokens as tk } from '@/lib/pageTokens';
 import JSZip from 'jszip';
+import {
+  FileText,
+  FileCode,
+  Image as ImageIcon,
+  FileDown,
+  Download,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Check,
+  RefreshCw,
+  SlidersHorizontal,
+  Layers,
+  Plus,
+  Trash2,
+  FileUp,
+  Files,
+  Cpu,
+} from 'lucide-react';
+import {
+  convertDocxToPdf,
+  convertPdfToDocx,
+  convertImagesToPdf,
+  convertTextToDocx,
+} from '@/lib/documentConverter';
 
-// ─── Supported Formats ───────────────────────────────────────────────────────
+// ─── Supported Image Formats ─────────────────────────────────────────────────
 
 export type OutputFormat = 'webp' | 'png' | 'jpeg' | 'avif' | 'bmp' | 'ico' | 'base64';
 
@@ -19,7 +44,7 @@ interface FormatConfig {
   supportsQuality: boolean;
 }
 
-const FORMATS: FormatConfig[] = [
+const IMAGE_FORMATS: FormatConfig[] = [
   { id: 'webp', label: 'WebP', ext: 'webp', mime: 'image/webp', badge: 'Recommended', desc: 'Modern web standard — exceptional compression with transparency.', supportsQuality: true },
   { id: 'png', label: 'PNG', ext: 'png', mime: 'image/png', badge: 'Lossless', desc: 'Pixel-perfect quality with full alpha transparency support.', supportsQuality: false },
   { id: 'jpeg', label: 'JPEG / JPG', ext: 'jpg', mime: 'image/jpeg', badge: 'Universal', desc: 'Classic photograph standard compatible with all devices.', supportsQuality: true },
@@ -48,22 +73,48 @@ export interface ConvertedFile {
   errorMessage?: string;
 }
 
-export default function ImageConverterPage() {
+// ─── Document Converter Operations ───────────────────────────────────────────
+
+type DocConversionMode = 'word-to-pdf' | 'pdf-to-word' | 'images-to-pdf' | 'text-to-word';
+
+interface ConvertedDocItem {
+  id: string;
+  name: string;
+  size: number;
+  targetExt: string;
+  outputBlob?: Blob;
+  outputUrl?: string;
+  outputFilename?: string;
+  status: 'pending' | 'converting' | 'done' | 'error';
+  errorMessage?: string;
+}
+
+export default function UniversalFileConverterPage() {
+  const [suiteCategory, setSuiteCategory] = useState<'documents' | 'images'>('documents');
+
+  // ── Document State ─────────────────────────────────────────────────────────
+  const [docMode, setDocMode] = useState<DocConversionMode>('pdf-to-word');
+  const [docFiles, setDocFiles] = useState<File[]>([]);
+  const [convertedDocs, setConvertedDocs] = useState<ConvertedDocItem[]>([]);
+  const [isConvertingDocs, setIsConvertingDocs] = useState<boolean>(false);
+  const docInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Image State ────────────────────────────────────────────────────────────
   const [targetFormat, setTargetFormat] = useState<OutputFormat>('webp');
-  const [quality, setQuality] = useState<number>(85); // 10 to 100
+  const [quality, setQuality] = useState<number>(85);
   const [resizeMode, setResizeMode] = useState<'original' | 'fit' | 'square'>('original');
   const [maxWidth, setMaxWidth] = useState<number>(1920);
   const [maxHeight, setMaxHeight] = useState<number>(1080);
   const [squareSize, setSquareSize] = useState<number>(512);
 
-  const [files, setFiles] = useState<ConvertedFile[]>([]);
-  const [isConvertingAll, setIsConvertingAll] = useState<boolean>(false);
+  const [imageFiles, setImageFiles] = useState<ConvertedFile[]>([]);
+  const [isConvertingImages, setIsConvertingImages] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Helper to format byte sizes ────────────────────────────────────────────
+  // ── Format Helper ──────────────────────────────────────────────────────────
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -72,7 +123,125 @@ export default function ImageConverterPage() {
     return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
   };
 
-  // ── Convert single file in Canvas ──────────────────────────────────────────
+  // ── Document Conversion Process ────────────────────────────────────────────
+  const handleDocConversion = async () => {
+    if (docFiles.length === 0) return;
+    setIsConvertingDocs(true);
+
+    const results: ConvertedDocItem[] = [];
+
+    try {
+      if (docMode === 'word-to-pdf') {
+        for (const f of docFiles) {
+          try {
+            const { blob, filename } = await convertDocxToPdf(f);
+            const url = URL.createObjectURL(blob);
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'pdf',
+              outputBlob: blob,
+              outputUrl: url,
+              outputFilename: filename,
+              status: 'done',
+            });
+          } catch (err: any) {
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'pdf',
+              status: 'error',
+              errorMessage: err.message || 'Failed to convert DOCX to PDF',
+            });
+          }
+        }
+      } else if (docMode === 'pdf-to-word') {
+        for (const f of docFiles) {
+          try {
+            const { blob, filename } = await convertPdfToDocx(f);
+            const url = URL.createObjectURL(blob);
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'docx',
+              outputBlob: blob,
+              outputUrl: url,
+              outputFilename: filename,
+              status: 'done',
+            });
+          } catch (err: any) {
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'docx',
+              status: 'error',
+              errorMessage: err.message || 'Failed to convert PDF to DOCX',
+            });
+          }
+        }
+      } else if (docMode === 'images-to-pdf') {
+        try {
+          const { blob, filename } = await convertImagesToPdf(docFiles);
+          const url = URL.createObjectURL(blob);
+          results.push({
+            id: `${Date.now()}-${Math.random()}`,
+            name: `${docFiles.length} Images Combined`,
+            size: docFiles.reduce((acc, c) => acc + c.size, 0),
+            targetExt: 'pdf',
+            outputBlob: blob,
+            outputUrl: url,
+            outputFilename: filename,
+            status: 'done',
+          });
+        } catch (err: any) {
+          results.push({
+            id: `${Date.now()}-${Math.random()}`,
+            name: 'Images to PDF',
+            size: 0,
+            targetExt: 'pdf',
+            status: 'error',
+            errorMessage: err.message || 'Failed to compile images to PDF',
+          });
+        }
+      } else if (docMode === 'text-to-word') {
+        for (const f of docFiles) {
+          try {
+            const { blob, filename } = await convertTextToDocx(f);
+            const url = URL.createObjectURL(blob);
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'docx',
+              outputBlob: blob,
+              outputUrl: url,
+              outputFilename: filename,
+              status: 'done',
+            });
+          } catch (err: any) {
+            results.push({
+              id: `${Date.now()}-${Math.random()}`,
+              name: f.name,
+              size: f.size,
+              targetExt: 'docx',
+              status: 'error',
+              errorMessage: err.message || 'Failed to convert Text to Word',
+            });
+          }
+        }
+      }
+
+      setConvertedDocs(results);
+    } finally {
+      setIsConvertingDocs(false);
+    }
+  };
+
+  // ── Process Single Image in Canvas ─────────────────────────────────────────
   const processImage = async (
     fileItem: ConvertedFile,
     fmt: OutputFormat,
@@ -108,14 +277,12 @@ export default function ImageConverterPage() {
           return;
         }
 
-        // Background handling
         if (fmt === 'jpeg' || fmt === 'bmp') {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, targetW, targetH);
         }
 
         if (rMode === 'square' && img.width !== img.height) {
-          // Centered cover crop
           const minDim = Math.min(img.width, img.height);
           const sx = (img.width - minDim) / 2;
           const sy = (img.height - minDim) / 2;
@@ -124,7 +291,6 @@ export default function ImageConverterPage() {
           ctx.drawImage(img, 0, 0, targetW, targetH);
         }
 
-        // Handle Base64 export
         if (fmt === 'base64') {
           const dataUrl = canvas.toDataURL('image/webp', q / 100);
           const blob = new Blob([dataUrl], { type: 'text/plain' });
@@ -141,9 +307,7 @@ export default function ImageConverterPage() {
           return;
         }
 
-        // Handle ICO format
         if (fmt === 'ico') {
-          // Generate a PNG blob then wrap in Windows ICO structure
           canvas.toBlob((pngBlob) => {
             if (!pngBlob) {
               resolve({ status: 'error', errorMessage: 'Failed to create ICO blob' });
@@ -154,20 +318,18 @@ export default function ImageConverterPage() {
               const icoHeader = new Uint8Array(22);
               const view = new DataView(icoHeader.buffer);
 
-              // ICONDIR
-              view.setUint16(0, 0, true); // reserved
-              view.setUint16(2, 1, true); // 1 = ICO
-              view.setUint16(4, 1, true); // 1 image
+              view.setUint16(0, 0, true);
+              view.setUint16(2, 1, true);
+              view.setUint16(4, 1, true);
 
-              // ICONDIRENTRY
               view.setUint8(6, targetW >= 256 ? 0 : targetW);
               view.setUint8(7, targetH >= 256 ? 0 : targetH);
-              view.setUint8(8, 0); // color palette
-              view.setUint8(9, 0); // reserved
-              view.setUint16(10, 1, true); // color planes
-              view.setUint16(12, 32, true); // bpp
-              view.setUint32(14, pngBytes.length, true); // size of image data
-              view.setUint32(18, 22, true); // offset of image data
+              view.setUint8(8, 0);
+              view.setUint8(9, 0);
+              view.setUint16(10, 1, true);
+              view.setUint16(12, 32, true);
+              view.setUint32(14, pngBytes.length, true);
+              view.setUint32(18, 22, true);
 
               const icoBlob = new Blob([icoHeader, pngBytes], { type: 'image/x-icon' });
               const url = URL.createObjectURL(icoBlob);
@@ -186,7 +348,6 @@ export default function ImageConverterPage() {
           return;
         }
 
-        // Standard mime types: webp, png, jpeg, avif
         const mimeMap: Record<string, string> = {
           webp: 'image/webp',
           png: 'image/png',
@@ -228,8 +389,8 @@ export default function ImageConverterPage() {
     });
   };
 
-  // ── Handle incoming files ──────────────────────────────────────────────────
-  const handleFilesAdded = (rawFiles: FileList | File[]) => {
+  // ── Image Files Handlers ───────────────────────────────────────────────────
+  const handleImagesAdded = (rawFiles: FileList | File[]) => {
     const newItems: ConvertedFile[] = [];
 
     Array.from(rawFiles).forEach((file) => {
@@ -238,7 +399,7 @@ export default function ImageConverterPage() {
       const previewUrl = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => {
-        setFiles((prev) =>
+        setImageFiles((prev) =>
           prev.map((item) =>
             item.originalPreviewUrl === previewUrl
               ? { ...item, originalWidth: img.width, originalHeight: img.height }
@@ -262,17 +423,16 @@ export default function ImageConverterPage() {
     });
 
     if (newItems.length > 0) {
-      setFiles((prev) => [...prev, ...newItems]);
+      setImageFiles((prev) => [...prev, ...newItems]);
     }
   };
 
-  // ── Convert all pending files ──────────────────────────────────────────────
-  const handleConvertAll = async () => {
-    if (files.length === 0) return;
-    setIsConvertingAll(true);
+  const handleConvertAllImages = async () => {
+    if (imageFiles.length === 0) return;
+    setIsConvertingImages(true);
 
     const updated = await Promise.all(
-      files.map(async (item) => {
+      imageFiles.map(async (item) => {
         const result = await processImage(
           item,
           targetFormat,
@@ -286,20 +446,12 @@ export default function ImageConverterPage() {
       })
     );
 
-    setFiles(updated);
-    setIsConvertingAll(false);
+    setImageFiles(updated);
+    setIsConvertingImages(false);
   };
 
-  // Auto-convert on format change if files already exist
-  useEffect(() => {
-    if (files.length > 0 && files.some((f) => f.status === 'done')) {
-      handleConvertAll();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetFormat, quality, resizeMode, maxWidth, maxHeight, squareSize]);
-
-  // ── Single file download ───────────────────────────────────────────────────
-  const downloadFile = (item: ConvertedFile) => {
+  // ── Downloads ──────────────────────────────────────────────────────────────
+  const downloadSingleImage = (item: ConvertedFile) => {
     if (!item.convertedUrl && !item.base64String) return;
 
     if (item.format === 'base64' && item.base64String) {
@@ -309,7 +461,7 @@ export default function ImageConverterPage() {
       return;
     }
 
-    const fmtConfig = FORMATS.find((f) => f.id === item.format) || FORMATS[0];
+    const fmtConfig = IMAGE_FORMATS.find((f) => f.id === item.format) || IMAGE_FORMATS[0];
     const baseName = item.originalName.replace(/\.[^/.]+$/, '');
     const filename = `${baseName}.${fmtConfig.ext}`;
 
@@ -321,13 +473,12 @@ export default function ImageConverterPage() {
     document.body.removeChild(a);
   };
 
-  // ── Batch ZIP download ─────────────────────────────────────────────────────
-  const downloadAllAsZip = async () => {
-    const doneItems = files.filter((f) => f.status === 'done' && f.convertedBlob);
+  const downloadAllImagesAsZip = async () => {
+    const doneItems = imageFiles.filter((f) => f.status === 'done' && f.convertedBlob);
     if (doneItems.length === 0) return;
 
     const zip = new JSZip();
-    const fmtConfig = FORMATS.find((f) => f.id === targetFormat) || FORMATS[0];
+    const fmtConfig = IMAGE_FORMATS.find((f) => f.id === targetFormat) || IMAGE_FORMATS[0];
 
     doneItems.forEach((item, index) => {
       const baseName = item.originalName.replace(/\.[^/.]+$/, '');
@@ -346,45 +497,20 @@ export default function ImageConverterPage() {
     document.body.removeChild(a);
   };
 
-  // ── Remove single item ─────────────────────────────────────────────────────
-  const removeItem = (id: string) => {
-    setFiles((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // ── Clear all ──────────────────────────────────────────────────────────────
-  const clearAll = () => {
-    files.forEach((f) => {
-      if (f.originalPreviewUrl) URL.revokeObjectURL(f.originalPreviewUrl);
-      if (f.convertedUrl && !f.convertedUrl.startsWith('data:')) URL.revokeObjectURL(f.convertedUrl);
-    });
-    setFiles([]);
-  };
-
-  // ── Overall Stats ──────────────────────────────────────────────────────────
-  const stats = useMemo(() => {
-    const done = files.filter((f) => f.status === 'done');
-    const totalOriginal = done.reduce((acc, cur) => acc + cur.originalSize, 0);
-    const totalConverted = done.reduce((acc, cur) => acc + (cur.convertedSize || 0), 0);
-    const savedBytes = Math.max(0, totalOriginal - totalConverted);
-    const savedPercent = totalOriginal > 0 ? Math.round((savedBytes / totalOriginal) * 100) : 0;
-
-    return { doneCount: done.length, totalOriginal, totalConverted, savedBytes, savedPercent };
-  }, [files]);
-
   return (
     <div style={{ background: tk.bg, color: tk.text, minHeight: '100vh', fontFamily: tk.fontBody }}>
-      {/* ── Hero Section ─────────────────────────────────────────────────── */}
+      {/* ── Top Hero Banner ──────────────────────────────────────────────── */}
       <section
         style={{
-          background: `radial-gradient(ellipse 900px 600px at 20% 20%, rgba(168,85,247,0.12), transparent 60%),
-                       radial-gradient(ellipse 700px 500px at 85% 30%, rgba(0,212,255,0.1), transparent 60%),
+          background: `radial-gradient(ellipse 900px 600px at 20% 20%, rgba(168,85,247,0.14), transparent 60%),
+                       radial-gradient(ellipse 700px 500px at 85% 30%, rgba(0,212,255,0.12), transparent 60%),
                        ${tk.bg}`,
-          padding: '48px 20px 40px',
+          padding: '48px 20px 36px',
           borderBottom: `1px solid ${tk.border}`,
           position: 'relative',
         }}
       >
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
           <Link
             href="/pages/tools"
             style={{
@@ -403,14 +529,14 @@ export default function ImageConverterPage() {
           </Link>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ maxWidth: 680 }}>
+            <div style={{ maxWidth: 720 }}>
               <div
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  background: 'rgba(168,85,247,0.08)',
-                  border: '1px solid rgba(168,85,247,0.25)',
+                  background: 'rgba(168,85,247,0.1)',
+                  border: '1px solid rgba(168,85,247,0.3)',
                   borderRadius: 20,
                   padding: '6px 14px',
                   color: tk.purple,
@@ -421,20 +547,21 @@ export default function ImageConverterPage() {
                   marginBottom: 18,
                 }}
               >
-                🖼️ Free Developer & Creator Suite · Client-Side Processing
+                <Sparkles size={14} />
+                <span>All-in-One Universal Converter Suite</span>
               </div>
 
               <h1
                 style={{
                   fontFamily: tk.fontDisplay,
-                  fontSize: 'clamp(32px, 5vw, 54px)',
+                  fontSize: 'clamp(32px, 5vw, 56px)',
                   fontWeight: 900,
                   lineHeight: 1.15,
                   marginBottom: 16,
                   letterSpacing: '-0.03em',
                 }}
               >
-                Universal Image{' '}
+                Universal File &{' '}
                 <span
                   style={{
                     background: `linear-gradient(135deg, ${tk.purple}, ${tk.cyan})`,
@@ -442,12 +569,12 @@ export default function ImageConverterPage() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  Format Converter
+                  Document Converter
                 </span>
               </h1>
 
-              <p style={{ fontSize: 16, color: tk.textDim, lineHeight: 1.7, maxWidth: 620, margin: 0 }}>
-                Convert single or batch images to WebP, PNG, JPEG, AVIF, BMP, ICO Favicon, or Base64 data URIs. 100% private in-browser conversion with instant zero-server processing.
+              <p style={{ fontSize: 16, color: tk.textDim, lineHeight: 1.7, maxWidth: 640, margin: 0 }}>
+                Convert PDF to Word, Word to PDF, Images to PDF, WebP, PNG, JPG, AVIF, BMP, and Favicon. 100% private, client-side processing — your files never leave your computer.
               </p>
             </div>
 
@@ -456,515 +583,728 @@ export default function ImageConverterPage() {
               style={{
                 background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
                 border: `1px solid ${tk.border}`,
-                borderRadius: 16,
-                padding: '16px 20px',
-                minWidth: 260,
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                borderRadius: 18,
+                padding: '18px 22px',
+                minWidth: 280,
+                backdropFilter: 'blur(16px)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 16 }}>🛡️</span>
+                <ShieldCheck size={18} color={tk.green} />
                 <span style={{ fontSize: 12, fontFamily: tk.fontMono, color: tk.green, fontWeight: 700, textTransform: 'uppercase' }}>
-                  100% Private & Secure
+                  100% In-Browser Privacy
                 </span>
               </div>
               <p style={{ fontSize: 12, color: tk.textDim, margin: 0, lineHeight: 1.6 }}>
-                Images are transformed locally on your device via HTML5 Canvas. Your files are never uploaded or stored on any server.
+                All document parsing and image conversions execute locally via WebAssembly and Canvas. Zero server uploads.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Main Interactive Section ─────────────────────────────────────── */}
-      <main style={{ maxWidth: 1160, margin: '0 auto', padding: '40px 20px 80px' }}>
-        {/* Format Selector Bar */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Choose Target Output Format:
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
-            {FORMATS.map((fmt) => {
-              const isActive = targetFormat === fmt.id;
-              return (
-                <button
-                  key={fmt.id}
-                  onClick={() => setTargetFormat(fmt.id)}
-                  style={{
-                    background: isActive ? 'rgba(168,85,247,0.14)' : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${isActive ? tk.purple : tk.border}`,
-                    borderRadius: 14,
-                    padding: '14px 12px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 6,
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: isActive ? tk.purple : tk.text }}>
-                      {fmt.label}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 9,
-                        fontFamily: tk.fontMono,
-                        color: isActive ? tk.cyan : tk.textDim,
-                        background: 'rgba(255,255,255,0.05)',
-                        padding: '2px 6px',
-                        borderRadius: 6,
-                      }}
-                    >
-                      .{fmt.ext}
-                    </span>
-                  </div>
-                  <span style={{ fontSize: 11, color: tk.textDim, lineHeight: 1.4 }}>
-                    {fmt.desc}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Advanced Controls Bar ────────────────────────────────────────── */}
-        <div
-          style={{
-            background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
-            border: `1px solid ${tk.border}`,
-            borderRadius: 16,
-            padding: '20px 24px',
-            marginBottom: 32,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 20,
-            alignItems: 'center',
-          }}
-        >
-          {/* Quality Control */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12, fontFamily: tk.fontMono }}>
-              <span style={{ color: tk.textDim }}>Compression Quality:</span>
-              <span style={{ color: tk.cyan, fontWeight: 700 }}>{quality}%</span>
-            </div>
-            <input
-              type="range"
-              min="10"
-              max="100"
-              step="5"
-              value={quality}
-              onChange={(e) => setQuality(Number(e.target.value))}
-              disabled={!FORMATS.find((f) => f.id === targetFormat)?.supportsQuality}
-              style={{ width: '100%', accentColor: tk.cyan, cursor: 'pointer' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: tk.textDim, marginTop: 4 }}>
-              <span>Smaller Size</span>
-              <span>Balanced (85%)</span>
-              <span>Max Quality</span>
-            </div>
-          </div>
-
-          {/* Resize Mode */}
-          <div>
-            <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginBottom: 8 }}>
-              Resolution / Rescaling:
-            </div>
-            <select
-              value={resizeMode}
-              onChange={(e) => setResizeMode(e.target.value as any)}
+      {/* ── Main Workspace ───────────────────────────────────────────────── */}
+      <main style={{ maxWidth: 1180, margin: '0 auto', padding: '36px 20px 80px' }}>
+        {/* Top-Level Mode Selector: Documents vs Images */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 36 }}>
+          <button
+            onClick={() => setSuiteCategory('documents')}
+            style={{
+              background: suiteCategory === 'documents' ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${suiteCategory === 'documents' ? tk.cyan : tk.border}`,
+              borderRadius: 16,
+              padding: '18px 22px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              textAlign: 'left',
+              transition: 'all 0.25s ease',
+              boxShadow: suiteCategory === 'documents' ? '0 4px 24px rgba(0,212,255,0.15)' : 'none',
+            }}
+          >
+            <div
               style={{
-                width: '100%',
-                background: 'rgba(0,0,0,0.4)',
-                border: `1px solid ${tk.border}`,
-                borderRadius: 10,
-                padding: '10px 14px',
-                color: tk.text,
-                fontSize: 14,
-                fontFamily: tk.fontMono,
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: suiteCategory === 'documents' ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: suiteCategory === 'documents' ? tk.cyan : tk.textDim,
               }}
             >
-              <option value="original" style={{ background: '#080d1a' }}>Original Dimensions (No Resize)</option>
-              <option value="fit" style={{ background: '#080d1a' }}>Fit Within Max Box ({maxWidth} × {maxHeight})</option>
-              <option value="square" style={{ background: '#080d1a' }}>Square Avatar / Favicon ({squareSize} × {squareSize})</option>
-            </select>
-          </div>
-
-          {/* Dimension presets */}
-          {resizeMode === 'fit' && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Max W (px):</span>
-                <input
-                  type="number"
-                  value={maxWidth}
-                  onChange={(e) => setMaxWidth(Number(e.target.value))}
-                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Max H (px):</span>
-                <input
-                  type="number"
-                  value={maxHeight}
-                  onChange={(e) => setMaxHeight(Number(e.target.value))}
-                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
-                />
-              </div>
+              <FileText size={24} />
             </div>
-          )}
-
-          {resizeMode === 'square' && (
             <div>
-              <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Square Side (px):</span>
-              <select
-                value={squareSize}
-                onChange={(e) => setSquareSize(Number(e.target.value))}
-                style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
-              >
-                <option value="32" style={{ background: '#080d1a' }}>32 × 32 (Standard Favicon)</option>
-                <option value="64" style={{ background: '#080d1a' }}>64 × 64 (Hi-DPI Favicon)</option>
-                <option value="128" style={{ background: '#080d1a' }}>128 × 128 (App Icon)</option>
-                <option value="256" style={{ background: '#080d1a' }}>256 × 256 (Windows Tile)</option>
-                <option value="512" style={{ background: '#080d1a' }}>512 × 512 (PWA / Avatar)</option>
-                <option value="1024" style={{ background: '#080d1a' }}>1024 × 1024 (HD Square)</option>
-              </select>
+              <div style={{ fontSize: 16, fontWeight: 800, color: suiteCategory === 'documents' ? tk.cyan : tk.text }}>
+                📄 PDF & Office Documents
+              </div>
+              <div style={{ fontSize: 12, color: tk.textDim, marginTop: 2, fontFamily: tk.fontMono }}>
+                PDF ⇄ Word (DOCX), Images ➔ PDF, Text ➔ Word
+              </div>
             </div>
-          )}
-        </div>
+          </button>
 
-        {/* ── Drag & Drop Upload Zone ─────────────────────────────────────── */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-          onDragLeave={() => setIsDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setIsDragOver(false);
-            if (e.dataTransfer.files) handleFilesAdded(e.dataTransfer.files);
-          }}
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            border: `2px dashed ${isDragOver ? tk.cyan : 'rgba(168,85,247,0.3)'}`,
-            background: isDragOver ? 'rgba(0,212,255,0.06)' : 'rgba(255,255,255,0.015)',
-            borderRadius: 20,
-            padding: '48px 24px',
-            textAlign: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.25s ease',
-            marginBottom: 32,
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => {
-              if (e.target.files) handleFilesAdded(e.target.files);
-              e.target.value = '';
-            }}
-            style={{ display: 'none' }}
-          />
-
-          <div
+          <button
+            onClick={() => setSuiteCategory('images')}
             style={{
-              width: 64,
-              height: 64,
-              margin: '0 auto 16px',
+              background: suiteCategory === 'images' ? 'rgba(168,85,247,0.12)' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${suiteCategory === 'images' ? tk.purple : tk.border}`,
               borderRadius: 16,
-              background: 'rgba(168,85,247,0.1)',
-              border: '1px solid rgba(168,85,247,0.3)',
+              padding: '18px 22px',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
+              gap: 16,
+              textAlign: 'left',
+              transition: 'all 0.25s ease',
+              boxShadow: suiteCategory === 'images' ? '0 4px 24px rgba(168,85,247,0.15)' : 'none',
             }}
           >
-            📂
-          </div>
-
-          <h3 style={{ fontSize: 18, fontFamily: tk.fontDisplay, fontWeight: 700, margin: '0 0 8px' }}>
-            Drop Images Here, or <span style={{ color: tk.cyan }}>Browse Files</span>
-          </h3>
-          <p style={{ fontSize: 13, color: tk.textDim, margin: 0 }}>
-            Supports JPG, PNG, WEBP, GIF, SVG, BMP, AVIF, TIFF, HEIC, and ICO files. Batch convert multiple images in seconds.
-          </p>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: suiteCategory === 'images' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: suiteCategory === 'images' ? tk.purple : tk.textDim,
+              }}
+            >
+              <ImageIcon size={24} />
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: suiteCategory === 'images' ? tk.purple : tk.text }}>
+                🖼️ Image & Media Formats
+              </div>
+              <div style={{ fontSize: 12, color: tk.textDim, marginTop: 2, fontFamily: tk.fontMono }}>
+                WebP, PNG, JPG, AVIF, BMP, Favicon, Base64
+              </div>
+            </div>
+          </button>
         </div>
 
-        {/* ── Action Toolbar (When files exist) ────────────────────────────── */}
-        {files.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 16,
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: 'rgba(0,0,0,0.3)',
-              padding: '16px 20px',
-              borderRadius: 14,
-              border: `1px solid ${tk.border}`,
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontSize: 14, fontWeight: 700 }}>
-                {files.length} {files.length === 1 ? 'Image' : 'Images'} Uploaded
-              </span>
-              {stats.doneCount > 0 && stats.savedBytes > 0 && (
-                <span
+        {/* ── SUITE 1: DOCUMENT CONVERTER ─────────────────────────────────── */}
+        {suiteCategory === 'documents' && (
+          <div>
+            {/* Conversion Mode Pills */}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24 }}>
+              {[
+                { id: 'pdf-to-word', label: '📕 PDF ➔ Word (.docx)', desc: 'Extract & format into editable Word doc' },
+                { id: 'word-to-pdf', label: '📘 Word (.docx) ➔ PDF', desc: 'Compile DOCX into clean PDF' },
+                { id: 'images-to-pdf', label: '🖼️ Images ➔ PDF', desc: 'Combine JPG/PNG photos into A4 PDF' },
+                { id: 'text-to-word', label: '📝 Text / Notes ➔ Word', desc: 'Format plain text notes into DOCX' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => {
+                    setDocMode(m.id as DocConversionMode);
+                    setDocFiles([]);
+                    setConvertedDocs([]);
+                  }}
                   style={{
-                    background: 'rgba(0,229,160,0.1)',
-                    border: '1px solid rgba(0,229,160,0.3)',
-                    color: tk.green,
-                    padding: '3px 10px',
+                    background: docMode === m.id ? 'rgba(0,212,255,0.14)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${docMode === m.id ? tk.cyan : tk.border}`,
+                    color: docMode === m.id ? tk.cyan : tk.textDim,
                     borderRadius: 12,
-                    fontSize: 12,
+                    padding: '10px 16px',
+                    fontSize: 13,
                     fontFamily: tk.fontMono,
-                    fontWeight: 700,
+                    fontWeight: docMode === m.id ? 700 : 500,
+                    cursor: 'pointer',
+                    textAlign: 'left',
                   }}
                 >
-                  Saved {stats.savedPercent}% ({formatBytes(stats.savedBytes)}) 📉
-                </span>
-              )}
+                  <div>{m.label}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{m.desc}</div>
+                </button>
+              ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button
-                onClick={handleConvertAll}
-                disabled={isConvertingAll}
+            {/* Document Drag & Drop Box */}
+            <div
+              onClick={() => docInputRef.current?.click()}
+              style={{
+                border: `2px dashed rgba(0,212,255,0.35)`,
+                background: 'rgba(0,212,255,0.02)',
+                borderRadius: 20,
+                padding: '48px 24px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                marginBottom: 28,
+              }}
+            >
+              <input
+                ref={docInputRef}
+                type="file"
+                multiple={docMode === 'images-to-pdf'}
+                accept={
+                  docMode === 'pdf-to-word'
+                    ? '.pdf'
+                    : docMode === 'word-to-pdf'
+                    ? '.docx'
+                    : docMode === 'images-to-pdf'
+                    ? 'image/*'
+                    : '.txt,.md'
+                }
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setDocFiles(Array.from(e.target.files));
+                    setConvertedDocs([]);
+                  }
+                  e.target.value = '';
+                }}
+                style={{ display: 'none' }}
+              />
+
+              <div
                 style={{
-                  background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
-                  color: '#050810',
-                  border: 'none',
-                  padding: '9px 18px',
-                  borderRadius: 10,
-                  fontSize: 13,
-                  fontWeight: 800,
-                  fontFamily: tk.fontMono,
-                  cursor: 'pointer',
-                  opacity: isConvertingAll ? 0.6 : 1,
+                  width: 64,
+                  height: 64,
+                  margin: '0 auto 16px',
+                  borderRadius: 16,
+                  background: 'rgba(0,212,255,0.1)',
+                  border: '1px solid rgba(0,212,255,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: tk.cyan,
                 }}
               >
-                {isConvertingAll ? '🔄 Converting...' : `⚡ Convert All to ${targetFormat.toUpperCase()}`}
-              </button>
+                <FileUp size={30} />
+              </div>
 
-              {files.some((f) => f.status === 'done' && f.convertedBlob) && targetFormat !== 'base64' && (
+              <h3 style={{ fontSize: 18, fontFamily: tk.fontDisplay, fontWeight: 700, margin: '0 0 8px' }}>
+                {docFiles.length === 0 ? (
+                  <>
+                    Drop your {docMode === 'pdf-to-word' ? 'PDF' : docMode === 'word-to-pdf' ? 'Word (.docx)' : docMode === 'images-to-pdf' ? 'Images' : 'Text'} file here, or{' '}
+                    <span style={{ color: tk.cyan }}>Browse Computer</span>
+                  </>
+                ) : (
+                  <>
+                    Selected {docFiles.length} file{docFiles.length === 1 ? '' : 's'}:{' '}
+                    <span style={{ color: tk.cyan }}>{docFiles.map((f) => f.name).join(', ')}</span>
+                  </>
+                )}
+              </h3>
+              <p style={{ fontSize: 13, color: tk.textDim, margin: 0 }}>
+                Fast local processing with high fidelity extraction.
+              </p>
+            </div>
+
+            {/* Document Action Button */}
+            {docFiles.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
                 <button
-                  onClick={downloadAllAsZip}
+                  onClick={handleDocConversion}
+                  disabled={isConvertingDocs}
                   style={{
-                    background: 'rgba(0,229,160,0.12)',
-                    border: '1px solid rgba(0,229,160,0.35)',
-                    color: tk.green,
-                    padding: '9px 18px',
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontWeight: 700,
+                    background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
+                    color: '#050810',
+                    border: 'none',
+                    padding: '14px 32px',
+                    borderRadius: 12,
+                    fontSize: 14,
+                    fontWeight: 800,
                     fontFamily: tk.fontMono,
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    boxShadow: '0 4px 20px rgba(0,212,255,0.25)',
                   }}
                 >
-                  📦 Download All as ZIP
+                  {isConvertingDocs ? (
+                    <>
+                      <RefreshCw size={18} className="animate-spin" />
+                      <span>Converting Document...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      <span>
+                        Convert Now to{' '}
+                        {docMode === 'pdf-to-word' || docMode === 'text-to-word'
+                          ? 'DOCX (Word)'
+                          : 'PDF'}
+                      </span>
+                    </>
+                  )}
                 </button>
-              )}
+              </div>
+            )}
 
-              <button
-                onClick={clearAll}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${tk.border}`,
-                  color: tk.textDim,
-                  padding: '9px 14px',
-                  borderRadius: 10,
-                  fontSize: 12,
-                  fontFamily: tk.fontMono,
-                  cursor: 'pointer',
-                }}
-              >
-                Clear All
-              </button>
-            </div>
+            {/* Document Results List */}
+            {convertedDocs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {convertedDocs.map((doc) => (
+                  <div
+                    key={doc.id}
+                    style={{
+                      background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
+                      border: `1px solid ${doc.status === 'done' ? 'rgba(0,229,160,0.3)' : tk.border}`,
+                      borderRadius: 16,
+                      padding: '20px 24px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: 16,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: 12,
+                          background: doc.status === 'done' ? 'rgba(0,229,160,0.1)' : 'rgba(255,255,255,0.04)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: doc.status === 'done' ? tk.green : tk.textDim,
+                        }}
+                      >
+                        <FileText size={24} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: tk.text }}>
+                          {doc.outputFilename || doc.name}
+                        </div>
+                        <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginTop: 2 }}>
+                          {doc.status === 'done' ? `Ready to download · .${doc.targetExt.toUpperCase()}` : doc.errorMessage || 'Processing'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {doc.status === 'done' && doc.outputUrl && (
+                      <a
+                        href={doc.outputUrl}
+                        download={doc.outputFilename}
+                        style={{
+                          background: 'rgba(0,229,160,0.14)',
+                          border: `1px solid ${tk.green}`,
+                          color: tk.green,
+                          padding: '10px 20px',
+                          borderRadius: 10,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          fontFamily: tk.fontMono,
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                      >
+                        <Download size={16} />
+                        <span>Download .{doc.targetExt.toUpperCase()}</span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* ── Files List Grid ─────────────────────────────────────────────── */}
-        {files.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {files.map((file) => {
-              const fmtConfig = FORMATS.find((f) => f.id === (file.format || targetFormat)) || FORMATS[0];
-              const isDone = file.status === 'done';
-              const isError = file.status === 'error';
-              const savedBytes = isDone && file.convertedSize ? file.originalSize - file.convertedSize : 0;
-              const savedPercent = isDone && file.convertedSize ? Math.round((savedBytes / file.originalSize) * 100) : 0;
+        {/* ── SUITE 2: IMAGE CONVERTER ────────────────────────────────────── */}
+        {suiteCategory === 'images' && (
+          <div>
+            {/* Format Selector Bar */}
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Choose Target Image Output Format:
+              </div>
 
-              return (
-                <div
-                  key={file.id}
-                  style={{
-                    background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
-                    border: `1px solid ${isDone ? 'rgba(0,229,160,0.25)' : tk.border}`,
-                    borderRadius: 14,
-                    padding: '16px 20px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 16,
-                  }}
-                >
-                  {/* Thumbnail & File Name */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 260, flex: 1 }}>
-                    <div
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
+                {IMAGE_FORMATS.map((fmt) => {
+                  const isActive = targetFormat === fmt.id;
+                  return (
+                    <button
+                      key={fmt.id}
+                      onClick={() => setTargetFormat(fmt.id)}
                       style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 10,
-                        overflow: 'hidden',
-                        background: '#000',
-                        border: `1px solid ${tk.border}`,
+                        background: isActive ? 'rgba(168,85,247,0.14)' : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${isActive ? tk.purple : tk.border}`,
+                        borderRadius: 14,
+                        padding: '14px 12px',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
+                        flexDirection: 'column',
+                        gap: 6,
                       }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={file.convertedUrl || file.originalPreviewUrl}
-                        alt="Preview"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: isActive ? tk.purple : tk.text }}>
+                          {fmt.label}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 9,
+                            fontFamily: tk.fontMono,
+                            color: isActive ? tk.cyan : tk.textDim,
+                            background: 'rgba(255,255,255,0.05)',
+                            padding: '2px 6px',
+                            borderRadius: 6,
+                          }}
+                        >
+                          .{fmt.ext}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 11, color: tk.textDim, lineHeight: 1.4 }}>
+                        {fmt.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                    <div style={{ overflow: 'hidden' }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: tk.text,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: 320,
-                        }}
-                      >
-                        {file.originalName}
-                      </div>
-                      <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginTop: 4 }}>
-                        {formatBytes(file.originalSize)}
-                        {file.originalWidth > 0 && ` · ${file.originalWidth} × ${file.originalHeight}px`}
-                      </div>
-                    </div>
+            {/* Image Advanced Settings */}
+            <div
+              style={{
+                background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
+                border: `1px solid ${tk.border}`,
+                borderRadius: 16,
+                padding: '20px 24px',
+                marginBottom: 32,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                gap: 20,
+                alignItems: 'center',
+              }}
+            >
+              {/* Quality */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12, fontFamily: tk.fontMono }}>
+                  <span style={{ color: tk.textDim }}>Compression Quality:</span>
+                  <span style={{ color: tk.cyan, fontWeight: 700 }}>{quality}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={quality}
+                  onChange={(e) => setQuality(Number(e.target.value))}
+                  disabled={!IMAGE_FORMATS.find((f) => f.id === targetFormat)?.supportsQuality}
+                  style={{ width: '100%', accentColor: tk.cyan, cursor: 'pointer' }}
+                />
+              </div>
+
+              {/* Resize Mode */}
+              <div>
+                <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginBottom: 8 }}>
+                  Resolution / Rescaling:
+                </div>
+                <select
+                  value={resizeMode}
+                  onChange={(e) => setResizeMode(e.target.value as any)}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(0,0,0,0.4)',
+                    border: `1px solid ${tk.border}`,
+                    borderRadius: 10,
+                    padding: '10px 14px',
+                    color: tk.text,
+                    fontSize: 14,
+                    fontFamily: tk.fontMono,
+                  }}
+                >
+                  <option value="original" style={{ background: '#080d1a' }}>Original Dimensions (No Resize)</option>
+                  <option value="fit" style={{ background: '#080d1a' }}>Fit Within Max Box ({maxWidth} × {maxHeight})</option>
+                  <option value="square" style={{ background: '#080d1a' }}>Square Avatar / Favicon ({squareSize} × {squareSize})</option>
+                </select>
+              </div>
+
+              {/* Fit dimensions */}
+              {resizeMode === 'fit' && (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Max W (px):</span>
+                    <input
+                      type="number"
+                      value={maxWidth}
+                      onChange={(e) => setMaxWidth(Number(e.target.value))}
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
+                    />
                   </div>
-
-                  {/* Output Status & Metrics */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    {isDone && (
-                      <div style={{ textAlign: 'right', fontFamily: tk.fontMono }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: tk.green }}>
-                          ➔ {fmtConfig.label.toUpperCase()} · {formatBytes(file.convertedSize || 0)}
-                        </div>
-                        {savedPercent > 0 && (
-                          <div style={{ fontSize: 11, color: tk.cyan, marginTop: 2 }}>
-                            Saved {savedPercent}% file size
-                          </div>
-                        )}
-                        {file.convertedWidth && file.convertedHeight && (
-                          <div style={{ fontSize: 10, color: tk.textDim, marginTop: 1 }}>
-                            {file.convertedWidth} × {file.convertedHeight}px
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {isError && (
-                      <span style={{ color: tk.red, fontSize: 12, fontFamily: tk.fontMono }}>
-                        ⚠️ {file.errorMessage || 'Failed'}
-                      </span>
-                    )}
-
-                    {file.status === 'pending' && (
-                      <span style={{ color: tk.textDim, fontSize: 12, fontFamily: tk.fontMono }}>
-                        ⏳ Ready to convert
-                      </span>
-                    )}
-
-                    {/* Action buttons */}
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      {isDone ? (
-                        <button
-                          onClick={() => downloadFile(file)}
-                          style={{
-                            background: file.format === 'base64' ? 'rgba(0,212,255,0.12)' : 'rgba(0,229,160,0.14)',
-                            border: `1px solid ${file.format === 'base64' ? tk.cyan : tk.green}`,
-                            color: file.format === 'base64' ? tk.cyan : tk.green,
-                            padding: '8px 14px',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            fontFamily: tk.fontMono,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {file.format === 'base64'
-                            ? copiedId === file.id
-                              ? '✓ Copied URI'
-                              : '📋 Copy URI'
-                            : `⬇️ Download .${fmtConfig.ext}`}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            const res = await processImage(
-                              file,
-                              targetFormat,
-                              quality,
-                              resizeMode,
-                              maxWidth,
-                              maxHeight,
-                              squareSize
-                            );
-                            setFiles((prev) =>
-                              prev.map((item) => (item.id === file.id ? { ...item, ...res } : item))
-                            );
-                          }}
-                          style={{
-                            background: 'rgba(168,85,247,0.14)',
-                            border: `1px solid ${tk.purple}`,
-                            color: tk.purple,
-                            padding: '8px 14px',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            fontFamily: tk.fontMono,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Convert
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => removeItem(file.id)}
-                        style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: `1px solid ${tk.border}`,
-                          color: tk.textDim,
-                          padding: '8px 10px',
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Max H (px):</span>
+                    <input
+                      type="number"
+                      value={maxHeight}
+                      onChange={(e) => setMaxHeight(Number(e.target.value))}
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
+                    />
                   </div>
                 </div>
-              );
-            })}
+              )}
+
+              {/* Square size */}
+              {resizeMode === 'square' && (
+                <div>
+                  <span style={{ fontSize: 11, color: tk.textDim, fontFamily: tk.fontMono }}>Square Side (px):</span>
+                  <select
+                    value={squareSize}
+                    onChange={(e) => setSquareSize(Number(e.target.value))}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: `1px solid ${tk.border}`, borderRadius: 8, padding: '8px 10px', color: tk.text, fontFamily: tk.fontMono }}
+                  >
+                    <option value="32" style={{ background: '#080d1a' }}>32 × 32 (Favicon)</option>
+                    <option value="64" style={{ background: '#080d1a' }}>64 × 64 (Hi-DPI Favicon)</option>
+                    <option value="128" style={{ background: '#080d1a' }}>128 × 128 (App Icon)</option>
+                    <option value="512" style={{ background: '#080d1a' }}>512 × 512 (PWA / Avatar)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Images Drag & Drop Box */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                if (e.dataTransfer.files) handleImagesAdded(e.dataTransfer.files);
+              }}
+              onClick={() => imageInputRef.current?.click()}
+              style={{
+                border: `2px dashed ${isDragOver ? tk.cyan : 'rgba(168,85,247,0.35)'}`,
+                background: isDragOver ? 'rgba(0,212,255,0.06)' : 'rgba(255,255,255,0.015)',
+                borderRadius: 20,
+                padding: '48px 24px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                marginBottom: 32,
+              }}
+            >
+              <input
+                ref={imageInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) handleImagesAdded(e.target.files);
+                  e.target.value = '';
+                }}
+                style={{ display: 'none' }}
+              />
+
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  margin: '0 auto 16px',
+                  borderRadius: 16,
+                  background: 'rgba(168,85,247,0.1)',
+                  border: '1px solid rgba(168,85,247,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: tk.purple,
+                }}
+              >
+                <ImageIcon size={30} />
+              </div>
+
+              <h3 style={{ fontSize: 18, fontFamily: tk.fontDisplay, fontWeight: 700, margin: '0 0 8px' }}>
+                Drop Images Here, or <span style={{ color: tk.cyan }}>Browse Files</span>
+              </h3>
+              <p style={{ fontSize: 13, color: tk.textDim, margin: 0 }}>
+                Supports JPG, PNG, WEBP, GIF, SVG, BMP, AVIF, TIFF, and ICO. Batch convert in parallel.
+              </p>
+            </div>
+
+            {/* Image Actions Toolbar */}
+            {imageFiles.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: 'rgba(0,0,0,0.3)',
+                  padding: '16px 20px',
+                  borderRadius: 14,
+                  border: `1px solid ${tk.border}`,
+                  marginBottom: 24,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700 }}>
+                    {imageFiles.length} {imageFiles.length === 1 ? 'Image' : 'Images'} Uploaded
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={handleConvertAllImages}
+                    disabled={isConvertingImages}
+                    style={{
+                      background: `linear-gradient(135deg, ${tk.cyan}, ${tk.purple})`,
+                      color: '#050810',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 800,
+                      fontFamily: tk.fontMono,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    {isConvertingImages ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    <span>{isConvertingImages ? 'Converting...' : `Convert All to ${targetFormat.toUpperCase()}`}</span>
+                  </button>
+
+                  {imageFiles.some((f) => f.status === 'done' && f.convertedBlob) && targetFormat !== 'base64' && (
+                    <button
+                      onClick={downloadAllImagesAsZip}
+                      style={{
+                        background: 'rgba(0,229,160,0.14)',
+                        border: `1px solid ${tk.green}`,
+                        color: tk.green,
+                        padding: '10px 18px',
+                        borderRadius: 10,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        fontFamily: tk.fontMono,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                      }}
+                    >
+                      <Download size={15} />
+                      <span>Download All as ZIP</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Images List */}
+            {imageFiles.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {imageFiles.map((file) => {
+                  const fmtConfig = IMAGE_FORMATS.find((f) => f.id === (file.format || targetFormat)) || IMAGE_FORMATS[0];
+                  const isDone = file.status === 'done';
+
+                  return (
+                    <div
+                      key={file.id}
+                      style={{
+                        background: `linear-gradient(135deg, ${tk.surface}ee, ${tk.surfaceMuted}aa)`,
+                        border: `1px solid ${isDone ? 'rgba(0,229,160,0.3)' : tk.border}`,
+                        borderRadius: 14,
+                        padding: '16px 20px',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 16,
+                      }}
+                    >
+                      {/* Thumbnail & File Name */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 260, flex: 1 }}>
+                        <div
+                          style={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: 10,
+                            overflow: 'hidden',
+                            background: '#000',
+                            border: `1px solid ${tk.border}`,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={file.convertedUrl || file.originalPreviewUrl}
+                            alt="Preview"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: tk.text }}>
+                            {file.originalName}
+                          </div>
+                          <div style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono, marginTop: 4 }}>
+                            {formatBytes(file.originalSize)}
+                            {file.originalWidth > 0 && ` · ${file.originalWidth} × ${file.originalHeight}px`}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Status & Actions */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        {isDone && (
+                          <div style={{ textAlign: 'right', fontFamily: tk.fontMono }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: tk.green }}>
+                              ➔ {fmtConfig.label.toUpperCase()} · {formatBytes(file.convertedSize || 0)}
+                            </div>
+                          </div>
+                        )}
+
+                        {isDone ? (
+                          <button
+                            onClick={() => downloadSingleImage(file)}
+                            style={{
+                              background: file.format === 'base64' ? 'rgba(0,212,255,0.12)' : 'rgba(0,229,160,0.14)',
+                              border: `1px solid ${file.format === 'base64' ? tk.cyan : tk.green}`,
+                              color: file.format === 'base64' ? tk.cyan : tk.green,
+                              padding: '8px 14px',
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              fontFamily: tk.fontMono,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                            }}
+                          >
+                            <Download size={14} />
+                            <span>Download .{fmtConfig.ext}</span>
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 12, color: tk.textDim, fontFamily: tk.fontMono }}>
+                            Ready to convert
+                          </span>
+                        )}
+
+                        <button
+                          onClick={() => setImageFiles((prev) => prev.filter((i) => i.id !== file.id))}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: tk.textDim,
+                            cursor: 'pointer',
+                            padding: 4,
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </main>

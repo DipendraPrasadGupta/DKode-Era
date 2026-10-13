@@ -20,10 +20,14 @@ type ActiveTab = 'bs-to-ad' | 'ad-to-bs' | 'diff-age' | 'epoch-time' | 'date-mat
 export default function DateConverterPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('bs-to-ad');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [mounted, setMounted] = useState<boolean>(false);
 
-  // Live ticking clock
-  const [now, setNow] = useState<Date>(new Date());
+  // Live ticking clock with deterministic initial SSR timestamp
+  const [now, setNow] = useState<Date>(() => new Date('2026-10-13T12:00:00Z'));
+
   useEffect(() => {
+    setMounted(true);
+    setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -32,38 +36,34 @@ export default function DateConverterPage() {
   const todayBS = useMemo(() => convertADtoBS(now), [now]);
 
   // ── State for BS ➔ AD ──────────────────────────────────────────────────────
-  const [bsYear, setBsYear] = useState<number>(todayBS.bsYear);
-  const [bsMonth, setBsMonth] = useState<number>(todayBS.bsMonth);
-  const [bsDay, setBsDay] = useState<number>(todayBS.bsDate);
+  const [bsYear, setBsYear] = useState<number>(2083);
+  const [bsMonth, setBsMonth] = useState<number>(6);
+  const [bsDay, setBsDay] = useState<number>(27);
 
   // ── State for AD ➔ BS ──────────────────────────────────────────────────────
-  const [adDateInput, setAdDateInput] = useState<string>(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
+  const [adDateInput, setAdDateInput] = useState<string>('2026-10-13');
 
   // ── State for Date Difference & Age ────────────────────────────────────────
   const [diffMode, setDiffMode] = useState<'age' | 'between'>('age');
   const [birthDate, setBirthDate] = useState<string>('2000-01-01');
-  const [rangeStart, setRangeStart] = useState<string>(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
-  const [rangeEnd, setRangeEnd] = useState<string>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
+  const [rangeStart, setRangeStart] = useState<string>('2026-10-13');
+  const [rangeEnd, setRangeEnd] = useState<string>('2026-11-13');
 
   // ── State for Epoch / Timestamp ────────────────────────────────────────────
-  const [epochInput, setEpochInput] = useState<string>(() => Math.floor(Date.now() / 1000).toString());
+  const [epochInput, setEpochInput] = useState<string>('1791892800');
   const [epochUnit, setEpochUnit] = useState<'s' | 'ms'>('s');
 
+  useEffect(() => {
+    if (mounted) {
+      setBsYear(todayBS.bsYear);
+      setBsMonth(todayBS.bsMonth);
+      setBsDay(todayBS.bsDate);
+      setEpochInput(Math.floor(Date.now() / 1000).toString());
+    }
+  }, [mounted, todayBS.bsYear, todayBS.bsMonth, todayBS.bsDate]);
+
   // ── State for Date Math ────────────────────────────────────────────────────
-  const [mathStartDate, setMathStartDate] = useState<string>(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
+  const [mathStartDate, setMathStartDate] = useState<string>('2026-10-13');
   const [mathAmount, setMathAmount] = useState<number>(14);
   const [mathUnit, setMathUnit] = useState<'days' | 'weeks' | 'months' | 'years'>('days');
   const [mathOperation, setMathOperation] = useState<'add' | 'subtract'>('add');
@@ -301,14 +301,14 @@ export default function DateConverterPage() {
                   Live Time (NPT UTC+5:45)
                 </span>
               </div>
-              <div style={{ fontFamily: tk.fontMono, fontSize: 22, fontWeight: 800, color: tk.text, marginBottom: 4 }}>
-                {formatInTimezone(now, 'Asia/Kathmandu').time}
+              <div style={{ fontFamily: tk.fontMono, fontSize: 22, fontWeight: 800, color: tk.text, marginBottom: 4 }} suppressHydrationWarning>
+                {mounted ? formatInTimezone(now, 'Asia/Kathmandu').time : '--:--:--'}
               </div>
-              <div style={{ fontSize: 13, color: tk.cyan, fontWeight: 600, marginBottom: 2 }}>
-                🇳🇵 {todayBS.bsFormattedEn} ({todayBS.bsStandardIso})
+              <div style={{ fontSize: 13, color: tk.cyan, fontWeight: 600, marginBottom: 2 }} suppressHydrationWarning>
+                🇳🇵 {mounted ? `${todayBS.bsFormattedEn} (${todayBS.bsStandardIso})` : 'विक्रम संवत्...'}
               </div>
-              <div style={{ fontSize: 12, color: tk.textDim }}>
-                🌐 {todayBS.adFormatted}
+              <div style={{ fontSize: 12, color: tk.textDim }} suppressHydrationWarning>
+                🌐 {mounted ? todayBS.adFormatted : 'Gregorian Calendar...'}
               </div>
             </div>
           </div>
@@ -982,8 +982,8 @@ export default function DateConverterPage() {
                   <div style={{ background: 'rgba(0,0,0,0.3)', padding: 12, borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono }}>Unix Seconds</div>
-                      <div style={{ fontSize: 18, fontFamily: tk.fontMono, color: tk.cyan, fontWeight: 700 }}>
-                        {Math.floor(now.getTime() / 1000)}
+                      <div style={{ fontSize: 18, fontFamily: tk.fontMono, color: tk.cyan, fontWeight: 700 }} suppressHydrationWarning>
+                        {mounted ? Math.floor(now.getTime() / 1000) : 1791892800}
                       </div>
                     </div>
                     <button
@@ -997,8 +997,8 @@ export default function DateConverterPage() {
                   <div style={{ background: 'rgba(0,0,0,0.3)', padding: 12, borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: 10, color: tk.textDim, fontFamily: tk.fontMono }}>Unix Milliseconds</div>
-                      <div style={{ fontSize: 18, fontFamily: tk.fontMono, color: tk.purple, fontWeight: 700 }}>
-                        {now.getTime()}
+                      <div style={{ fontSize: 18, fontFamily: tk.fontMono, color: tk.purple, fontWeight: 700 }} suppressHydrationWarning>
+                        {mounted ? now.getTime() : 1791892800000}
                       </div>
                     </div>
                     <button
@@ -1035,10 +1035,10 @@ export default function DateConverterPage() {
                         {tz.offset}
                       </span>
                     </div>
-                    <div style={{ fontSize: 20, fontFamily: tk.fontMono, fontWeight: 800, color: tk.gold, marginBottom: 4 }}>
-                      {info.time}
+                    <div style={{ fontSize: 20, fontFamily: tk.fontMono, fontWeight: 800, color: tk.gold, marginBottom: 4 }} suppressHydrationWarning>
+                      {mounted ? info.time : '--:--:--'}
                     </div>
-                    <div style={{ fontSize: 12, color: tk.textDim }}>{info.date}</div>
+                    <div style={{ fontSize: 12, color: tk.textDim }} suppressHydrationWarning>{mounted ? info.date : '----'}</div>
                   </div>
                 );
               })}
