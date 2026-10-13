@@ -354,10 +354,11 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
         </div>
 
         <div
+          className="contact-section-inner"
           style={{
             maxWidth: 1280,
             margin: '0 auto',
-            padding: 'clamp(90px, 10vw, 130px) clamp(20px, 5vw, 80px)',
+            padding: 'clamp(80px, 9vw, 130px) clamp(16px, 4vw, 80px)',
             position: 'relative',
             zIndex: 1,
           }}
@@ -376,7 +377,8 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 12,
+                  flexWrap: 'wrap',
+                  gap: '8px 12px',
                   padding: '7px 16px 7px 12px',
                   borderRadius: 999,
                   background: isDark
@@ -427,9 +429,9 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
               <h2
                 style={{
                   fontFamily: "'Syne', sans-serif",
-                  fontSize: 'clamp(34px, 4.8vw, 56px)',
+                  fontSize: 'clamp(28px, 5.5vw, 54px)',
                   fontWeight: 900,
-                  lineHeight: 1.08,
+                  lineHeight: 1.1,
                   letterSpacing: '-0.035em',
                   background: isDark
                     ? `linear-gradient(135deg, ${colors.text} 0%, #38bdf8 50%, #a78bfa 100%)`
@@ -471,6 +473,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
 
               {/* Live Nepal Standard Time Clock */}
               <div
+                className="contact-live-clock"
                 style={{
                   padding: '16px 20px',
                   borderRadius: 16,
@@ -619,6 +622,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                     </div>
                   </div>
                   <span
+                    className="contact-channel-badge"
                     style={{
                       fontSize: 11,
                       fontFamily: "'JetBrains Mono', monospace",
@@ -836,6 +840,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
               >
                 {/* Terminal Header Bar */}
                 <div
+                  className="contact-terminal-header"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -863,6 +868,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                   </div>
 
                   <span
+                    className="contact-terminal-badge"
                     style={{
                       fontSize: 11,
                       fontFamily: "'JetBrains Mono', monospace",
@@ -946,7 +952,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                       Database Reference: #{submittedData?.id}
                     </div>
 
-                    <div style={{ display: 'flex', gap: 12, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div className="contact-success-actions" style={{ display: 'flex', gap: 12, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                       <a
                         href={whatsappInquiryUrl}
                         target="_blank"
@@ -1078,6 +1084,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span
+                            className="contact-choose-badge"
                             style={{
                               fontSize: 10,
                               fontFamily: "'JetBrains Mono', monospace",
@@ -1201,6 +1208,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                                   {svc.tag && (
                                     <span
+                                      className="contact-option-tag"
                                       style={{
                                         fontSize: 10,
                                         fontFamily: "'JetBrains Mono', monospace",
@@ -1470,6 +1478,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span
+                            className="contact-choose-badge"
                             style={{
                               fontSize: 10,
                               fontFamily: "'JetBrains Mono', monospace",
@@ -1595,6 +1604,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
 
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                                   <span
+                                    className="contact-option-tag"
                                     style={{
                                       fontSize: 10,
                                       fontFamily: "'JetBrains Mono', monospace",
@@ -1739,6 +1749,7 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
                     </button>
 
                     <div
+                      className="contact-security-footer"
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -1841,16 +1852,106 @@ export default function ContactSection({ colors, t }: ContactSectionProps) {
           transition: transform 0.2s ease;
         }
 
-        /* Responsive Breakpoints */
-        @media (max-width: 960px) {
+        /* ── Comprehensive Responsive Breakpoints ── */
+        @media (max-width: 1024px) {
           .contact-grid-container {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
           }
         }
-        @media (max-width: 600px) {
+
+        @media (max-width: 768px) {
+          .contact-section-inner {
+            padding: 70px 18px 90px !important;
+          }
+          .contact-grid-container {
+            gap: 36px !important;
+          }
+          .contact-terminal-card {
+            padding: 24px 20px !important;
+            border-radius: 20px !important;
+          }
+        }
+
+        @media (max-width: 640px) {
           .contact-two-cols {
             grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          /* Channel cards stack cleanly on mobile with wide easy-tap buttons */
+          .contact-channel-card {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 14px !important;
+            padding: 16px !important;
+          }
+          .contact-channel-card > div:first-child {
+            width: 100% !important;
+          }
+          .contact-action-link,
+          .contact-channel-badge {
+            width: 100% !important;
+            text-align: center !important;
+            justify-content: center !important;
+            display: flex !important;
+            align-items: center !important;
+            padding: 10px 14px !important;
+            font-size: 12px !important;
+            box-sizing: border-box !important;
+          }
+
+          /* Live Clock card */
+          .contact-live-clock {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding: 14px 16px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .contact-section-inner {
+            padding: 50px 14px 70px !important;
+          }
+          .contact-terminal-card {
+            padding: 18px 14px !important;
+            border-radius: 16px !important;
+          }
+          .contact-terminal-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            padding-bottom: 14px !important;
+            margin-bottom: 18px !important;
+          }
+          .contact-choose-badge {
+            display: none !important;
+          }
+          .contact-option-tag {
+            display: none !important;
+          }
+          .contact-security-footer {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            text-align: center !important;
+          }
+          .contact-success-actions {
+            flex-direction: column !important;
+            width: 100% !important;
+          }
+          .contact-success-actions > * {
+            width: 100% !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
+          .contact-input-field {
+            font-size: 15px !important;
+            padding: 11px 12px !important;
+          }
+          .contact-select-trigger {
+            padding: 11px 12px !important;
           }
         }
       `}</style>
