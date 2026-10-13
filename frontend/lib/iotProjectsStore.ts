@@ -1,109 +1,103 @@
-import { IOT_PROJECTS, IoTProject } from './iotData';
+/**
+ * IoT Projects Store — API-backed
+ * All data now lives in the backend database.
+ * localStorage is no longer used for IoT projects.
+ */
 
-export const IOT_STORAGE_KEY = 'dkode_iot_projects_v2';
+import { IoTProject } from './iotData';
+
 export const IOT_CHANGE_EVENT = 'dkode_iot_projects_updated';
 
-/**
- * Retrieve all IoT projects: checks localStorage first, falls back to default 30 curated projects.
- */
-export function getStoredProjects(): IoTProject[] {
-  if (typeof window === 'undefined') {
-    return IOT_PROJECTS;
-  }
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-  try {
-    const raw = localStorage.getItem(IOT_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (err) {
-    console.warn('Failed to parse IoT projects from localStorage, falling back to default:', err);
-  }
-
-  return IOT_PROJECTS;
+// ── Auth helper (admin only) ─────────────────────────────────────────────────
+function authHeaders(): HeadersInit {
+  if (typeof window === 'undefined') return {};
+  const token = localStorage.getItem('adminToken');
+  return token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 }
 
-/**
- * Persist the entire IoT projects list and notify all open tabs/components.
- */
-export function saveProjects(projects: IoTProject[]): void {
-  if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.setItem(IOT_STORAGE_KEY, JSON.stringify(projects));
-    // Dispatch local custom event for current window
-    window.dispatchEvent(new CustomEvent(IOT_CHANGE_EVENT, { detail: projects }));
-  } catch (err) {
-    console.error('Failed to save IoT projects to localStorage:', err);
-  }
-}
-
-/**
- * Add a new IoT Project
- */
-export function addStoredProject(
-  projectData: Omit<IoTProject, 'id'> & { id?: number }
-): IoTProject {
-  const current = getStoredProjects();
-  const maxId = current.reduce((max, p) => (p.id > max ? p.id : max), 0);
-  const newId = projectData.id && projectData.id > maxId ? projectData.id : maxId + 1;
-
-  // Ensure slug uniqueness
-  let baseSlug = projectData.slug || projectData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (!baseSlug) baseSlug = `project-${newId}`;
-  let slug = baseSlug;
-  let counter = 1;
-  while (current.some((p) => p.slug === slug)) {
-    slug = `${baseSlug}-${counter++}`;
-  }
-
-  const newProject: IoTProject = {
-    ...projectData,
-    id: newId,
-    slug,
-  };
-
-  const updated = [newProject, ...current];
-  saveProjects(updated);
-  return newProject;
-}
-
-/**
- * Update an existing IoT Project by id
- */
-export function updateStoredProject(updatedProject: IoTProject): boolean {
-  const current = getStoredProjects();
-  const index = current.findIndex((p) => p.id === updatedProject.id);
-  if (index === -1) return false;
-
-  const next = [...current];
-  next[index] = { ...updatedProject };
-  saveProjects(next);
-  return true;
-}
-
-/**
- * Delete an IoT Project by id
- */
-export function deleteStoredProject(id: number): boolean {
-  const current = getStoredProjects();
-  const next = current.filter((p) => p.id !== id);
-  if (next.length === current.length) return false;
-
-  saveProjects(next);
-  return true;
-}
-
-/**
- * Reset back to the pristine 30 projects from iotData.ts
- */
-export function resetStoredProjects(): IoTProject[] {
+// ── Dispatch change event so components re-render ────────────────────────────
+function notifyChange(projects: IoTProject[]) {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(IOT_STORAGE_KEY);
-    window.dispatchEvent(new CustomEvent(IOT_CHANGE_EVENT, { detail: IOT_PROJECTS }));
+    window.dispatchEvent(new CustomEvent(IOT_CHANGE_EVENT, { detail: projects }));
   }
-  return IOT_PROJECTS;
 }
+
+// ── PUBLIC: fetch all published IoT projects ─────────────────────────────────
+export async function fetchIotProjects(): Promise<IoTProject[]> {
+  const res = await fetch(`${API_BASE}/api/iot-projects`);
+  if (!res.ok) throw new Error('Failed to fetch IoT projects');
+  return res.json();
+}
+
+// ── ADMIN: fetch all IoT projects (including unpublished) ────────────────────
+export async function fetchIotProjectsAdmin(): Promise<IoTProject[]> {
+  const res = await fetch(`${API_BASE}/admin/api/iot-projects`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch IoT projects');
+  return res.json();
+}
+
+// ── ADMIN: create a new IoT project ─────────────────────────────────────────
+export async function addStoredProject(
+  projectData: Omit<IoTProject, 'id'> & { id?: number }
+): Promise<IoTProject> {
+  const res = await fetch(`${API_BASE}/admin/api/iot-projects`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(projectData),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to create IoT project');
+  }
+  const created: IoTProject = await res.json();
+  // Refresh all and notify
+  const all = await fetchIotProjectsAdmin().catch(() => []);
+  notifyChange(all);
+  return created;
+}
+
+// ── ADMIN: update an existing IoT project ───────────────────────────────────
+export async function updateStoredProject(project: IoTProject): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/admin/api/iot-projects/${project.id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(project),
+  });
+  if (!res.ok) return false;
+  const all = await fetchIotProjectsAdmin().catch(() => []);
+  notifyChange(all);
+  return true;
+}
+
+// ── ADMIN: delete an IoT project ─────────────────────────────────────────────
+export async function deleteStoredProject(id: number): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/admin/api/iot-projects/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (!res.ok) return false;
+  const all = await fetchIotProjectsAdmin().catch(() => []);
+  notifyChange(all);
+  return true;
+}
+
+// ── Legacy sync shim — kept for backward compatibility ───────────────────────
+// Components that called getStoredProjects() synchronously now get an empty
+// array on first render; the async fetchIotProjects* calls will fill data.
+export function getStoredProjects(): IoTProject[] {
+  return [];
+}
+
+// ── resetStoredProjects is no longer applicable (no localStorage seed) ───────
+export function resetStoredProjects(): IoTProject[] {
+  return [];
+}
+
+// ── saveProjects is no longer used (API handles persistence) ─────────────────
+export function saveProjects(_projects: IoTProject[]): void {
+  // no-op: data is persisted in the backend database
+}
+
+export const IOT_STORAGE_KEY = 'dkode_iot_projects_v2'; // kept for compat

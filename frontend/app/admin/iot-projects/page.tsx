@@ -4,11 +4,10 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { IOT_LEVELS, IoTProject } from '@/lib/iotData';
 import {
-  getStoredProjects,
+  fetchIotProjectsAdmin,
   addStoredProject,
   updateStoredProject,
   deleteStoredProject,
-  resetStoredProjects,
   IOT_CHANGE_EVENT,
 } from '@/lib/iotProjectsStore';
 import { apiFetch, normalizeImageUrl } from '@/lib/api';
@@ -109,19 +108,27 @@ export default function AdminIoTProjectsPage() {
 
   // Load projects on mount & listen to changes
   useEffect(() => {
-    const load = () => {
-      setProjects(getStoredProjects());
-      setLoading(false);
+    const load = async () => {
+      try {
+        const data = await fetchIotProjectsAdmin();
+        setProjects(data);
+      } catch (err) {
+        showToast('Failed to load IoT projects from server', 'error');
+      } finally {
+        setLoading(false);
+      }
     };
     load();
 
-    const handleUpdate = () => load();
+    const handleUpdate = (e: Event) => {
+      const custom = e as CustomEvent;
+      if (Array.isArray(custom.detail)) setProjects(custom.detail);
+      else load();
+    };
     window.addEventListener(IOT_CHANGE_EVENT, handleUpdate);
-    window.addEventListener('storage', handleUpdate);
 
     return () => {
       window.removeEventListener(IOT_CHANGE_EVENT, handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
     };
   }, []);
 
@@ -199,15 +206,18 @@ export default function AdminIoTProjectsPage() {
   };
 
   // Duplicate Project
-  const handleDuplicate = (p: IoTProject) => {
+  const handleDuplicate = async (p: IoTProject) => {
     const duplicated: Omit<IoTProject, 'id'> = {
       ...p,
       title: `${p.title} (Copy)`,
-      slug: `${p.slug}-copy`,
+      slug: `${p.slug}-copy-${Date.now()}`,
     };
-    addStoredProject(duplicated);
-    setProjects(getStoredProjects());
-    showToast(`Project duplicated: "${p.title}"`, 'success');
+    try {
+      await addStoredProject(duplicated);
+      showToast(`Project duplicated: "${p.title}"`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to duplicate project', 'error');
+    }
   };
 
   // Image Upload Handler
@@ -315,7 +325,7 @@ export default function AdminIoTProjectsPage() {
   };
 
   // Submit Save
-  const handleSaveProject = (e: React.FormEvent) => {
+  const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -362,36 +372,43 @@ export default function AdminIoTProjectsPage() {
     };
 
     if (editingId) {
-      const fullProject: IoTProject = {
-        ...projectPayload,
-        id: editingId,
-      };
-      updateStoredProject(fullProject);
-      showToast(`Updated "${fullProject.title}" successfully!`, 'success');
+      const fullProject: IoTProject = { ...projectPayload, id: editingId };
+      try {
+        await updateStoredProject(fullProject);
+        showToast(`Updated "${fullProject.title}" successfully!`, 'success');
+      } catch {
+        showToast('Failed to update project', 'error');
+        return;
+      }
     } else {
-      const created = addStoredProject(projectPayload);
-      showToast(`Created new project: "${created.title}"!`, 'success');
+      try {
+        const created = await addStoredProject(projectPayload);
+        showToast(`Created new project: "${created.title}"!`, 'success');
+      } catch (err: any) {
+        showToast(err.message || 'Failed to create project', 'error');
+        return;
+      }
     }
 
-    setProjects(getStoredProjects());
     setModalOpen(false);
   };
 
   // Delete Action
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteConfirmProject) return;
-    deleteStoredProject(deleteConfirmProject.id);
-    setProjects(getStoredProjects());
-    showToast(`Deleted "${deleteConfirmProject.title}".`, 'info');
+    try {
+      await deleteStoredProject(deleteConfirmProject.id);
+      showToast(`Deleted "${deleteConfirmProject.title}".`, 'info');
+    } catch {
+      showToast('Failed to delete project', 'error');
+    }
     setDeleteConfirmProject(null);
   };
 
-  // Reset to default 30
+  // Reset catalog — no longer seeds from localStorage; just closes the dialog
   const handleResetCatalog = () => {
-    const defaults = resetStoredProjects();
-    setProjects(defaults);
     setResetConfirmOpen(false);
-    showToast('Reset catalog to the default 30 curated IoT projects!', 'success');
+    showToast('To reset, delete projects individually from the list.', 'info');
   };
 
   // Filtered List

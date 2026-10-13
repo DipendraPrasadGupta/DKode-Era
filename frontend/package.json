@@ -19,6 +19,7 @@
     "qr-code-styling": "^1.9.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recharts": "^3.10.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

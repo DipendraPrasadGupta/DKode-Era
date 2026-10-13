@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Service {
@@ -94,6 +94,35 @@ model Admin {
   username  String   @unique
   password  String
   createdAt DateTime @default(now())
+}
+
+model IotProject {
+  id               Int      @id @default(autoincrement())
+  title            String
+  slug             String   @unique
+  tagline          String   @default("")
+  image            String   @default("")
+  icon             String   @default("⚡")
+  level            String   @default("Beginner")      // Beginner | Intermediate | Advanced
+  levelNum         Int      @default(1)               // 1 | 2 | 3
+  levelSubtitle    String   @default("")
+  badgeColor       String   @default("")
+  accentGlow       String   @default("")
+  difficulty       String   @default("Easy")          // Easy | Moderate | Advanced
+  estimatedHours   String   @default("4 Hours")
+  microcontroller  String   @default("Arduino / ESP32")
+  description      String   @default("")
+  workingPrinciple String   @default("")
+  realWorldImpact  String   @default("")
+  schematicSummary String   @default("")
+  codeSnippet      String   @default("")
+  sensors          String   @default("[]")            // JSON string[]
+  keyTakeaways     String   @default("[]")            // JSON string[]
+  pinConnections   String   @default("[]")            // JSON PinConnectionRow[]
+  published        Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model ProductEcosystem {

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { IOT_LEVELS, IoTProject } from '@/lib/iotData';
-import { getStoredProjects, IOT_CHANGE_EVENT } from '@/lib/iotProjectsStore';
+import { fetchIotProjects, IOT_CHANGE_EVENT } from '@/lib/iotProjectsStore';
 import { normalizeImageUrl } from '@/lib/api';
 import { pageTokens as tk } from '@/lib/pageTokens';
 
@@ -41,7 +41,7 @@ const LC: Record<number, { from: string; to: string }> = {
 };
 
 export default function IoTProjectsPage() {
-  const [allProjects, setAllProjects] = useState<IoTProject[]>(() => getStoredProjects());
+  const [allProjects, setAllProjects] = useState<IoTProject[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<number | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSensorTag, setSelectedSensorTag] = useState<string | null>(null);
@@ -53,15 +53,17 @@ export default function IoTProjectsPage() {
   const [modalTab, setModalTab] = useState<'overview' | 'pins' | 'code'>('overview');
 
   useEffect(() => {
-    setAllProjects(getStoredProjects());
-    const handleUpdate = () => {
-      setAllProjects(getStoredProjects());
+    fetchIotProjects()
+      .then((data) => setAllProjects(data))
+      .catch(() => setAllProjects([]));
+
+    const handleUpdate = (e: Event) => {
+      const custom = e as CustomEvent;
+      if (Array.isArray(custom.detail)) setAllProjects(custom.detail);
     };
     window.addEventListener(IOT_CHANGE_EVENT, handleUpdate);
-    window.addEventListener('storage', handleUpdate);
     return () => {
       window.removeEventListener(IOT_CHANGE_EVENT, handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
     };
   }, []);
 

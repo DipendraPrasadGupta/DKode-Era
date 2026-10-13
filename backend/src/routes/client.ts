@@ -25,6 +25,7 @@ import {
 } from '../controllers/clientController';
 import { getSiteSettings } from '../controllers/adminController';
 import { pingVisitor, getVisitorStats } from '../controllers/visitorController';
+import { getIotProjects, getIotProjectById } from '../controllers/iotController';
 
 import rateLimit from 'express-rate-limit';
 
@@ -143,5 +144,10 @@ router.post('/visitors/ping', pingVisitor);
 // GET: read-only stats for fetching current counts without registering a visit
 router.get('/visitors', getVisitorStats);
 
+// ─── IOT PROJECTS (public) ───────────────────────────────────────────────────
+router.get('/iot-projects', getIotProjects);
+router.get('/iot-projects/:id', getIotProjectById);
+
 export default router;
+
 

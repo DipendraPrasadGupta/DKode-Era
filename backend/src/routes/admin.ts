@@ -72,6 +72,13 @@ import {
   getProductEcosystem
 } from '../controllers/clientController';
 
+import {
+  getIotProjectsAdmin,
+  createIotProject,
+  updateIotProject,
+  deleteIotProject,
+} from '../controllers/iotController';
+
 
 const router = Router();
 
@@ -212,5 +219,11 @@ router.delete('/api/subscribers/:id', authMiddleware, deleteSubscriber);
 // ─── SITE SETTINGS ───────────────────────────────────────────────────────────
 router.get('/api/settings', authMiddleware, getSiteSettings);
 router.put('/api/settings', authMiddleware, updateSiteSettings);
+
+// ─── IOT PROJECTS CRUD ───────────────────────────────────────────────────────
+router.get('/api/iot-projects', authMiddleware, getIotProjectsAdmin);
+router.post('/api/iot-projects', authMiddleware, createIotProject);
+router.put('/api/iot-projects/:id', authMiddleware, updateIotProject);
+router.delete('/api/iot-projects/:id', authMiddleware, deleteIotProject);
 
 export default router;
