@@ -14,6 +14,17 @@ export interface ToolItem {
 
 export const toolsList: ToolItem[] = [
   {
+    id: 'image-converter',
+    icon: '🖼️',
+    title: 'Universal Image Format Converter',
+    desc: 'Convert single or batch images to WebP, PNG, JPG, AVIF, BMP, ICO Favicon, and Base64 with custom compression and resizing.',
+    badge: 'New · Multi-Format',
+    category: 'Utility',
+    color: tk.purple,
+    href: '/pages/tools/image-converter',
+    available: true,
+  },
+  {
     id: 'date-converter',
     icon: '📅',
     title: 'Nepali (BS) ⇄ English (AD) Date Suite',
