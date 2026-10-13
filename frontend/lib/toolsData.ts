@@ -14,6 +14,17 @@ export interface ToolItem {
 
 export const toolsList: ToolItem[] = [
   {
+    id: 'date-converter',
+    icon: '📅',
+    title: 'Nepali (BS) ⇄ English (AD) Date Suite',
+    desc: 'Instant Bikram Sambat to Gregorian conversion, date difference, age calculator, and developer Unix epoch converter.',
+    badge: 'Popular · Free',
+    category: 'Utility',
+    color: tk.cyan,
+    href: '/pages/tools/date-converter',
+    available: true,
+  },
+  {
     id: 'quote-calc',
     icon: '💰',
     title: 'Project Cost Estimator',
