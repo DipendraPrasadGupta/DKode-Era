@@ -5,9 +5,9 @@ import { pageTokens as tk } from '@/lib/pageTokens';
 import QrCodeStudio from '@/components/QrCodeStudio';
 
 const tips = [
-  { icon: '🔗', title: 'Any link works', desc: 'Websites, portfolios, app store links, payment pages, or social profiles.' },
-  { icon: '🎨', title: 'Brand-ready output', desc: 'Match your colours, add a logo, and download crisp PNG or SVG files.' },
-  { icon: '📱', title: 'Print & digital', desc: 'High error correction (Level H) keeps codes scannable even with a centre logo.' },
+  { icon: '🚀', title: '1-Click Direct Sharing', desc: 'Share your QR code image directly to WhatsApp, Telegram, X, AirDrop, or copy the PNG image directly to your clipboard.' },
+  { icon: '🎨', title: 'Brand-Ready Output', desc: 'Match your colours, select dot patterns, add a custom or social logo, and download crisp 1024px HD PNG or vector SVG files.' },
+  { icon: '🖨️', title: 'Print & Digital Ready', desc: 'High error correction (Level H) keeps codes 100% scannable even when printed on stickers, tables, flyers, and merchandise.' },
 ];
 
 export default function QrGeneratorPage() {
@@ -67,7 +67,7 @@ export default function QrGeneratorPage() {
                   marginBottom: 20,
                 }}
               >
-                📱 Free · Marketing Tool
+                📱 Free · Shareable QR Studio
               </div>
               <h1
                 style={{
@@ -87,12 +87,12 @@ export default function QrGeneratorPage() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  Generator
+                  Generator & Studio
                 </span>
               </h1>
               <p style={{ fontSize: 16, color: tk.textDim, lineHeight: 1.75, margin: 0 }}>
-                Clean, Canva-style controls to create a polished QR code for your link — patterns, colours,
-                corners, and social logos included. Updates live as you customize.
+                Design custom brand QR codes and share instantly via WhatsApp, AirDrop, or 1-click clipboard image copy.
+                Features Level H error resilience, custom patterns, social badges, and 1024px Ultra-HD print downloads.
               </p>
             </div>
           </div>

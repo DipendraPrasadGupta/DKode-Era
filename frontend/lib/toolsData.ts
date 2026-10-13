@@ -49,9 +49,9 @@ export const toolsList: ToolItem[] = [
   {
     id: 'qr-generator',
     icon: '📱',
-    title: 'QR Code Generator',
-    desc: 'Clean, Canva-style controls to create a polished QR code for your link with custom colours and logos.',
-    badge: 'Free Tool',
+    title: 'Shareable QR Code Studio',
+    desc: 'Create brand QR codes and share instantly via WhatsApp, AirDrop, clipboard copy, or 1024px print files.',
+    badge: 'Shareable · Free',
     category: 'Marketing',
     color: tk.green,
     href: '/pages/tools/qr-generator',
