@@ -35,6 +35,12 @@ import {
   Type,
   Quote as QuoteIcon,
   BookOpen,
+  Sliders,
+  Settings,
+  FileText,
+  Check,
+  X,
+  Plus,
 } from 'lucide-react';
 
 // ─── Audio Synthesizer (Native Web Audio API) ────────────────────────────────
@@ -98,18 +104,30 @@ function playVictoryFanfare(soundEnabled = true) {
 
 const sentenceBanks: Record<string, string[]> = {
   easy: [
-    'The quick brown fox jumps over the lazy dog near the riverbank every morning.',
-    'She sells seashells by the seashore while the golden sun sets behind the mountains.',
-    'A journey of a thousand miles begins with a single step forward into the unknown.',
-    'The cat sat on the warm windowsill and watched the birds fly across the clear blue sky.',
-    'Every great dream begins with a dreamer who believes in the power of creative thought.',
-    'Life is what happens when you are busy making other plans for the bright future ahead.',
-    'The early bird catches the worm but the second mouse gets the cheese from the trap.',
-    'Practice makes perfect and patience is the key to mastering any new skill in this life.',
-    'Stars shine brightest in the darkest of nights reminding us that hope never fades away.',
-    'Technology is best when it brings people together and makes the world feel closer.',
-    'The snow fell gently over the quiet village coating the houses in a blanket of silence.',
-    'Clear your mind, take a deep breath, and let your fingers dance across the keyboard effortlessly.',
+    'the sun is hot and the sky is blue today',
+    'a little dog can run and play in the green park',
+    'my cat likes to sleep on the soft red rug',
+    'we can go to the shop and buy some sweet milk',
+    'the bird can fly high up in the blue sky',
+    'he has a new pen and a small red book to read',
+    'she sat by the big tree and read a good book',
+    'the water in the lake is cool and clear today',
+    'they walk to school hand in hand every day',
+    'come here and see the big fish swim so fast',
+    'the white sheep eat green grass on the hill',
+    'look at that bright star shine in the night sky',
+    'a good friend is kind and helps you every day',
+    'we like to jump and sing in the warm rain',
+    'the red ball rolled down the long hill',
+    'open the door and let the fresh air come in',
+    'he made a cup of warm tea on a cold day',
+    'sing a sweet song and have a happy day with friends',
+    'the cow gives us sweet milk every morning',
+    'i have a small red car and a fast blue boat',
+    'the green tree has many red apples to eat',
+    'we play with a round ball in the warm sun',
+    'she has a nice smile and a kind heart for all',
+    'the rain fell on the green leaves all night long',
   ],
   medium: [
     'The rapid evolution of artificial intelligence continues to reshape how humanity works, communicates, and innovates across every industry.',
@@ -138,6 +156,24 @@ const sentenceBanks: Record<string, string[]> = {
     'const pipeline = (...fns: Function[]) => (initial: any) => fns.reduce((acc, fn) => fn(acc), initial);',
   ],
 };
+
+const beginnerWordsList = [
+  'the', 'a', 'to', 'in', 'is', 'you', 'that', 'it', 'he', 'was',
+  'for', 'on', 'are', 'as', 'with', 'his', 'they', 'at', 'be', 'this',
+  'from', 'or', 'one', 'had', 'by', 'word', 'but', 'not', 'what', 'all',
+  'we', 'when', 'your', 'can', 'said', 'there', 'use', 'an', 'each', 'she',
+  'do', 'how', 'if', 'will', 'up', 'out', 'many', 'then', 'them', 'so',
+  'some', 'her', 'make', 'like', 'him', 'into', 'time', 'has', 'look', 'two',
+  'more', 'go', 'see', 'no', 'way', 'my', 'than', 'been', 'call', 'who',
+  'oil', 'its', 'now', 'find', 'long', 'down', 'day', 'did', 'get', 'come',
+  'made', 'may', 'cat', 'dog', 'sun', 'run', 'tree', 'book', 'ball', 'fish',
+  'bird', 'park', 'play', 'fast', 'good', 'hand', 'home', 'star', 'milk', 'rain',
+  'road', 'red', 'blue', 'warm', 'cool', 'jump', 'walk', 'sing', 'help', 'kind',
+  'cake', 'cup', 'hat', 'pen', 'box', 'bed', 'car', 'bus', 'sky', 'sea',
+  'hill', 'lake', 'wood', 'leaf', 'wind', 'snow', 'door', 'ring', 'song', 'bell',
+  'cup', 'egg', 'fan', 'fun', 'hot', 'ice', 'jam', 'key', 'leg', 'map', 'nut', 'pot',
+  'sun', 'top', 'van', 'win', 'zoo', 'baby', 'bake', 'bear', 'duck', 'frog', 'gold'
+];
 
 const commonWordsList = [
   'time', 'year', 'people', 'way', 'day', 'man', 'thing', 'woman', 'life', 'child',
@@ -209,10 +245,10 @@ const quoteLengthOptions: { id: 'all' | 'short' | 'medium' | 'long'; label: stri
 ];
 
 const difficultyConfig: Record<string, { label: string; color: string; desc: string; icon: React.ReactNode }> = {
-  easy: { label: 'Beginner', color: tk.green, desc: 'Everyday sentences', icon: <Target size={14} /> },
-  medium: { label: 'Intermediate', color: tk.gold, desc: 'Complex paragraphs', icon: <TrendingUp size={14} /> },
-  hard: { label: 'Advanced', color: tk.purple, desc: 'Academic & technical', icon: <Zap size={14} /> },
-  code: { label: 'Code Mode', color: tk.cyan, desc: 'TypeScript & JavaScript', icon: <Hash size={14} /> },
+  easy: { label: 'Beginner', color: tk.green, desc: 'All small letters · Very easy words', icon: <Target size={14} /> },
+  medium: { label: 'Intermediate', color: tk.gold, desc: 'Everyday paragraphs & sentences', icon: <TrendingUp size={14} /> },
+  hard: { label: 'Advanced', color: tk.purple, desc: 'Academic & technical vocabulary', icon: <Zap size={14} /> },
+  code: { label: 'Code Mode', color: tk.cyan, desc: 'TypeScript & JavaScript syntax', icon: <Hash size={14} /> },
 };
 
 // ─── Confetti System ────────────────────────────────────────────────────────
@@ -477,105 +513,838 @@ function GlassCard({
   );
 }
 
-// ─── Virtual Keyboard Component ─────────────────────────────────────────────
+// ─── Funny Animated Dancing Typist Mascot ("Byte") ──────────────────────────
 
-const keyboardRows = [
-  ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"],
-  ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'],
-];
+interface DancingTypistMascotProps {
+  dance: 'disco' | 'hype' | 'robot' | 'rock';
+  wpm: number;
+  accuracy: number;
+}
 
-const homeRowKeys = new Set(['A', 'S', 'D', 'F', 'J', 'K', 'L', ';']);
-
-function LiveKeyboard({ activeKey, errorKey }: { activeKey: string; errorKey: string }) {
+function DancingTypistMascot({ dance, wpm }: DancingTypistMascotProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '12px 0' }}>
-      {keyboardRows.map((row, ri) => (
-        <div key={ri} style={{ display: 'flex', gap: 6, marginLeft: ri === 2 ? 16 : ri === 3 ? 36 : 0 }}>
-          {row.map((key) => {
-            const isActive = activeKey.toUpperCase() === key.toUpperCase();
-            const isError = errorKey.toUpperCase() === key.toUpperCase();
-            const isHome = homeRowKeys.has(key);
-            return (
-              <div
-                key={key}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 13,
-                  fontFamily: tk.fontMono,
-                  fontWeight: 600,
-                  position: 'relative',
-                  background: isError
-                    ? 'rgba(255,107,107,0.25)'
-                    : isActive
-                    ? 'linear-gradient(135deg, rgba(0,212,255,0.35), rgba(168,85,247,0.25))'
-                    : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${
-                    isError
-                      ? 'rgba(255,107,107,0.6)'
-                      : isActive
-                      ? 'rgba(0,212,255,0.6)'
-                      : isHome
-                      ? 'rgba(0,212,255,0.18)'
-                      : 'rgba(255,255,255,0.06)'
-                  }`,
-                  color: isError ? tk.red : isActive ? tk.cyan : isHome ? tk.textMuted : tk.textDim,
-                  transition: 'all 0.08s ease-out',
-                  transform: isActive ? 'scale(1.14) translateY(-2px)' : 'scale(1)',
-                  boxShadow: isActive
-                    ? '0 4px 18px rgba(0,212,255,0.35)'
-                    : isError
-                    ? '0 4px 14px rgba(255,107,107,0.3)'
-                    : 'none',
-                }}
-              >
-                {key}
-                {isHome && !isActive && !isError && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 4,
-                      width: 3,
-                      height: 3,
-                      borderRadius: '50%',
-                      background: 'rgba(0,212,255,0.5)',
-                    }}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-      <div style={{ display: 'flex', gap: 6 }}>
-        <div
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: 290,
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <svg
+        width="100%"
+        height="240"
+        viewBox="0 0 280 250"
+        style={{ overflow: 'visible', filter: 'drop-shadow(0 10px 24px rgba(0,0,0,0.5))' }}
+      >
+        <defs>
+          {/* Spotlight Gradient */}
+          <linearGradient id="mascotSpotlight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.4" />
+            <stop offset="60%" stopColor="#a855f7" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#ff79c6" stopOpacity="0.0" />
+          </linearGradient>
+
+          {/* Disco Floor Rings */}
+          <radialGradient id="mascotDiscoRing" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.4" />
+            <stop offset="65%" stopColor="#a855f7" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#050814" stopOpacity="0.9" />
+          </radialGradient>
+
+          <radialGradient id="mascotFloorPulse" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ff79c6" stopOpacity="0.65" />
+            <stop offset="60%" stopColor="#00d4ff" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Chassis Metallic Gradient */}
+          <linearGradient id="mascotChassisGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="50%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#020617" />
+          </linearGradient>
+
+          {/* Sunglasses Shimmer */}
+          <linearGradient id="mascotSunglassesGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="35%" stopColor="#334155" />
+            <stop offset="50%" stopColor="#00ffff" />
+            <stop offset="65%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+
+          {/* Sneakers Gradients */}
+          <linearGradient id="mascotSneakerGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ff007f" />
+            <stop offset="100%" stopColor="#7928ca" />
+          </linearGradient>
+          <linearGradient id="mascotSoleGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#00f0ff" />
+            <stop offset="100%" stopColor="#00ff88" />
+          </linearGradient>
+
+          {/* Glow Filter */}
+          <filter id="mascotNeonGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* ─── Sweeping Spotlight Beam ─── */}
+        <polygon
+          points="140,0 45,230 235,230"
+          fill="url(#mascotSpotlight)"
+          style={{ animation: 'spotlightSweep 3.5s ease-in-out infinite' }}
+        />
+
+        {/* ─── Floating Musical Notes & Dancing Sparks ─── */}
+        <g style={{ animation: 'noteFloat 2.6s ease-in-out infinite' }}>
+          <text x="36" y="80" fontSize="18" fill="#00ffff" style={{ filter: 'url(#mascotNeonGlow)' }}>♪</text>
+        </g>
+        <g style={{ animation: 'noteFloat 2.2s ease-in-out 0.6s infinite' }}>
+          <text x="222" y="72" fontSize="20" fill="#ff79c6" style={{ filter: 'url(#mascotNeonGlow)' }}>♫</text>
+        </g>
+        <g style={{ animation: 'noteFloat 3s ease-in-out 1.2s infinite' }}>
+          <text x="44" y="140" fontSize="14" fill="#ffd700" style={{ filter: 'url(#mascotNeonGlow)' }}>⭐</text>
+        </g>
+        <g style={{ animation: 'noteFloat 2.4s ease-in-out 0.4s infinite' }}>
+          <text x="216" y="135" fontSize="16" fill="#00ff88" style={{ filter: 'url(#mascotNeonGlow)' }}>⚡</text>
+        </g>
+
+        {/* ─── Pulsing Disco Dance Floor ─── */}
+        <ellipse cx="140" cy="225" rx="95" ry="19" fill="#060913" stroke="rgba(0, 212, 255, 0.3)" strokeWidth="1.5" />
+        <ellipse cx="140" cy="225" rx="76" ry="14" fill="url(#mascotDiscoRing)" stroke="rgba(168, 85, 247, 0.4)" strokeWidth="1" />
+        <ellipse
+          cx="140"
+          cy="225"
+          rx="50"
+          ry="9"
+          fill="url(#mascotFloorPulse)"
+          style={{ animation: 'floorPulse 1.1s ease-in-out infinite' }}
+        />
+        <line x1="85" y1="225" x2="195" y2="225" stroke="rgba(0,212,255,0.4)" strokeWidth="1" strokeDasharray="4 3" />
+        <line x1="140" y1="208" x2="140" y2="242" stroke="rgba(255,121,198,0.4)" strokeWidth="1" strokeDasharray="3 3" />
+
+        {/* ─── Foot Shadow ─── */}
+        <ellipse
+          cx="140"
+          cy="222"
+          rx={dance === 'hype' ? 26 : 34}
+          ry="6"
+          fill="rgba(0,0,0,0.6)"
           style={{
-            width: 320,
-            height: 40,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            fontFamily: tk.fontMono,
-            fontWeight: 600,
-            letterSpacing: '0.2em',
-            background: activeKey === ' '
-              ? 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(168,85,247,0.2))'
-              : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${activeKey === ' ' ? 'rgba(0,212,255,0.5)' : 'rgba(255,255,255,0.06)'}`,
-            color: activeKey === ' ' ? tk.cyan : tk.textDim,
-            transition: 'all 0.08s ease-out',
-            transform: activeKey === ' ' ? 'scale(1.02)' : 'scale(1)',
+            animation: dance === 'hype' ? 'mascotHypeShadow 0.48s ease-in-out infinite' : 'shadowPulse 0.85s ease-in-out infinite',
+            transformOrigin: '140px 222px',
+          }}
+        />
+
+        {/* ─── Mascot Main Assembly (Bounces & Grooves) ─── */}
+        <g
+          id="mascotAssembly"
+          style={{
+            transformOrigin: '140px 200px',
+            animation:
+              dance === 'hype'
+                ? 'mascotHypeBounce 0.48s ease-in-out infinite'
+                : dance === 'robot'
+                ? 'mascotRobotStaccato 1.2s steps(2, jump-none) infinite'
+                : dance === 'rock'
+                ? 'mascotRockBounce 0.65s ease-in-out infinite'
+                : 'mascotBounce 0.85s ease-in-out infinite',
           }}
         >
-          SPACE
+          {/* Left Foot & Sneaker */}
+          <g
+            id="mascotLeftFoot"
+            style={{
+              transformOrigin: '115px 215px',
+              animation: dance === 'robot' ? 'none' : 'footTapLeft 0.85s ease-in-out infinite',
+            }}
+          >
+            <path d="M 98 212 C 98 207, 126 207, 128 214 L 130 220 C 130 223, 95 223, 95 220 Z" fill="url(#mascotSneakerGrad)" />
+            <path d="M 94 219 Q 112 218 131 219 L 130 223 Q 112 222 94 223 Z" fill="url(#mascotSoleGrad)" />
+            <line x1="108" y1="210" x2="118" y2="210" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="110" y1="213" x2="119" y2="213" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+          </g>
+
+          {/* Right Foot & Sneaker */}
+          <g
+            id="mascotRightFoot"
+            style={{
+              transformOrigin: '165px 215px',
+              animation: dance === 'robot' ? 'none' : 'footTapRight 0.85s ease-in-out infinite',
+            }}
+          >
+            <path d="M 152 214 C 154 207, 182 207, 182 212 L 185 220 C 185 223, 150 223, 150 220 Z" fill="url(#mascotSneakerGrad)" />
+            <path d="M 149 219 Q 168 218 186 219 L 186 223 Q 168 222 149 223 Z" fill="url(#mascotSoleGrad)" />
+            <line x1="162" y1="210" x2="172" y2="210" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="161" y1="213" x2="170" y2="213" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+          </g>
+
+          {/* Legs */}
+          <line x1="115" y1="184" x2="115" y2="212" stroke="#334155" strokeWidth="6" strokeLinecap="round" />
+          <line x1="165" y1="184" x2="165" y2="212" stroke="#334155" strokeWidth="6" strokeLinecap="round" />
+          <ellipse cx="115" cy="196" rx="4" ry="2" fill="#00d4ff" />
+          <ellipse cx="165" cy="196" rx="4" ry="2" fill="#00d4ff" />
+
+          {/* ─── Chassis Body ─── */}
+          <rect
+            x="100"
+            y="130"
+            width="80"
+            height="56"
+            rx="14"
+            fill="url(#mascotChassisGrad)"
+            stroke="rgba(0,212,255,0.4)"
+            strokeWidth="2"
+          />
+
+          {/* Equalizer Chest Screen */}
+          <rect
+            x="110"
+            y="138"
+            width="60"
+            height="26"
+            rx="6"
+            fill="#050a17"
+            stroke="rgba(168,85,247,0.4)"
+            strokeWidth="1.2"
+          />
+
+          {/* Equalizer Bars on Chest */}
+          <rect x="116" y="146" width="4" height="12" rx="2" fill="#00d4ff" style={{ animation: 'equalizerBar1 0.6s ease-in-out infinite' }} />
+          <rect x="124" y="142" width="4" height="16" rx="2" fill="#a855f7" style={{ animation: 'equalizerBar2 0.7s ease-in-out infinite' }} />
+          <rect x="132" y="140" width="4" height="18" rx="2" fill="#ff79c6" style={{ animation: 'equalizerBar3 0.5s ease-in-out infinite' }} />
+          <rect x="140" y="143" width="4" height="15" rx="2" fill="#ffd700" style={{ animation: 'equalizerBar2 0.8s ease-in-out infinite' }} />
+          <rect x="148" y="141" width="4" height="17" rx="2" fill="#00ff88" style={{ animation: 'equalizerBar1 0.65s ease-in-out infinite' }} />
+          <rect x="156" y="147" width="4" height="11" rx="2" fill="#00d4ff" style={{ animation: 'equalizerBar3 0.75s ease-in-out infinite' }} />
+
+          {/* Keyboard Spacebar Belt */}
+          <rect x="115" y="169" width="50" height="11" rx="4" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" strokeWidth="1" />
+          <text x="140" y="177" fill="#00d4ff" fontSize="7.5" fontFamily="monospace" fontWeight="900" textAnchor="middle">
+            {wpm >= 60 ? '⚡ TURBO' : 'SPACE ↵'}
+          </text>
+
+          {/* ─── Arms & Hands (Animated per Dance Style) ─── */}
+          {/* Left Arm */}
+          <g
+            id="mascotLeftArm"
+            style={{
+              transformOrigin: '100px 140px',
+              animation:
+                dance === 'hype'
+                  ? 'hypeArmLeft 0.48s ease-in-out infinite'
+                  : dance === 'robot'
+                  ? 'robotArmLeft 1.2s steps(2, jump-none) infinite'
+                  : dance === 'rock'
+                  ? 'rockArmLeft 0.65s ease-in-out infinite'
+                  : 'discoArmLeft 0.85s ease-in-out infinite',
+            }}
+          >
+            <path
+              d={
+                dance === 'disco'
+                  ? 'M 100 140 Q 78 154 84 176'
+                  : dance === 'hype'
+                  ? 'M 100 140 Q 72 114 65 89'
+                  : dance === 'robot'
+                  ? 'M 100 140 L 70 140 L 70 109'
+                  : 'M 100 140 Q 70 134 60 154'
+              }
+              fill="none"
+              stroke="#475569"
+              strokeWidth="6.5"
+              strokeLinecap="round"
+            />
+            <circle
+              cx={dance === 'disco' ? 84 : dance === 'hype' ? 64 : dance === 'robot' ? 70 : 60}
+              cy={dance === 'disco' ? 177 : dance === 'hype' ? 88 : dance === 'robot' ? 108 : 154}
+              r="6.5"
+              fill="#ffffff"
+              stroke="#00d4ff"
+              strokeWidth="1.5"
+            />
+            {dance === 'disco' && (
+              <line x1="84" y1="177" x2="74" y2="188" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+            )}
+            {dance === 'rock' && (
+              <text x="46" y="154" fontSize="13">🎸</text>
+            )}
+          </g>
+
+          {/* Right Arm */}
+          <g
+            id="mascotRightArm"
+            style={{
+              transformOrigin: '180px 140px',
+              animation:
+                dance === 'hype'
+                  ? 'hypeArmRight 0.48s ease-in-out infinite'
+                  : dance === 'robot'
+                  ? 'robotArmRight 1.2s steps(2, jump-none) infinite'
+                  : dance === 'rock'
+                  ? 'rockArmRight 0.65s ease-in-out infinite'
+                  : 'discoArmRight 0.85s ease-in-out infinite',
+            }}
+          >
+            <path
+              d={
+                dance === 'disco'
+                  ? 'M 180 140 Q 205 119 218 90'
+                  : dance === 'hype'
+                  ? 'M 180 140 Q 208 114 215 89'
+                  : dance === 'robot'
+                  ? 'M 180 140 L 210 140 L 210 174'
+                  : 'M 180 140 Q 195 164 160 172'
+              }
+              fill="none"
+              stroke="#475569"
+              strokeWidth="6.5"
+              strokeLinecap="round"
+            />
+            <circle
+              cx={dance === 'disco' ? 219 : dance === 'hype' ? 216 : dance === 'robot' ? 210 : 160}
+              cy={dance === 'disco' ? 89 : dance === 'hype' ? 88 : dance === 'robot' ? 174 : 172}
+              r="6.5"
+              fill="#ffffff"
+              stroke="#ff79c6"
+              strokeWidth="1.5"
+            />
+            {dance === 'disco' && (
+              <line x1="219" y1="89" x2="232" y2="72" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round" />
+            )}
+          </g>
+
+          {/* ─── Head Assembly ─── */}
+          <g
+            id="mascotHead"
+            style={{
+              transformOrigin: '140px 124px',
+              animation:
+                dance === 'rock'
+                  ? 'mascotRockHead 0.32s ease-in-out infinite'
+                  : 'mascotHeadBob 0.85s ease-in-out infinite',
+            }}
+          >
+            {/* Neck Joint */}
+            <rect x="133" y="122" width="14" height="10" rx="3" fill="#334155" />
+            <line x1="133" y1="127" x2="147" y2="127" stroke="#00d4ff" strokeWidth="1" />
+
+            {/* Head Chassis */}
+            <rect
+              x="96"
+              y="62"
+              width="88"
+              height="62"
+              rx="18"
+              fill="url(#mascotChassisGrad)"
+              stroke="rgba(0,212,255,0.6)"
+              strokeWidth="2.2"
+            />
+
+            {/* Antenna stalk */}
+            <line x1="140" y1="62" x2="140" y2="38" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
+            <circle cx="140" cy="38" r="3" fill="#a855f7" />
+
+            {/* Spinning Disco Star on Antenna */}
+            <g style={{ animation: 'crownStarSpin 3s linear infinite', transformOrigin: '140px 32px' }}>
+              <polygon
+                points="140,22 143,29 150,30 145,35 146,42 140,38 134,42 135,35 130,30 137,29"
+                fill="#ffd700"
+                stroke="#ffa500"
+                strokeWidth="1"
+                style={{ filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.8))' }}
+              />
+            </g>
+
+            {/* DJ Over-Ear Headphones */}
+            <path d="M 90 92 A 50 50 0 0 1 190 92" fill="none" stroke="#ff79c6" strokeWidth="4.5" strokeLinecap="round" />
+            <rect x="86" y="80" width="10" height="26" rx="5" fill="#ff79c6" stroke="#ffffff" strokeWidth="1" />
+            <ellipse cx="91" cy="93" rx="2" ry="7" fill="#ffffff" />
+            <rect x="184" y="80" width="10" height="26" rx="5" fill="#ff79c6" stroke="#ffffff" strokeWidth="1" />
+            <ellipse cx="189" cy="93" rx="2" ry="7" fill="#ffffff" />
+
+            {/* Screen Visor */}
+            <rect
+              x="105"
+              y="72"
+              width="70"
+              height="33"
+              rx="10"
+              fill="#070d1e"
+              stroke="rgba(0,212,255,0.4)"
+              strokeWidth="1.2"
+            />
+
+            {/* Ultra Cool Sunglasses */}
+            <path
+              d="M 106 79 Q 140 82 174 79 L 171 95 Q 158 100 142 92 Q 126 100 109 95 Z"
+              fill="url(#mascotSunglassesGrad)"
+              stroke="#00ffff"
+              strokeWidth="1.2"
+            />
+            {/* Sunglasses Neon Flare Lines */}
+            <line x1="114" y1="82" x2="124" y2="93" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" />
+            <line x1="126" y1="82" x2="132" y2="89" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="148" y1="82" x2="158" y2="93" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" />
+            <line x1="160" y1="82" x2="166" y2="89" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" />
+
+            {/* Rosy Cheeks */}
+            <ellipse cx="112" cy="111" rx="6" ry="3" fill="rgba(255,105,180,0.6)" />
+            <ellipse cx="168" cy="111" rx="6" ry="3" fill="rgba(255,105,180,0.6)" />
+
+            {/* Expressive Pixel Smile */}
+            <path
+              d="M 132 112 Q 140 119 148 112"
+              fill="none"
+              stroke="#00ff88"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+          </g>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// ─── Motivational Completion Hook System ────────────────────────────────────
+
+interface CompletionHook {
+  badge: string;
+  badgeColor: string;
+  title: string;
+  quote: string;
+  body: string;
+  hook: string;
+  actionText: string;
+}
+
+function getCompletionHook(
+  wpm: number,
+  accuracy: number,
+  isNewPB: boolean,
+  streak: number
+): CompletionHook {
+  if (isNewPB) {
+    return {
+      badge: '👑 ALL-TIME PEAK RECORD',
+      badgeColor: '#FFD700',
+      title: 'The ceiling you were staring at just became your new floor!',
+      quote: 'When you break an invisible barrier, the horizon immediately expands.',
+      body: 'You just shattered your historical best score! Your brain and fingers executed at peak cognitive velocity with zero friction.',
+      hook: 'Athletes and world-class speedrunners know the golden rule: never walk away after a breakthrough run. Capitalize on this neural momentum right now and see if you can break it twice in a row!',
+      actionText: '⚡ Double Down – Break Your New Record (Enter ↵)',
+    };
+  }
+
+  if (streak >= 3) {
+    return {
+      badge: `🔥 UNSTOPPABLE STREAK · ${streak} IN A ROW`,
+      badgeColor: '#ff6b6b',
+      title: 'You are completely locked in! The streak demands more.',
+      quote: 'Momentum is the rarest superpower in human performance.',
+      body: `That's ${streak} consecutive tests completed without hesitation. Your fingers are warm, your hand placement is locked, and your rhythm is electric.`,
+      hook: `Do not let the chain break now! Take test #${streak + 1} right now and push this streak into the stratosphere.`,
+      actionText: `🔥 Defend the Streak – Test #${streak + 1} (Enter ↵)`,
+    };
+  }
+
+  if (accuracy >= 97 && wpm >= 30) {
+    return {
+      badge: '🎯 SURGICAL PRECISION',
+      badgeColor: tk.green,
+      title: 'Flawless craftsmanship. Zero wasted energy.',
+      quote: 'Slow is smooth, and smooth is blazing fast.',
+      body: `${Math.round(accuracy)}% accuracy is textbook perfection. While most typists panic and hit backspace under pressure, your muscle memory stayed composed and laser-precise.`,
+      hook: 'With accuracy this reliable, you have full license to step on the gas pedal. Push your fingers 10% faster on this next round—your muscle memory will catch you!',
+      actionText: '🚀 Push the Throttle – Speed Run (Enter ↵)',
+    };
+  }
+
+  if (wpm >= 75) {
+    const list: CompletionHook[] = [
+      {
+        badge: '⚡ GODSPEED FLOW STATE',
+        badgeColor: tk.cyan,
+        title: 'Your fingers just conducted an orchestra of speed!',
+        quote: 'Speed is not in the hands, it is in the quiet calm of instinct.',
+        body: `Blistering pace! At ${wpm} WPM, you've stopped reading letter-by-letter and your subconscious is now streaming whole words straight to your fingertips.`,
+        hook: 'You are only a breath away from breaking into the highest master bracket. Run it back right now while your fingers are still humming with kinetic energy!',
+        actionText: '⚡ Claim Your Next Tier (Enter ↵)',
+      },
+      {
+        badge: '🚀 ADRENALINE VELOCITY',
+        badgeColor: tk.purple,
+        title: 'Dangerously fast. Pure kinetic motion.',
+        quote: 'When your fingers move faster than conscious thought, you are in flow.',
+        body: `You just flew past 95% of typists on the planet. Notice how effortless those transitions were? Your brain just released a burst of dopamine.`,
+        hook: 'Do not let your muscles cool down! The easiest +5 WPM jump happens right after a high-energy sprint like this. Hit Enter and prove it!',
+        actionText: '🔥 Strike While Warm – Next Sprint (Enter ↵)',
+      },
+    ];
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  if (wpm >= 45) {
+    const list: CompletionHook[] = [
+      {
+        badge: '✨ SYNAPTIC ACCELERATION',
+        badgeColor: tk.cyan,
+        title: 'That was dangerously smooth!',
+        quote: 'The secret to speed is finding your unbroken cadence.',
+        body: `Notice how natural that rhythm felt? At ${wpm} WPM, your typing cadence is establishing strong rhythmic consistency that builds effortless speed.`,
+        hook: 'Your brain is primed right now. Run it back immediately and watch how your fingers anticipate the next word before your eyes even register it!',
+        actionText: '⚡ Ride the Cadence – Beat This Score (Enter ↵)',
+      },
+      {
+        badge: '🌟 MOMENTUM SURGE',
+        badgeColor: tk.gold,
+        title: 'Your muscle memory just leveled up!',
+        quote: 'Every rep writes new code into your subconscious mind.',
+        body: `Outstanding run! You maintained solid pacing and kept the momentum alive across the entire passage. That is how champions are forged.`,
+        hook: 'You are on the threshold of breaking your ceiling. Give yourself one more round right now and lock in this speed permanently!',
+        actionText: '🔥 Level Up Again – Start Next (Enter ↵)',
+      },
+    ];
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  // Beginner / warming up
+  const beginnerList: CompletionHook[] = [
+    {
+      badge: '🌱 THE MASTER\'S SPARK',
+      badgeColor: tk.green,
+      title: 'Brilliant finish! Every master started right here.',
+      quote: 'The journey of a thousand words begins with a single keypress.',
+      body: 'You just mapped dozens of keyboard coordinates into your finger memory. Typing is a motor skill, and your brain just formed hundreds of new neural bridges.',
+      hook: 'The hardest part is taking the first step, and you just crushed it! Take one more round right now while your hands remember the positions—you\'ll be shocked how much faster it feels!',
+      actionText: '🚀 Take Round 2 – Feel the Speed (Enter ↵)',
+    },
+    {
+      badge: '✨ MUSCLE MEMORY IN PROGRESS',
+      badgeColor: tk.gold,
+      title: 'Great persistence! Your hands are learning fast.',
+      quote: 'Patience and repetition turn clumsy fingers into keyboard wizards.',
+      body: 'Every single keystroke trains your hands to navigate without looking down. You\'re building the exact foundation that enables 80+ WPM typing.',
+      hook: 'Don\'t stop now! Your fingers are in prime learning mode. One more quick round will cement what you just learned!',
+      actionText: '🌱 Keep Growing – Next Round (Enter ↵)',
+    },
+  ];
+  return beginnerList[Math.floor(Math.random() * beginnerList.length)];
+}
+
+// ─── High-Level Mechanical Animated Keyboard ─────────────────────────────────
+
+interface KeyDef {
+  key: string;
+  label: string;
+  w: number;
+  home?: boolean;
+  bump?: boolean;
+  special?: boolean;
+  space?: boolean;
+  enter?: boolean;
+}
+
+const KEYBOARD_LAYOUT: KeyDef[][] = [
+  [
+    { key: '`', label: '~', w: 42 },
+    { key: '1', label: '1', w: 42 },
+    { key: '2', label: '2', w: 42 },
+    { key: '3', label: '3', w: 42 },
+    { key: '4', label: '4', w: 42 },
+    { key: '5', label: '5', w: 42 },
+    { key: '6', label: '6', w: 42 },
+    { key: '7', label: '7', w: 42 },
+    { key: '8', label: '8', w: 42 },
+    { key: '9', label: '9', w: 42 },
+    { key: '0', label: '0', w: 42 },
+    { key: '-', label: '-', w: 42 },
+    { key: '=', label: '=', w: 42 },
+    { key: 'BACKSPACE', label: '⌫ Back', w: 82, special: true },
+  ],
+  [
+    { key: 'TAB', label: 'Tab ⇥', w: 68, special: true },
+    { key: 'Q', label: 'Q', w: 42 },
+    { key: 'W', label: 'W', w: 42 },
+    { key: 'E', label: 'E', w: 42 },
+    { key: 'R', label: 'R', w: 42 },
+    { key: 'T', label: 'T', w: 42 },
+    { key: 'Y', label: 'Y', w: 42 },
+    { key: 'U', label: 'U', w: 42 },
+    { key: 'I', label: 'I', w: 42 },
+    { key: 'O', label: 'O', w: 42 },
+    { key: 'P', label: 'P', w: 42 },
+    { key: '[', label: '[', w: 42 },
+    { key: ']', label: ']', w: 42 },
+    { key: '\\', label: '\\', w: 56, special: true },
+  ],
+  [
+    { key: 'CAPS', label: 'Caps ⇪', w: 78, special: true },
+    { key: 'A', label: 'A', w: 42, home: true },
+    { key: 'S', label: 'S', w: 42, home: true },
+    { key: 'D', label: 'D', w: 42, home: true },
+    { key: 'F', label: 'F', w: 42, home: true, bump: true },
+    { key: 'G', label: 'G', w: 42 },
+    { key: 'H', label: 'H', w: 42 },
+    { key: 'J', label: 'J', w: 42, home: true, bump: true },
+    { key: 'K', label: 'K', w: 42, home: true },
+    { key: 'L', label: 'L', w: 42, home: true },
+    { key: ';', label: ';', w: 42, home: true },
+    { key: "'", label: "'", w: 42 },
+    { key: 'ENTER', label: 'Enter ↵', w: 88, special: true, enter: true },
+  ],
+  [
+    { key: 'SHIFT', label: '⇧ Shift', w: 100, special: true },
+    { key: 'Z', label: 'Z', w: 42 },
+    { key: 'X', label: 'X', w: 42 },
+    { key: 'C', label: 'C', w: 42 },
+    { key: 'V', label: 'V', w: 42 },
+    { key: 'B', label: 'B', w: 42 },
+    { key: 'N', label: 'N', w: 42 },
+    { key: 'M', label: 'M', w: 42 },
+    { key: ',', label: ',', w: 42 },
+    { key: '.', label: '.', w: 42 },
+    { key: '/', label: '/', w: 42 },
+    { key: 'RSHIFT', label: '⇧ Shift', w: 108, special: true },
+  ],
+  [
+    { key: 'CTRL', label: 'Ctrl', w: 56, special: true },
+    { key: 'ALT', label: 'Alt', w: 56, special: true },
+    { key: ' ', label: 'SPACEBAR', w: 340, space: true },
+    { key: 'ALT_R', label: 'Alt', w: 56, special: true },
+    { key: 'CTRL_R', label: 'Ctrl', w: 56, special: true },
+  ],
+];
+
+function LiveKeyboard({
+  activeKey,
+  errorKey,
+  nextKey,
+}: {
+  activeKey: string;
+  errorKey: string;
+  nextKey: string;
+}) {
+  const normActive = activeKey ? activeKey.toUpperCase() : '';
+  const normError = errorKey ? errorKey.toUpperCase() : '';
+  const normNext = nextKey ? nextKey.toUpperCase() : '';
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        background: 'linear-gradient(180deg, rgba(8, 14, 28, 0.95), rgba(4, 7, 16, 0.98))',
+        border: '1px solid rgba(0, 212, 255, 0.25)',
+        borderRadius: 18,
+        padding: '16px 20px 20px',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 212, 255, 0.08)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Animated RGB Lightbar Chassis Edge */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: 'linear-gradient(90deg, #00d4ff, #a855f7, #00e5a0, #f5c842, #ff6b6b, #00d4ff)',
+          backgroundSize: '300% 100%',
+          animation: 'rgbChassisGlow 6s linear infinite',
+        }}
+      />
+
+      {/* Cyberdeck Header Bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12,
+          paddingBottom: 8,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          fontSize: 11,
+          fontFamily: tk.fontMono,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: tk.cyan }}>
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: tk.green,
+              boxShadow: `0 0 8px ${tk.green}`,
+            }}
+          />
+          <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>
+            TACTILE CYBERDECK · 1000Hz POLLING
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Upcoming key indicator */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'rgba(0,212,255,0.08)',
+              border: '1px solid rgba(0,212,255,0.25)',
+              borderRadius: 8,
+              padding: '3px 10px',
+              color: tk.cyan,
+            }}
+          >
+            <span style={{ fontSize: 10, color: tk.textDim, textTransform: 'uppercase' }}>Upcoming:</span>
+            <span style={{ fontWeight: 800, color: '#ffffff' }}>
+              {nextKey === ' ' ? '␣ SPACE' : nextKey ? nextKey.toUpperCase() : 'END 🏁'}
+            </span>
+          </div>
+
+          <span style={{ color: tk.textDim, fontSize: 10 }}>● F & J Home Anchors</span>
+        </div>
+      </div>
+
+      {/* Horizontal Scroll wrapper for responsive keyboards */}
+      <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 7,
+            minWidth: 690,
+            margin: '0 auto',
+          }}
+        >
+          {KEYBOARD_LAYOUT.map((row, ri) => (
+            <div key={ri} style={{ display: 'flex', gap: 6 }}>
+              {row.map((item) => {
+                const isMatchActive = item.space
+                  ? normActive === ' '
+                  : normActive === item.key.toUpperCase();
+                const isMatchError = item.space
+                  ? normError === ' '
+                  : normError === item.key.toUpperCase();
+                const isMatchNext = item.space
+                  ? normNext === ' '
+                  : normNext === item.key.toUpperCase();
+
+                // Compute keycap styling
+                let bg = 'linear-gradient(180deg, rgba(24, 34, 56, 0.95) 0%, rgba(13, 19, 32, 0.95) 100%)';
+                let textColor = item.special ? tk.textDim : '#cbd5e1';
+                let borderColor = 'rgba(255, 255, 255, 0.08)';
+                let borderTopColor = 'rgba(255, 255, 255, 0.22)';
+                let boxShadow =
+                  '0 4px 0 rgba(4, 7, 14, 0.95), 0 6px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12)';
+                let transform = 'translateY(0)';
+                let animation = 'none';
+
+                if (isMatchError) {
+                  bg = 'linear-gradient(180deg, #ff6b6b 0%, #c53030 100%)';
+                  textColor = '#ffffff';
+                  borderColor = '#ff6b6b';
+                  borderTopColor = '#ffa8a8';
+                  boxShadow = '0 1px 0 rgba(197, 48, 48, 0.9), 0 0 25px rgba(255, 107, 107, 0.85)';
+                  transform = 'translateY(3px)';
+                  animation = 'keyErrorShake 0.18s ease-in-out';
+                } else if (isMatchActive) {
+                  bg = 'linear-gradient(180deg, #00d4ff 0%, #0090bf 100%)';
+                  textColor = '#030814';
+                  borderColor = '#00d4ff';
+                  borderTopColor = '#ffffff';
+                  boxShadow =
+                    '0 1px 0 rgba(0, 144, 191, 0.9), 0 0 28px rgba(0, 212, 255, 0.95), inset 0 1px 2px rgba(255, 255, 255, 0.8)';
+                  transform = 'translateY(3px) scale(0.98)';
+                } else if (isMatchNext) {
+                  bg = 'linear-gradient(180deg, rgba(0, 212, 255, 0.18) 0%, rgba(14, 28, 52, 0.95) 100%)';
+                  borderColor = 'rgba(0, 212, 255, 0.85)';
+                  borderTopColor = 'rgba(0, 212, 255, 1)';
+                  textColor = '#00d4ff';
+                  boxShadow =
+                    '0 4px 0 rgba(4, 7, 14, 0.95), 0 0 20px rgba(0, 212, 255, 0.65), inset 0 0 10px rgba(0, 212, 255, 0.35)';
+                  animation = 'nextKeyPulse 1.2s infinite ease-in-out';
+                } else if (item.enter) {
+                  bg = 'linear-gradient(180deg, rgba(0, 229, 160, 0.14) 0%, rgba(13, 24, 36, 0.95) 100%)';
+                  textColor = tk.green;
+                  borderColor = 'rgba(0, 229, 160, 0.3)';
+                } else if (item.home) {
+                  borderColor = 'rgba(0, 212, 255, 0.2)';
+                }
+
+                return (
+                  <div
+                    key={item.key}
+                    style={{
+                      width: item.w,
+                      height: 42,
+                      borderRadius: 9,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: item.special ? 10 : 13,
+                      fontFamily: tk.fontMono,
+                      fontWeight: (isMatchActive || isMatchNext || item.enter) ? 800 : 600,
+                      position: 'relative',
+                      background: bg,
+                      border: `1px solid ${borderColor}`,
+                      borderTop: `1px solid ${borderTopColor}`,
+                      color: textColor,
+                      boxShadow,
+                      transform,
+                      animation,
+                      userSelect: 'none',
+                      transition: 'transform 0.06s ease, background 0.08s ease, box-shadow 0.08s ease',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span>{item.label}</span>
+
+                    {/* Raised Physical Tactile Bump on F & J keys */}
+                    {item.bump && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 5,
+                          width: 12,
+                          height: 2.5,
+                          borderRadius: 2,
+                          background: isMatchActive ? '#030814' : 'rgba(0,212,255,0.7)',
+                          boxShadow: '0 0 6px rgba(0,212,255,0.5)',
+                        }}
+                      />
+                    )}
+
+                    {/* Home-row subtle indicator dot */}
+                    {item.home && !item.bump && !isMatchActive && !isMatchNext && !isMatchError && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 5,
+                          width: 3,
+                          height: 3,
+                          borderRadius: '50%',
+                          background: 'rgba(0,212,255,0.4)',
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -597,6 +1366,19 @@ export default function TypingSpeedTestPage() {
   // Style / Difficulty state (for Time & Words)
   const [difficulty, setDifficulty] = useState<string>('easy');
 
+  // Customization & Practice Lab State
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+  const [customTargetType, setCustomTargetType] = useState<'time' | 'words' | 'text'>('time');
+  const [customTimeInput, setCustomTimeInput] = useState<number>(45);
+  const [customWordInput, setCustomWordInput] = useState<number>(30);
+  const [customDifficultyInput, setCustomDifficultyInput] = useState<string>('easy');
+  const [forceLowercase, setForceLowercase] = useState<boolean>(false);
+  const [includePunctuation, setIncludePunctuation] = useState<boolean>(true);
+  const [includeNumbers, setIncludeNumbers] = useState<boolean>(false);
+  const [customTextDraft, setCustomTextDraft] = useState<string>('');
+  const [isCustomTextMode, setIsCustomTextMode] = useState<boolean>(false);
+  const [customTextContent, setCustomTextContent] = useState<string>('');
+
   // Test Execution State
   const [text, setText] = useState<string>('');
   const [input, setInput] = useState<string>('');
@@ -614,6 +1396,21 @@ export default function TypingSpeedTestPage() {
   const [totalTests, setTotalTests] = useState(0);
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [showTextReview, setShowTextReview] = useState(false);
+  const [completionHook, setCompletionHook] = useState<CompletionHook | null>(null);
+  const [mascotDance, setMascotDance] = useState<'disco' | 'hype' | 'robot' | 'rock'>('disco');
+
+  // High-Energy Motivational Voice Coach
+  const speakCoachMessage = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (!completionHook) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(
+      `${completionHook.title}. ${completionHook.body} ${completionHook.hook}`
+    );
+    utterance.rate = 1.0;
+    utterance.pitch = 1.05;
+    window.speechSynthesis.speak(utterance);
+  }, [completionHook]);
 
   // Time-series history for rich graph
   const [historyPoints, setHistoryPoints] = useState<{ sec: number; wpm: number; errors: number }[]>([]);
@@ -636,7 +1433,10 @@ export default function TypingSpeedTestPage() {
     let generated = '';
     let author = '';
 
-    if (testMode === 'quote') {
+    if (isCustomTextMode && customTextContent.trim()) {
+      generated = customTextContent.trim();
+      setCurrentQuoteAuthor('Custom Practice Text');
+    } else if (testMode === 'quote') {
       const filtered = quoteLength === 'all'
         ? quoteBank
         : quoteBank.filter((q) => q.length === quoteLength);
@@ -647,8 +1447,12 @@ export default function TypingSpeedTestPage() {
       setCurrentQuoteAuthor(author);
     } else if (testMode === 'words') {
       const wordsArr: string[] = [];
+      const sourceWords = difficulty === 'easy' ? beginnerWordsList : commonWordsList;
       for (let i = 0; i < wordCount; i++) {
-        const randWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
+        let randWord = sourceWords[Math.floor(Math.random() * sourceWords.length)];
+        if (includeNumbers && Math.random() < 0.15) {
+          randWord = String(Math.floor(Math.random() * 90 + 10));
+        }
         wordsArr.push(randWord);
       }
       generated = wordsArr.join(' ');
@@ -657,16 +1461,30 @@ export default function TypingSpeedTestPage() {
       // Time mode
       const bank = sentenceBanks[difficulty] || sentenceBanks.easy;
       const shuffled = [...bank].sort(() => Math.random() - 0.5);
-      const sentencesCount = timeLimit >= 60 ? 5 : 3;
+      const sentencesCount = timeLimit >= 120 ? 8 : timeLimit >= 60 ? 5 : 3;
       generated = shuffled.slice(0, sentencesCount).join(' ');
       setCurrentQuoteAuthor('');
     }
+
+    // Force lowercase if Beginner mode or if user enabled forceLowercase toggle
+    if ((difficulty === 'easy' || forceLowercase) && !isCustomTextMode && difficulty !== 'code') {
+      generated = generated.toLowerCase();
+    }
+
+    // If user disabled punctuation (except code mode and custom text)
+    if (!includePunctuation && difficulty !== 'code' && !isCustomTextMode) {
+      generated = generated.replace(/[^a-zA-Z0-9\s]/g, '');
+    }
+
+    // Normalize spacing
+    generated = generated.replace(/\s+/g, ' ').trim();
 
     setText(generated);
     setInput('');
     currentInputRef.current = '';
     setStarted(false);
     setFinished(false);
+    setCompletionHook(null);
     setTimeLeft(timeLimit);
     setElapsedTime(0);
     finalElapsedRef.current = 0;
@@ -676,7 +1494,55 @@ export default function TypingSpeedTestPage() {
     setActiveKey('');
     setErrorKey('');
     setShowTextReview(false);
-  }, [testMode, timeLimit, wordCount, quoteLength, difficulty]);
+  }, [
+    testMode,
+    timeLimit,
+    wordCount,
+    quoteLength,
+    difficulty,
+    isCustomTextMode,
+    customTextContent,
+    forceLowercase,
+    includePunctuation,
+    includeNumbers,
+  ]);
+
+  // ─── Apply Custom Settings from Modal ─────────────────────────────────────
+  const handleApplyCustomSettings = useCallback(() => {
+    if (customTargetType === 'text') {
+      if (!customTextDraft.trim()) {
+        alert('Please enter or paste some custom text to practice.');
+        return;
+      }
+      setIsCustomTextMode(true);
+      setCustomTextContent(customTextDraft.trim());
+    } else {
+      setIsCustomTextMode(false);
+      if (customTargetType === 'time') {
+        setTestMode('time');
+        const val = Math.max(5, Math.min(600, Number(customTimeInput) || 30));
+        setTimeLimit(val);
+        setTimeLeft(val);
+      } else if (customTargetType === 'words') {
+        setTestMode('words');
+        const val = Math.max(5, Math.min(500, Number(customWordInput) || 25));
+        setWordCount(val);
+      }
+      setDifficulty(customDifficultyInput);
+    }
+    setShowCustomModal(false);
+    setTimeout(() => {
+      generateText();
+      inputRef.current?.focus();
+    }, 50);
+  }, [
+    customTargetType,
+    customTextDraft,
+    customTimeInput,
+    customWordInput,
+    customDifficultyInput,
+    generateText,
+  ]);
 
   useEffect(() => {
     generateText();
@@ -825,6 +1691,15 @@ export default function TypingSpeedTestPage() {
       playVictoryFanfare(soundEnabled);
     }
   }, [input, text, started, finished, stats.wpm, personalBest, burst, soundEnabled]);
+
+  // ─── Generate Completion Motivation Hook ──────────────────────────────────
+  useEffect(() => {
+    if (finished) {
+      const isNew = stats.wpm > 0 && stats.wpm >= personalBest;
+      const hook = getCompletionHook(stats.wpm, stats.accuracy, isNew, streak);
+      setCompletionHook(hook);
+    }
+  }, [finished, stats.wpm, stats.accuracy, personalBest, streak]);
 
   // ─── Keystroke Handler ────────────────────────────────────────────────────
   const handleInput = useCallback(
@@ -1062,10 +1937,11 @@ export default function TypingSpeedTestPage() {
 
   // ─── Format Subtitle Description for Mode ─────────────────────────────────
   const modeSubtitle = useMemo(() => {
-    if (testMode === 'time') return `⏱️ ${timeLimit}s Time Challenge · ${difficultyConfig[difficulty].label}`;
-    if (testMode === 'words') return `📝 ${wordCount} Words Challenge in ${stats.elapsed}s`;
+    if (isCustomTextMode) return `✍️ Custom Practice Text in ${stats.elapsed}s`;
+    if (testMode === 'time') return `⏱️ ${timeLimit}s Time Challenge · ${difficultyConfig[difficulty]?.label || 'Custom'}`;
+    if (testMode === 'words') return `📝 ${wordCount} Words Challenge in ${stats.elapsed}s · ${difficultyConfig[difficulty]?.label || 'Custom'}`;
     return `💬 Quote by ${currentQuoteAuthor || 'Famous Figure'} in ${stats.elapsed}s`;
-  }, [testMode, timeLimit, wordCount, difficulty, currentQuoteAuthor, stats.elapsed]);
+  }, [isCustomTextMode, testMode, timeLimit, wordCount, difficulty, currentQuoteAuthor, stats.elapsed]);
 
   // ─── Copy Result Card to Clipboard ────────────────────────────────────────
   const handleCopyResult = () => {
@@ -1306,7 +2182,7 @@ export default function TypingSpeedTestPage() {
               alignItems: 'center',
             }}
           >
-            {/* Primary Mode Selector: Time / Words / Quotes */}
+            {/* Primary Mode Selector: Time / Words / Quotes / Custom */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                 Mode:
@@ -1320,6 +2196,7 @@ export default function TypingSpeedTestPage() {
                   <button
                     key={m.id}
                     onClick={() => {
+                      setIsCustomTextMode(false);
                       setTestMode(m.id as TestMode);
                       if (!started) generateText();
                     }}
@@ -1331,119 +2208,228 @@ export default function TypingSpeedTestPage() {
                       borderRadius: 9,
                       fontSize: 11,
                       fontFamily: tk.fontMono,
-                      fontWeight: testMode === m.id ? 700 : 500,
+                      fontWeight: (!isCustomTextMode && testMode === m.id) ? 700 : 500,
                       border: 'none',
                       cursor: 'pointer',
-                      background: testMode === m.id ? 'rgba(0,212,255,0.2)' : 'transparent',
-                      color: testMode === m.id ? tk.cyan : tk.textDim,
+                      background: (!isCustomTextMode && testMode === m.id) ? 'rgba(0,212,255,0.2)' : 'transparent',
+                      color: (!isCustomTextMode && testMode === m.id) ? tk.cyan : tk.textDim,
                       transition: 'all 0.2s ease',
-                      boxShadow: testMode === m.id ? '0 0 14px rgba(0,212,255,0.2)' : 'none',
+                      boxShadow: (!isCustomTextMode && testMode === m.id) ? '0 0 14px rgba(0,212,255,0.2)' : 'none',
                     }}
                   >
                     {m.icon}
                     {m.label}
                   </button>
                 ))}
+
+                {isCustomTextMode && (
+                  <button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '8px 15px',
+                      borderRadius: 9,
+                      fontSize: 11,
+                      fontFamily: tk.fontMono,
+                      fontWeight: 700,
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: 'rgba(168,85,247,0.25)',
+                      color: tk.purple,
+                      boxShadow: '0 0 14px rgba(168,85,247,0.25)',
+                    }}
+                  >
+                    <FileText size={13} />
+                    Custom Text
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Contextual Sub-Options */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                {testMode === 'time' ? 'Duration:' : testMode === 'words' ? 'Word Count:' : 'Quote Type:'}
-              </span>
+            {!isCustomTextMode && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  {testMode === 'time' ? 'Duration:' : testMode === 'words' ? 'Word Count:' : 'Quote Type:'}
+                </span>
 
-              {/* Time sub-options */}
-              {testMode === 'time' && (
-                <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3 }}>
-                  {timeOptions.map((t) => (
+                {/* Time sub-options */}
+                {testMode === 'time' && (
+                  <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3, alignItems: 'center' }}>
+                    {timeOptions.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => {
+                          setTimeLimit(t);
+                          setTimeLeft(t);
+                          if (!started) generateText();
+                        }}
+                        style={{
+                          padding: '7px 13px',
+                          borderRadius: 9,
+                          fontSize: 11,
+                          fontFamily: tk.fontMono,
+                          fontWeight: timeLimit === t ? 700 : 500,
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: timeLimit === t ? 'rgba(0,212,255,0.22)' : 'transparent',
+                          color: timeLimit === t ? tk.cyan : tk.textDim,
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {t}s
+                      </button>
+                    ))}
+
+                    {!timeOptions.includes(timeLimit) && (
+                      <button
+                        style={{
+                          padding: '7px 12px',
+                          borderRadius: 9,
+                          fontSize: 11,
+                          fontFamily: tk.fontMono,
+                          fontWeight: 700,
+                          border: 'none',
+                          background: 'rgba(0,212,255,0.25)',
+                          color: tk.cyan,
+                        }}
+                      >
+                        {timeLimit}s (Custom)
+                      </button>
+                    )}
+
                     <button
-                      key={t}
                       onClick={() => {
-                        setTimeLimit(t);
-                        setTimeLeft(t);
-                        if (!started) generateText();
+                        setCustomTargetType('time');
+                        setShowCustomModal(true);
                       }}
+                      title="Set custom time duration"
                       style={{
-                        padding: '7px 13px',
+                        padding: '7px 10px',
                         borderRadius: 9,
                         fontSize: 11,
                         fontFamily: tk.fontMono,
-                        fontWeight: timeLimit === t ? 700 : 500,
+                        fontWeight: 600,
                         border: 'none',
                         cursor: 'pointer',
-                        background: timeLimit === t ? 'rgba(0,212,255,0.22)' : 'transparent',
-                        color: timeLimit === t ? tk.cyan : tk.textDim,
-                        transition: 'all 0.2s ease',
+                        background: 'rgba(255,255,255,0.03)',
+                        color: tk.textDim,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
                       }}
                     >
-                      {t}s
+                      <Sliders size={11} />
+                      <span>Custom</span>
                     </button>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Words sub-options */}
-              {testMode === 'words' && (
-                <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3 }}>
-                  {wordCountOptions.map((cnt) => (
+                {/* Words sub-options */}
+                {testMode === 'words' && (
+                  <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3, alignItems: 'center' }}>
+                    {wordCountOptions.map((cnt) => (
+                      <button
+                        key={cnt}
+                        onClick={() => {
+                          setWordCount(cnt);
+                          if (!started) generateText();
+                        }}
+                        style={{
+                          padding: '7px 13px',
+                          borderRadius: 9,
+                          fontSize: 11,
+                          fontFamily: tk.fontMono,
+                          fontWeight: wordCount === cnt ? 700 : 500,
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: wordCount === cnt ? 'rgba(0,229,160,0.22)' : 'transparent',
+                          color: wordCount === cnt ? tk.green : tk.textDim,
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+
+                    {!wordCountOptions.includes(wordCount) && (
+                      <button
+                        style={{
+                          padding: '7px 12px',
+                          borderRadius: 9,
+                          fontSize: 11,
+                          fontFamily: tk.fontMono,
+                          fontWeight: 700,
+                          border: 'none',
+                          background: 'rgba(0,229,160,0.25)',
+                          color: tk.green,
+                        }}
+                      >
+                        {wordCount} (Custom)
+                      </button>
+                    )}
+
                     <button
-                      key={cnt}
                       onClick={() => {
-                        setWordCount(cnt);
-                        if (!started) generateText();
+                        setCustomTargetType('words');
+                        setShowCustomModal(true);
                       }}
+                      title="Set custom word count"
                       style={{
-                        padding: '7px 13px',
+                        padding: '7px 10px',
                         borderRadius: 9,
                         fontSize: 11,
                         fontFamily: tk.fontMono,
-                        fontWeight: wordCount === cnt ? 700 : 500,
+                        fontWeight: 600,
                         border: 'none',
                         cursor: 'pointer',
-                        background: wordCount === cnt ? 'rgba(0,229,160,0.22)' : 'transparent',
-                        color: wordCount === cnt ? tk.green : tk.textDim,
-                        transition: 'all 0.2s ease',
+                        background: 'rgba(255,255,255,0.03)',
+                        color: tk.textDim,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
                       }}
                     >
-                      {cnt}
+                      <Sliders size={11} />
+                      <span>Custom</span>
                     </button>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Quotes sub-options */}
-              {testMode === 'quote' && (
-                <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3 }}>
-                  {quoteLengthOptions.map((opt) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => {
-                        setQuoteLength(opt.id);
-                        if (!started) generateText();
-                      }}
-                      style={{
-                        padding: '7px 12px',
-                        borderRadius: 9,
-                        fontSize: 11,
-                        fontFamily: tk.fontMono,
-                        fontWeight: quoteLength === opt.id ? 700 : 500,
-                        border: 'none',
-                        cursor: 'pointer',
-                        background: quoteLength === opt.id ? 'rgba(168,85,247,0.22)' : 'transparent',
-                        color: quoteLength === opt.id ? tk.purple : tk.textDim,
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                {/* Quotes sub-options */}
+                {testMode === 'quote' && (
+                  <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3 }}>
+                    {quoteLengthOptions.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setQuoteLength(opt.id);
+                          if (!started) generateText();
+                        }}
+                        style={{
+                          padding: '7px 12px',
+                          borderRadius: 9,
+                          fontSize: 11,
+                          fontFamily: tk.fontMono,
+                          fontWeight: quoteLength === opt.id ? 700 : 500,
+                          border: 'none',
+                          cursor: 'pointer',
+                          background: quoteLength === opt.id ? 'rgba(168,85,247,0.22)' : 'transparent',
+                          color: quoteLength === opt.id ? tk.purple : tk.textDim,
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Difficulty Selector (for Time & Words mode) */}
-            {testMode !== 'quote' && (
+            {testMode !== 'quote' && !isCustomTextMode && (
               <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 3 }}>
                 {Object.entries(difficultyConfig).map(([key, val]) => (
                   <button
@@ -1476,8 +2462,32 @@ export default function TypingSpeedTestPage() {
               </div>
             )}
 
-            {/* Toggles */}
-            <div style={{ display: 'flex', gap: 6 }}>
+            {/* Toggles & Customize Button */}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <button
+                onClick={() => setShowCustomModal(true)}
+                title="Open Practice Laboratory Customizer (customize time, words, difficulty, or paste text)"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '7px 14px',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontFamily: tk.fontMono,
+                  fontWeight: 700,
+                  border: '1px solid rgba(0,212,255,0.35)',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, rgba(0,212,255,0.14), rgba(168,85,247,0.14))',
+                  color: tk.cyan,
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 0 14px rgba(0,212,255,0.12)',
+                }}
+              >
+                <Sliders size={13} />
+                <span>Customize</span>
+              </button>
+
               <button
                 onClick={() => setShowKeyboard(!showKeyboard)}
                 title={showKeyboard ? 'Hide live keyboard' : 'Show live keyboard'}
@@ -1531,6 +2541,50 @@ export default function TypingSpeedTestPage() {
       {/* ─── Active Test Stage ─── */}
       {!finished ? (
         <section style={{ position: 'relative', zIndex: 10, maxWidth: 1360, margin: '0 auto', padding: '0 clamp(16px, 3vw, 36px) 40px' }}>
+          {/* Custom Mode / Practice Notice */}
+          {isCustomTextMode && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 18px',
+                borderRadius: 14,
+                background: 'rgba(168,85,247,0.12)',
+                border: '1px solid rgba(168,85,247,0.3)',
+                marginBottom: 16,
+                fontSize: 12,
+                fontFamily: tk.fontMono,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: tk.purple }}>
+                <FileText size={15} />
+                <span style={{ fontWeight: 700 }}>Practicing Custom Text</span>
+                <span style={{ color: tk.textDim }}>
+                  ({text.trim().split(/\s+/).filter(Boolean).length} words · {text.length} chars)
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setIsCustomTextMode(false);
+                  generateText();
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${tk.border}`,
+                  color: tk.text,
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  fontFamily: tk.fontMono,
+                }}
+              >
+                Exit Custom Text
+              </button>
+            </div>
+          )}
+
           {/* Live Telemetry Bar */}
           {started && (
             <div
@@ -1787,19 +2841,15 @@ export default function TypingSpeedTestPage() {
             </button>
           </div>
 
-          {/* Virtual Keyboard */}
+          {/* High-Level Mechanical Virtual Keyboard */}
           {showKeyboard && (
-            <GlassCard style={{ padding: '12px 20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, padding: '0 8px' }}>
-                <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                  Interactive Home-Row Keyboard
-                </span>
-                <span style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(0,212,255,0.6)' }}>
-                  ● ASDF JKL; Target Keys
-                </span>
-              </div>
-              <LiveKeyboard activeKey={activeKey} errorKey={errorKey} />
-            </GlassCard>
+            <div style={{ marginTop: 14 }}>
+              <LiveKeyboard
+                activeKey={activeKey}
+                errorKey={errorKey}
+                nextKey={text[input.length] || ''}
+              />
+            </div>
           )}
         </section>
       ) : (
@@ -1814,31 +2864,265 @@ export default function TypingSpeedTestPage() {
             animation: 'fadeInUp 0.4s ease-out',
           }}
         >
-          {/* Top Result Banner */}
-          {isNewPB && (
+          {/* ─── Captivating Victory Dispatch & Addictive Motivation Card ─── */}
+          {/* ─── BYTE THE DANCING TYPIST – Animated Victory Celebration Card ─── */}
+          <div
+            style={{
+              position: 'relative',
+              background: 'linear-gradient(135deg, rgba(5,8,20,0.97), rgba(12,18,38,0.97))',
+              border: `2px solid ${completionHook?.badgeColor ? `${completionHook.badgeColor}60` : 'rgba(0,212,255,0.5)'}`,
+              borderRadius: 28,
+              marginBottom: 24,
+              backdropFilter: 'blur(40px)',
+              boxShadow: `0 24px 72px -12px rgba(0,0,0,0.75), 0 0 60px ${completionHook?.badgeColor ? `${completionHook.badgeColor}20` : 'rgba(0,212,255,0.12)'}`,
+              overflow: 'hidden',
+              animation: 'bounceIn 0.55s cubic-bezier(0.34,1.56,0.64,1)',
+            }}
+          >
+            {/* Rainbow shimmering top bar */}
             <div
               style={{
-                background: 'linear-gradient(90deg, rgba(245,200,66,0.18), rgba(245,200,66,0.05))',
-                border: '1px solid rgba(245,200,66,0.35)',
-                borderRadius: 16,
-                padding: '12px 24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 20,
+                position: 'absolute',
+                top: 0, left: 0, right: 0,
+                height: 4,
+                background: 'linear-gradient(90deg,#00d4ff,#a855f7,#ff79c6,#ffd700,#00ff88,#00d4ff)',
+                backgroundSize: '300% 100%',
+                animation: 'hookShimmer 2.5s linear infinite',
+              }}
+            />
+
+            {/* Deep space particle orbs */}
+            <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: `radial-gradient(circle, ${completionHook?.badgeColor ? `${completionHook.badgeColor}18` : 'rgba(0,212,255,0.14)'}, transparent 68%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -60, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.1), transparent 65%)', pointerEvents: 'none' }} />
+
+            {/* Two-column Layout */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'clamp(240px, 30%, 310px) 1fr',
+                gap: 0,
+                position: 'relative',
+                zIndex: 2,
+                minHeight: 420,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Sparkles size={18} color={tk.gold} />
-                <span style={{ fontFamily: tk.fontDisplay, fontWeight: 800, color: tk.gold, fontSize: 15 }}>
-                  🎉 New All-Time Personal Record Achieved!
-                </span>
+              {/* ══ LEFT COLUMN – Mascot Stage ══ */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  padding: '28px 16px 20px',
+                  borderRight: '1px solid rgba(255,255,255,0.06)',
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,212,255,0.04) 100%)',
+                  gap: 14,
+                }}
+              >
+                {/* Mascot */}
+                <DancingTypistMascot
+                  dance={mascotDance}
+                  wpm={stats.wpm}
+                  accuracy={stats.accuracy}
+                />
+
+                {/* Funny Speech Bubble */}
+                <div
+                  style={{
+                    position: 'relative',
+                    background: 'linear-gradient(135deg, rgba(0,212,255,0.14), rgba(168,85,247,0.14))',
+                    border: '1.5px solid rgba(0,212,255,0.4)',
+                    borderRadius: 14,
+                    padding: '10px 16px',
+                    fontSize: 12.5,
+                    fontFamily: tk.fontMono,
+                    color: '#e2e8f0',
+                    textAlign: 'center',
+                    lineHeight: 1.5,
+                    animation: 'speechBubbleBounce 2.4s ease-in-out infinite',
+                    maxWidth: 230,
+                  }}
+                >
+                  {/* Bubble tail pointing up toward mascot */}
+                  <div style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid rgba(0,212,255,0.4)' }} />
+                  {mascotDance === 'disco' && <span>🕺 "I AM THE DISCO KING OF KEYBOARDS!"</span>}
+                  {mascotDance === 'hype' && <span>🥳 "WOOOO!! YOUR FINGERS ARE ON FIRE!!"</span>}
+                  {mascotDance === 'robot' && <span>🤖 "RECALCULATING… SPEED.EXE MAXED OUT"</span>}
+                  {mascotDance === 'rock' && <span>🎸 "SHRED THE KEYS LIKE A GUITAR SOLO!!"</span>}
+                </div>
+
+                {/* Dance Style Switcher */}
+                <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {(['disco', 'hype', 'robot', 'rock'] as const).map((style) => (
+                    <button
+                      key={style}
+                      onClick={() => setMascotDance(style)}
+                      style={{
+                        padding: '5px 11px',
+                        borderRadius: 20,
+                        fontSize: 11,
+                        fontFamily: tk.fontMono,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        border: mascotDance === style ? '1.5px solid #00d4ff' : `1px solid ${tk.border}`,
+                        background: mascotDance === style ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.03)',
+                        color: mascotDance === style ? '#00d4ff' : tk.textDim,
+                        transition: 'all 0.18s ease',
+                        transform: mascotDance === style ? 'scale(1.08)' : 'scale(1)',
+                      }}
+                    >
+                      {style === 'disco' ? '🕺 Disco' : style === 'hype' ? '🥳 Hype' : style === 'robot' ? '🤖 Robot' : '🎸 Rock'}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <span style={{ fontFamily: tk.fontMono, fontSize: 12, color: tk.textMuted }}>
-                Previous Record: {personalBest} WPM → <strong style={{ color: tk.gold }}>{stats.wpm} WPM</strong>
-              </span>
+
+              {/* ══ RIGHT COLUMN – Stats & Actions ══ */}
+              <div style={{ padding: '28px clamp(18px, 3vw, 36px) 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                {/* Badge Pill */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                  <div
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      padding: '5px 14px', borderRadius: 20,
+                      background: `${completionHook?.badgeColor || tk.cyan}18`,
+                      border: `1px solid ${completionHook?.badgeColor || tk.cyan}50`,
+                      color: completionHook?.badgeColor || tk.cyan,
+                      fontSize: 11, fontFamily: tk.fontMono, fontWeight: 800,
+                      letterSpacing: '0.12em', textTransform: 'uppercase',
+                      animation: 'floatBadge 2.5s ease-in-out infinite',
+                    }}
+                  >
+                    <Sparkles size={12} />
+                    <span>{completionHook?.badge || '⚡ HIGH VELOCITY FINISH'}</span>
+                  </div>
+                  <button
+                    onClick={speakCoachMessage}
+                    title="Listen to coach"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      padding: '5px 11px', borderRadius: 10,
+                      background: 'rgba(255,255,255,0.05)', border: `1px solid ${tk.border}`,
+                      color: tk.text, cursor: 'pointer', fontSize: 11, fontFamily: tk.fontMono,
+                    }}
+                  >
+                    <Volume2 size={12} color={tk.gold} /><span>Coach</span>
+                  </button>
+                </div>
+
+                {/* BIG Stat Badges Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+
+                  {/* WPM Speedometer Card */}
+                  <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.04))', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(0,212,255,0.7)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚡ Speed</div>
+                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: '#00d4ff', lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 2s ease-in-out infinite' }}>
+                      {stats.wpm}
+                    </div>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>WPM · Raw {stats.rawWpm}</div>
+                    {/* Mini speedometer arc */}
+                    <svg width="100%" height="22" viewBox="0 0 120 22" style={{ marginTop: 4 }}>
+                      <path d="M 10 20 A 50 50 0 0 1 110 20" fill="none" stroke="rgba(0,212,255,0.15)" strokeWidth="6" strokeLinecap="round" />
+                      <path d="M 10 20 A 50 50 0 0 1 110 20" fill="none" stroke="#00d4ff" strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${Math.min(157, (stats.wpm / 150) * 157)} 157`} style={{ filter: 'drop-shadow(0 0 5px #00d4ff)' }} />
+                    </svg>
+                  </div>
+
+                  {/* Accuracy Bullseye Card */}
+                  <div style={{ background: 'linear-gradient(135deg, rgba(0,229,160,0.1), rgba(0,229,160,0.04))', border: '1px solid rgba(0,229,160,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(0,229,160,0.7)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🎯 Accuracy</div>
+                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: tk.green, lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 2.2s ease-in-out infinite' }}>
+                      {Math.round(stats.accuracy)}%
+                    </div>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>Precision · {stats.correctChars} correct</div>
+                    <div style={{ marginTop: 4, height: 6, borderRadius: 4, background: 'rgba(0,229,160,0.12)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${stats.accuracy}%`, background: 'linear-gradient(90deg, #00e5a0, #00d4ff)', borderRadius: 4, transition: 'width 1s ease', boxShadow: '0 0 8px rgba(0,229,160,0.6)' }} />
+                    </div>
+                  </div>
+
+                  {/* Rank & Tier Trophy Card */}
+                  <div style={{ background: `linear-gradient(135deg, ${rank.color}14, ${rank.color}05)`, border: `1px solid ${rank.color}35`, borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: `${rank.color}bb`, letterSpacing: '0.1em', textTransform: 'uppercase' }}>🏆 Rank</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 28, animation: 'crownStarSpin 4s linear infinite', display: 'inline-block', transformOrigin: 'center' }}>{rank.emoji}</span>
+                      <div>
+                        <div style={{ fontSize: 15, fontFamily: tk.fontDisplay, fontWeight: 800, color: rank.color, lineHeight: 1.1 }}>{rank.title}</div>
+                        <div style={{ fontSize: 9, fontFamily: tk.fontMono, color: tk.textDim, marginTop: 2 }}>{rank.percentile}</div>
+                      </div>
+                    </div>
+                    {rank.nextTierWpm && (
+                      <div style={{ fontSize: 9, fontFamily: tk.fontMono, color: tk.textDim }}>
+                        Next: <span style={{ color: rank.color }}>{rank.nextTierTitle}</span> @ {rank.nextTierWpm} WPM
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Streak Flame Card */}
+                  <div style={{ background: 'linear-gradient(135deg, rgba(255,107,107,0.12), rgba(255,107,107,0.04))', border: '1px solid rgba(255,107,107,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(255,107,107,0.8)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🔥 Streak</div>
+                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: '#ff6b6b', lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 1.6s ease-in-out infinite' }}>
+                      {streak}×
+                    </div>
+                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>Tests in a row</div>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
+                      {Array.from({ length: Math.min(streak, 7) }).map((_, i) => (
+                        <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: `hsl(${10 + i * 15}, 90%, 60%)`, boxShadow: `0 0 6px hsl(${10 + i * 15}, 90%, 50%)` }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hook message */}
+                <div
+                  style={{
+                    padding: '11px 16px', borderRadius: 12,
+                    background: `${completionHook?.badgeColor || 'rgba(0,212,255'}0.07)`,
+                    border: `1px solid ${completionHook?.badgeColor || 'rgba(0,212,255'}0.22)`,
+                    fontSize: 12.5, color: '#e2e8f0', lineHeight: 1.55, fontFamily: tk.fontMono,
+                    display: 'flex', alignItems: 'flex-start', gap: 8,
+                  }}
+                >
+                  <Flame size={15} color="#ff79c6" style={{ flexShrink: 0, marginTop: 1 }} />
+                  <span><strong style={{ color: '#ff79c6' }}>Byte says:</strong> {completionHook?.hook}</span>
+                </div>
+
+                {/* CTA Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => { generateText(); setTimeout(() => inputRef.current?.focus(), 50); }}
+                    style={{
+                      flex: 1,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      padding: '14px 20px', borderRadius: 14, minWidth: 180,
+                      background: 'linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #ff79c6 100%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'hookShimmer 3s linear infinite',
+                      border: 'none', color: '#ffffff', cursor: 'pointer',
+                      fontSize: 13.5, fontFamily: tk.fontDisplay, fontWeight: 900,
+                      letterSpacing: '0.03em',
+                      boxShadow: '0 8px 32px rgba(0,212,255,0.4), 0 2px 8px rgba(168,85,247,0.3)',
+                    }}
+                  >
+                    <Zap size={16} />
+                    <span>{completionHook?.actionText || '🔥 Keep Dancing – Next Round (Enter ↵)'}</span>
+                  </button>
+                  <button
+                    onClick={handleCopyResult}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '14px 18px', borderRadius: 14,
+                      background: 'rgba(255,255,255,0.04)', border: `1px solid ${tk.border}`,
+                      color: tk.text, cursor: 'pointer', fontSize: 12, fontFamily: tk.fontMono, fontWeight: 600,
+                    }}
+                  >
+                    {copiedNotification ? <Check size={14} color={tk.green} /> : <Share2 size={14} />}
+                    <span>{copiedNotification ? 'Copied!' : 'Share'}</span>
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
 
           {/* Main Performance Showcase */}
           <div
@@ -2370,8 +3654,509 @@ export default function TypingSpeedTestPage() {
         </div>
       </section>
 
+      {/* ─── Practice Lab Customizer Modal ─── */}
+      {showCustomModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(5, 10, 24, 0.82)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCustomModal(false);
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 640,
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              background: 'rgba(11, 18, 34, 0.95)',
+              borderRadius: 20,
+              border: `1px solid rgba(0, 212, 255, 0.3)`,
+              boxShadow: '0 24px 60px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,255,0.15)',
+              padding: '28px',
+              animation: 'fadeInUp 0.25s ease-out',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: tk.cyan, fontSize: 11, fontFamily: tk.fontMono, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>
+                  <Sliders size={14} /> Practice Laboratory Customizer
+                </div>
+                <h3 style={{ fontFamily: tk.fontDisplay, fontSize: 20, fontWeight: 800, color: '#ffffff' }}>
+                  Customize Your Typing Test
+                </h3>
+                <p style={{ fontSize: 12, color: tk.textDim, marginTop: 4 }}>
+                  Set your exact duration, word count, difficulty rules, or practice your own custom text.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCustomModal(false)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${tk.border}`,
+                  color: tk.textDim,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Target Type Picker */}
+            <div style={{ marginBottom: 22 }}>
+              <label style={{ fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>
+                1. Select Practice Target
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[
+                  { id: 'time', label: '⏱️ Custom Time', desc: 'Type against countdown clock' },
+                  { id: 'words', label: '📝 Custom Words', desc: 'Sprint exact number of words' },
+                  { id: 'text', label: '📜 Custom Text', desc: 'Paste your own text / notes' },
+                ].map((tgt) => (
+                  <button
+                    key={tgt.id}
+                    onClick={() => setCustomTargetType(tgt.id as 'time' | 'words' | 'text')}
+                    style={{
+                      padding: '12px 10px',
+                      borderRadius: 12,
+                      border: `1px solid ${customTargetType === tgt.id ? tk.cyan : tk.border}`,
+                      background: customTargetType === tgt.id ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.02)',
+                      color: customTargetType === tgt.id ? '#ffffff' : tk.textDim,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 700, fontFamily: tk.fontMono, marginBottom: 2 }}>
+                      {tgt.label}
+                    </div>
+                    <div style={{ fontSize: 10, opacity: 0.75 }}>{tgt.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sub-Panel: Custom Time Options */}
+            {customTargetType === 'time' && (
+              <div style={{ marginBottom: 22, padding: '16px', borderRadius: 14, background: 'rgba(0,0,0,0.3)', border: `1px solid ${tk.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <label style={{ fontSize: 12, fontFamily: tk.fontMono, fontWeight: 700, color: tk.cyan }}>
+                    Set Exact Seconds (5 - 600s):
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      type="number"
+                      min={5}
+                      max={600}
+                      value={customTimeInput}
+                      onChange={(e) => setCustomTimeInput(Math.max(5, Math.min(600, Number(e.target.value) || 5)))}
+                      style={{
+                        width: 72,
+                        padding: '6px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(0,0,0,0.4)',
+                        border: `1px solid ${tk.cyan}`,
+                        color: '#ffffff',
+                        fontSize: 14,
+                        fontFamily: tk.fontMono,
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        outline: 'none',
+                      }}
+                    />
+                    <span style={{ fontSize: 12, fontFamily: tk.fontMono, color: tk.textDim }}>sec</span>
+                  </div>
+                </div>
+
+                {/* Quick chip presets */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {[10, 15, 20, 30, 45, 60, 90, 120, 180, 300].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setCustomTimeInput(s)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: 8,
+                        fontSize: 11,
+                        fontFamily: tk.fontMono,
+                        border: `1px solid ${customTimeInput === s ? 'rgba(0,212,255,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                        background: customTimeInput === s ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.02)',
+                        color: customTimeInput === s ? tk.cyan : tk.textDim,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {s}s
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Panel: Custom Word Count */}
+            {customTargetType === 'words' && (
+              <div style={{ marginBottom: 22, padding: '16px', borderRadius: 14, background: 'rgba(0,0,0,0.3)', border: `1px solid ${tk.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <label style={{ fontSize: 12, fontFamily: tk.fontMono, fontWeight: 700, color: tk.green }}>
+                    Set Word Count (5 - 500 words):
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      type="number"
+                      min={5}
+                      max={500}
+                      value={customWordInput}
+                      onChange={(e) => setCustomWordInput(Math.max(5, Math.min(500, Number(e.target.value) || 5)))}
+                      style={{
+                        width: 72,
+                        padding: '6px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(0,0,0,0.4)',
+                        border: `1px solid ${tk.green}`,
+                        color: '#ffffff',
+                        fontSize: 14,
+                        fontFamily: tk.fontMono,
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        outline: 'none',
+                      }}
+                    />
+                    <span style={{ fontSize: 12, fontFamily: tk.fontMono, color: tk.textDim }}>words</span>
+                  </div>
+                </div>
+
+                {/* Quick chip presets */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {[10, 15, 25, 35, 50, 75, 100, 150, 200].map((w) => (
+                    <button
+                      key={w}
+                      onClick={() => setCustomWordInput(w)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: 8,
+                        fontSize: 11,
+                        fontFamily: tk.fontMono,
+                        border: `1px solid ${customWordInput === w ? 'rgba(0,229,160,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                        background: customWordInput === w ? 'rgba(0,229,160,0.2)' : 'rgba(255,255,255,0.02)',
+                        color: customWordInput === w ? tk.green : tk.textDim,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {w}w
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Panel: Custom Text Paste */}
+            {customTargetType === 'text' && (
+              <div style={{ marginBottom: 22, padding: '16px', borderRadius: 14, background: 'rgba(0,0,0,0.3)', border: `1px solid ${tk.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <label style={{ fontSize: 12, fontFamily: tk.fontMono, fontWeight: 700, color: tk.purple }}>
+                    Paste Your Own Practice Text:
+                  </label>
+                  <span style={{ fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim }}>
+                    {customTextDraft.trim().split(/\s+/).filter(Boolean).length} words · {customTextDraft.length} chars
+                  </span>
+                </div>
+                <textarea
+                  value={customTextDraft}
+                  onChange={(e) => setCustomTextDraft(e.target.value)}
+                  placeholder="Paste or write any essay, poem, medical vocabulary, interview speech, or coding notes here to practice..."
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: 10,
+                    background: 'rgba(0,0,0,0.4)',
+                    border: `1px solid rgba(168,85,247,0.3)`,
+                    color: '#ffffff',
+                    fontSize: 13,
+                    fontFamily: tk.fontMono,
+                    lineHeight: 1.6,
+                    outline: 'none',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Difficulty Selector (when not custom text) */}
+            {customTargetType !== 'text' && (
+              <div style={{ marginBottom: 22 }}>
+                <label style={{ fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>
+                  2. Choose Difficulty Level
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+                  {Object.entries(difficultyConfig).map(([key, val]) => (
+                    <button
+                      key={key}
+                      onClick={() => setCustomDifficultyInput(key)}
+                      style={{
+                        padding: '10px',
+                        borderRadius: 12,
+                        border: `1px solid ${customDifficultyInput === key ? val.color : tk.border}`,
+                        background: customDifficultyInput === key ? `${val.color}18` : 'rgba(255,255,255,0.02)',
+                        color: customDifficultyInput === key ? val.color : tk.textDim,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, fontFamily: tk.fontMono, marginBottom: 2 }}>
+                        {val.icon}
+                        <span>{val.label}</span>
+                      </div>
+                      <div style={{ fontSize: 10, opacity: 0.8 }}>{val.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Fine-Tuning Switches */}
+            {customTargetType !== 'text' && (
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 11, fontFamily: tk.fontMono, color: tk.textDim, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 10 }}>
+                  3. Content Modifiers & Switches
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {/* All Lowercase switch */}
+                  <div
+                    onClick={() => setForceLowercase(!forceLowercase)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${(forceLowercase || customDifficultyInput === 'easy') ? tk.green : tk.border}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: (forceLowercase || customDifficultyInput === 'easy') ? tk.green : '#ffffff', fontFamily: tk.fontMono }}>
+                        🔤 All Small Letters (Lowercase Only)
+                      </div>
+                      <div style={{ fontSize: 11, color: tk.textDim }}>
+                        {customDifficultyInput === 'easy'
+                          ? 'Always active for Beginner mode (no capital letters or Shift required)'
+                          : 'Strips capital letters for easy, uninterrupted typing'}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 22,
+                        borderRadius: 12,
+                        background: (forceLowercase || customDifficultyInput === 'easy') ? tk.green : 'rgba(255,255,255,0.1)',
+                        position: 'relative',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          background: '#ffffff',
+                          position: 'absolute',
+                          top: 3,
+                          left: (forceLowercase || customDifficultyInput === 'easy') ? 21 : 3,
+                          transition: 'all 0.2s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Punctuation switch */}
+                  <div
+                    onClick={() => setIncludePunctuation(!includePunctuation)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${includePunctuation ? tk.cyan : tk.border}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: includePunctuation ? tk.cyan : '#ffffff', fontFamily: tk.fontMono }}>
+                        🔡 Include Punctuation
+                      </div>
+                      <div style={{ fontSize: 11, color: tk.textDim }}>
+                        Includes commas, periods, quotation marks, and apostrophes
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 22,
+                        borderRadius: 12,
+                        background: includePunctuation ? tk.cyan : 'rgba(255,255,255,0.1)',
+                        position: 'relative',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          background: '#ffffff',
+                          position: 'absolute',
+                          top: 3,
+                          left: includePunctuation ? 21 : 3,
+                          transition: 'all 0.2s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Numbers switch */}
+                  <div
+                    onClick={() => setIncludeNumbers(!includeNumbers)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${includeNumbers ? tk.gold : tk.border}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: includeNumbers ? tk.gold : '#ffffff', fontFamily: tk.fontMono }}>
+                        🔢 Include Numbers (0 - 9)
+                      </div>
+                      <div style={{ fontSize: 11, color: tk.textDim }}>
+                        Mixes digits into words to practice the top number row
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 22,
+                        borderRadius: 12,
+                        background: includeNumbers ? tk.gold : 'rgba(255,255,255,0.1)',
+                        position: 'relative',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          background: '#ffffff',
+                          position: 'absolute',
+                          top: 3,
+                          left: includeNumbers ? 21 : 3,
+                          transition: 'all 0.2s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 12, borderTop: `1px solid ${tk.border}` }}>
+              <button
+                onClick={() => setShowCustomModal(false)}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${tk.border}`,
+                  color: tk.textDim,
+                  cursor: 'pointer',
+                  fontFamily: tk.fontMono,
+                  fontSize: 12,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApplyCustomSettings}
+                style={{
+                  padding: '9px 24px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(168,85,247,0.3))',
+                  border: '1px solid rgba(0,212,255,0.5)',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  fontFamily: tk.fontMono,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 0 20px rgba(0,212,255,0.25)',
+                }}
+              >
+                <Check size={14} />
+                <span>Apply & Start Practice</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── CSS Keyframes ─── */}
       <style>{`
+        @keyframes rgbChassisGlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes keyErrorShake {
+          0%, 100% { transform: translateY(3px) translateX(0); }
+          25% { transform: translateY(3px) translateX(-4px); }
+          75% { transform: translateY(3px) translateX(4px); }
+        }
+        @keyframes nextKeyPulse {
+          0%, 100% {
+            box-shadow: 0 4px 0 rgba(4, 7, 14, 0.95), 0 0 14px rgba(0, 212, 255, 0.6), inset 0 0 6px rgba(0, 212, 255, 0.3);
+            border-color: rgba(0, 212, 255, 0.75);
+          }
+          50% {
+            box-shadow: 0 4px 0 rgba(4, 7, 14, 0.95), 0 0 24px rgba(0, 212, 255, 0.95), inset 0 0 12px rgba(0, 212, 255, 0.5);
+            border-color: rgba(0, 212, 255, 1);
+          }
+        }
+        @keyframes hookShimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes floatBadge {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.65; transform: scale(0.99); }
@@ -2389,6 +4174,126 @@ export default function TypingSpeedTestPage() {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        /* ═══ Mascot & Celebration Keyframes ═══ */
+        @keyframes spotlightSweep {
+          0%, 100% { transform: rotate(-10deg) scaleX(0.9); opacity: 0.7; }
+          50% { transform: rotate(10deg) scaleX(1.1); opacity: 1; }
+        }
+        @keyframes floorPulse {
+          0%, 100% { rx: 50; ry: 9; opacity: 0.7; }
+          50% { rx: 62; ry: 12; opacity: 1; }
+        }
+        @keyframes shadowPulse {
+          0%, 100% { transform: scaleX(1); opacity: 0.6; }
+          50% { transform: scaleX(0.8); opacity: 0.3; }
+        }
+        /* ─── Main Body Bounces ─── */
+        @keyframes mascotBounce {
+          0%, 100% { transform: translateY(0) rotate(-2deg); }
+          25% { transform: translateY(-12px) rotate(2deg); }
+          50% { transform: translateY(-18px) rotate(0deg); }
+          75% { transform: translateY(-8px) rotate(-1deg); }
+        }
+        @keyframes mascotHypeBounce {
+          0%, 100% { transform: translateY(0) scaleY(1); }
+          40% { transform: translateY(-24px) scaleY(1.05); }
+          60% { transform: translateY(-22px) scaleY(1.05); }
+        }
+        @keyframes mascotHypeShadow {
+          0%, 100% { rx: 26; opacity: 0.5; }
+          40% { rx: 18; opacity: 0.2; }
+        }
+        @keyframes mascotRobotStaccato {
+          0% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-14px) rotate(0deg); }
+        }
+        @keyframes mascotRockBounce {
+          0%, 100% { transform: translateY(0) rotate(-3deg) scaleY(1); }
+          35% { transform: translateY(-16px) rotate(3deg) scaleY(1.04); }
+          70% { transform: translateY(-10px) rotate(-2deg) scaleY(0.98); }
+        }
+        @keyframes mascotRockHead {
+          0%, 100% { transform: rotate(-10deg); }
+          50% { transform: rotate(10deg); }
+        }
+        /* ─── Head Bob ─── */
+        @keyframes mascotHeadBob {
+          0%, 100% { transform: rotate(-3deg) translateY(0); }
+          50% { transform: rotate(3deg) translateY(-6px); }
+        }
+        /* ─── Arm Animations Per Dance ─── */
+        @keyframes discoArmLeft {
+          0%, 100% { transform: rotate(-20deg); }
+          50% { transform: rotate(30deg); }
+        }
+        @keyframes discoArmRight {
+          0%, 100% { transform: rotate(25deg); }
+          50% { transform: rotate(-15deg); }
+        }
+        @keyframes hypeArmLeft {
+          0%, 100% { transform: rotate(-60deg) translateY(0); }
+          50% { transform: rotate(-120deg) translateY(-10px); }
+        }
+        @keyframes hypeArmRight {
+          0%, 100% { transform: rotate(60deg) translateY(0); }
+          50% { transform: rotate(120deg) translateY(-10px); }
+        }
+        @keyframes robotArmLeft {
+          0% { transform: rotate(0deg); }
+          50% { transform: rotate(-90deg); }
+        }
+        @keyframes robotArmRight {
+          0% { transform: rotate(0deg); }
+          50% { transform: rotate(90deg); }
+        }
+        @keyframes rockArmLeft {
+          0%, 100% { transform: rotate(10deg) scaleX(1); }
+          50% { transform: rotate(-30deg) scaleX(1.1); }
+        }
+        @keyframes rockArmRight {
+          0%, 100% { transform: rotate(-10deg) scaleX(1); }
+          50% { transform: rotate(20deg) scaleX(1.1); }
+        }
+        /* ─── Foot Taps ─── */
+        @keyframes footTapLeft {
+          0%, 100% { transform: rotate(0deg) translateY(0); }
+          40% { transform: rotate(-15deg) translateY(-8px); }
+        }
+        @keyframes footTapRight {
+          0%, 100% { transform: rotate(0deg) translateY(0); }
+          60% { transform: rotate(15deg) translateY(-8px); }
+        }
+        /* ─── Equalizer Bars ─── */
+        @keyframes equalizerBar1 {
+          0%, 100% { height: 12px; y: 146px; }
+          50% { height: 20px; y: 138px; }
+        }
+        @keyframes equalizerBar2 {
+          0%, 100% { height: 16px; y: 142px; }
+          50% { height: 8px; y: 150px; }
+        }
+        @keyframes equalizerBar3 {
+          0%, 100% { height: 18px; y: 140px; }
+          50% { height: 10px; y: 148px; }
+        }
+        /* ─── Star / Crown Spin ─── */
+        @keyframes crownStarSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        /* ─── Floating Musical Notes ─── */
+        @keyframes noteFloat {
+          0% { transform: translateY(0) scale(1); opacity: 0.9; }
+          50% { transform: translateY(-18px) scale(1.15) rotate(10deg); opacity: 1; }
+          100% { transform: translateY(-36px) scale(0.7); opacity: 0; }
+        }
+        /* ─── Speech Bubble Bounce ─── */
+        @keyframes speechBubbleBounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          40% { transform: translateY(-5px) scale(1.03); }
+          70% { transform: translateY(-3px) scale(1.01); }
+        }
+
         div::-webkit-scrollbar { width: 5px; height: 5px; }
         div::-webkit-scrollbar-track { background: transparent; }
         div::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 4px; }
