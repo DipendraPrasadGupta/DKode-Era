@@ -77,27 +77,75 @@ export default function Navigation({
   const t = T[lang];
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [morePinned, setMorePinned] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isActive = (item: { page: string }) => pathname === item.page;
   const isMoreActive = moreNavItems.some((item) => pathname === item.page);
 
-  // Close dropdown on click outside
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const closeMoreMenu = () => {
+    clearCloseTimeout();
+    setMoreOpen(false);
+    setMorePinned(false);
+  };
+
+  const handleMoreMouseEnter = () => {
+    clearCloseTimeout();
+    setMoreOpen(true);
+  };
+
+  const handleMoreMouseLeave = () => {
+    if (morePinned) return;
+    clearCloseTimeout();
+    closeTimeoutRef.current = setTimeout(() => {
+      setMoreOpen(false);
+    }, 300);
+  };
+
+  const handleMoreClick = () => {
+    clearCloseTimeout();
+    if (morePinned) {
+      closeMoreMenu();
+    } else {
+      setMoreOpen(true);
+      setMorePinned(true);
+    }
+  };
+
+  // Close dropdown on click outside or Escape key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setMoreOpen(false);
+        closeMoreMenu();
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMoreMenu();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+      clearCloseTimeout();
+    };
   }, []);
 
   // Close dropdown on route change
   useEffect(() => {
-    setMoreOpen(false);
+    closeMoreMenu();
     setMobileMenu(false);
   }, [pathname]);
 
@@ -363,12 +411,15 @@ export default function Navigation({
           <div
             ref={dropdownRef}
             style={{ position: 'relative' }}
-            onMouseEnter={() => setMoreOpen(true)}
-            onMouseLeave={() => setMoreOpen(false)}
+            onMouseEnter={handleMoreMouseEnter}
+            onMouseLeave={handleMoreMouseLeave}
           >
             <button
               id="nav-more-dropdown"
-              onClick={() => setMoreOpen(!moreOpen)}
+              type="button"
+              aria-expanded={moreOpen}
+              aria-haspopup="menu"
+              onClick={handleMoreClick}
               className={`nav-item-link ${isMoreActive || moreOpen ? 'nav-item-active' : ''}`}
               style={{
                 display: 'flex',
@@ -430,20 +481,25 @@ export default function Navigation({
                   position: 'absolute',
                   top: '100%',
                   right: 0,
-                  marginTop: 10,
-                  width: 340,
-                  background: dark ? 'rgba(10, 14, 26, 0.96)' : 'rgba(255, 255, 255, 0.96)',
-                  border: `1px solid rgba(${accentRgb}, 0.3)`,
-                  borderRadius: 20,
-                  padding: '14px 12px',
-                  boxShadow: `0 28px 70px rgba(0, 0, 0, 0.55), 0 0 35px rgba(${accentRgb}, 0.15)`,
-                  backdropFilter: 'blur(30px)',
-                  WebkitBackdropFilter: 'blur(30px)',
+                  paddingTop: 10,
                   zIndex: 1010,
-                  animation: 'navDropdownEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-                  overflow: 'hidden',
                 }}
               >
+                <div
+                  style={{
+                    position: 'relative',
+                    width: 340,
+                    background: dark ? 'rgba(10, 14, 26, 0.96)' : 'rgba(255, 255, 255, 0.96)',
+                    border: `1px solid rgba(${accentRgb}, 0.3)`,
+                    borderRadius: 20,
+                    padding: '14px 12px',
+                    boxShadow: `0 28px 70px rgba(0, 0, 0, 0.55), 0 0 35px rgba(${accentRgb}, 0.15)`,
+                    backdropFilter: 'blur(30px)',
+                    WebkitBackdropFilter: 'blur(30px)',
+                    animation: 'navDropdownEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                    overflow: 'hidden',
+                  }}
+                >
                 {/* Top Accent Gradient Line */}
                 <div
                   style={{
@@ -481,7 +537,7 @@ export default function Navigation({
                       key={idx}
                       href={subItem.page}
                       id={`nav-${subItem.label.toLowerCase()}`}
-                      onClick={() => setMoreOpen(false)}
+                      onClick={closeMoreMenu}
                       className="more-dropdown-item"
                       style={{
                         display: 'flex',
@@ -550,6 +606,7 @@ export default function Navigation({
                     </Link>
                   );
                 })}
+                </div>
               </div>
             )}
           </div>

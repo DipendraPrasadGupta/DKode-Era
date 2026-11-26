@@ -2864,137 +2864,124 @@ export default function TypingSpeedTestPage() {
             animation: 'fadeInUp 0.4s ease-out',
           }}
         >
-          {/* ─── Captivating Victory Dispatch & Addictive Motivation Card ─── */}
-          {/* ─── BYTE THE DANCING TYPIST – Animated Victory Celebration Card ─── */}
+          {/* ─── BYTE – Victory Celebration Card ─── */}
           <div
             style={{
               position: 'relative',
-              background: 'linear-gradient(135deg, rgba(5,8,20,0.97), rgba(12,18,38,0.97))',
-              border: `2px solid ${completionHook?.badgeColor ? `${completionHook.badgeColor}60` : 'rgba(0,212,255,0.5)'}`,
-              borderRadius: 28,
+              background: 'linear-gradient(160deg, rgba(7,11,24,0.98) 0%, rgba(12,18,38,0.98) 100%)',
+              border: `1.5px solid ${completionHook?.badgeColor ? `${completionHook.badgeColor}50` : 'rgba(0,212,255,0.35)'}`,
+              borderRadius: 24,
               marginBottom: 24,
               backdropFilter: 'blur(40px)',
-              boxShadow: `0 24px 72px -12px rgba(0,0,0,0.75), 0 0 60px ${completionHook?.badgeColor ? `${completionHook.badgeColor}20` : 'rgba(0,212,255,0.12)'}`,
+              boxShadow: `0 20px 60px -10px rgba(0,0,0,0.7), 0 0 50px ${completionHook?.badgeColor ? `${completionHook.badgeColor}18` : 'rgba(0,212,255,0.1)'}`,
               overflow: 'hidden',
-              animation: 'bounceIn 0.55s cubic-bezier(0.34,1.56,0.64,1)',
+              animation: 'bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1)',
             }}
           >
-            {/* Rainbow shimmering top bar */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0,
-                height: 4,
-                background: 'linear-gradient(90deg,#00d4ff,#a855f7,#ff79c6,#ffd700,#00ff88,#00d4ff)',
-                backgroundSize: '300% 100%',
-                animation: 'hookShimmer 2.5s linear infinite',
-              }}
-            />
+            {/* Rainbow top bar */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#00d4ff,#a855f7,#ff79c6,#ffd700,#00ff88,#00d4ff)', backgroundSize: '300% 100%', animation: 'hookShimmer 2.5s linear infinite' }} />
 
-            {/* Deep space particle orbs */}
-            <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: `radial-gradient(circle, ${completionHook?.badgeColor ? `${completionHook.badgeColor}18` : 'rgba(0,212,255,0.14)'}, transparent 68%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: -60, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.1), transparent 65%)', pointerEvents: 'none' }} />
+            {/* Ambient orbs */}
+            <div style={{ position: 'absolute', top: -60, right: -60, width: 260, height: 260, borderRadius: '50%', background: `radial-gradient(circle, ${completionHook?.badgeColor ? `${completionHook.badgeColor}14` : 'rgba(0,212,255,0.1)'}, transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.08), transparent 70%)', pointerEvents: 'none' }} />
 
-            {/* Two-column Layout */}
+            {/* Inner layout: mascot left, content right */}
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'clamp(240px, 30%, 310px) 1fr',
-                gap: 0,
+                gridTemplateColumns: 'clamp(200px, 26%, 280px) 1fr',
                 position: 'relative',
                 zIndex: 2,
-                minHeight: 420,
               }}
             >
-              {/* ══ LEFT COLUMN – Mascot Stage ══ */}
+              {/* ── LEFT: Mascot Stage ── */}
               <div
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  padding: '28px 16px 20px',
-                  borderRight: '1px solid rgba(255,255,255,0.06)',
-                  background: 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,212,255,0.04) 100%)',
-                  gap: 14,
+                  justifyContent: 'center',
+                  padding: '24px 12px 20px',
+                  borderRight: '1px solid rgba(255,255,255,0.05)',
+                  gap: 12,
+                  background: 'linear-gradient(180deg, transparent, rgba(0,212,255,0.03))',
                 }}
               >
-                {/* Mascot */}
-                <DancingTypistMascot
-                  dance={mascotDance}
-                  wpm={stats.wpm}
-                  accuracy={stats.accuracy}
-                />
+                {/* Mascot SVG */}
+                <DancingTypistMascot dance={mascotDance} wpm={stats.wpm} accuracy={stats.accuracy} />
 
-                {/* Funny Speech Bubble */}
+                {/* Speech bubble */}
                 <div
                   style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, rgba(0,212,255,0.14), rgba(168,85,247,0.14))',
-                    border: '1.5px solid rgba(0,212,255,0.4)',
-                    borderRadius: 14,
-                    padding: '10px 16px',
-                    fontSize: 12.5,
+                    background: 'rgba(0,212,255,0.08)',
+                    border: '1px solid rgba(0,212,255,0.3)',
+                    borderRadius: 12,
+                    padding: '8px 14px',
+                    fontSize: 11.5,
                     fontFamily: tk.fontMono,
-                    color: '#e2e8f0',
+                    color: '#c8d8e8',
                     textAlign: 'center',
                     lineHeight: 1.5,
+                    maxWidth: 210,
                     animation: 'speechBubbleBounce 2.4s ease-in-out infinite',
-                    maxWidth: 230,
                   }}
                 >
-                  {/* Bubble tail pointing up toward mascot */}
-                  <div style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '8px solid rgba(0,212,255,0.4)' }} />
-                  {mascotDance === 'disco' && <span>🕺 "I AM THE DISCO KING OF KEYBOARDS!"</span>}
-                  {mascotDance === 'hype' && <span>🥳 "WOOOO!! YOUR FINGERS ARE ON FIRE!!"</span>}
-                  {mascotDance === 'robot' && <span>🤖 "RECALCULATING… SPEED.EXE MAXED OUT"</span>}
-                  {mascotDance === 'rock' && <span>🎸 "SHRED THE KEYS LIKE A GUITAR SOLO!!"</span>}
+                  <div style={{ position: 'absolute', top: -7, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '7px solid transparent', borderRight: '7px solid transparent', borderBottom: '7px solid rgba(0,212,255,0.3)' }} />
+                  {mascotDance === 'disco' && <span>🕺 &ldquo;DISCO KING OF KEYBOARDS!&rdquo;</span>}
+                  {mascotDance === 'hype' && <span>🥳 &ldquo;YOUR FINGERS ARE ON FIRE!!&rdquo;</span>}
+                  {mascotDance === 'robot' && <span>🤖 &ldquo;SPEED.EXE MAXED OUT&rdquo;</span>}
+                  {mascotDance === 'rock' && <span>🎸 &ldquo;SHRED THOSE KEYS!!&rdquo;</span>}
                 </div>
 
-                {/* Dance Style Switcher */}
-                <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {(['disco', 'hype', 'robot', 'rock'] as const).map((style) => (
+                {/* Dance switcher */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {(['disco', 'hype', 'robot', 'rock'] as const).map((s) => (
                     <button
-                      key={style}
-                      onClick={() => setMascotDance(style)}
+                      key={s}
+                      onClick={() => setMascotDance(s)}
                       style={{
-                        padding: '5px 11px',
-                        borderRadius: 20,
-                        fontSize: 11,
-                        fontFamily: tk.fontMono,
-                        fontWeight: 700,
+                        padding: '4px 10px', borderRadius: 20,
+                        fontSize: 10.5, fontFamily: tk.fontMono, fontWeight: 700,
                         cursor: 'pointer',
-                        border: mascotDance === style ? '1.5px solid #00d4ff' : `1px solid ${tk.border}`,
-                        background: mascotDance === style ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.03)',
-                        color: mascotDance === style ? '#00d4ff' : tk.textDim,
+                        border: mascotDance === s ? '1.5px solid #00d4ff' : '1px solid rgba(255,255,255,0.08)',
+                        background: mascotDance === s ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.03)',
+                        color: mascotDance === s ? '#00d4ff' : tk.textDim,
+                        transform: mascotDance === s ? 'scale(1.07)' : 'scale(1)',
                         transition: 'all 0.18s ease',
-                        transform: mascotDance === style ? 'scale(1.08)' : 'scale(1)',
                       }}
                     >
-                      {style === 'disco' ? '🕺 Disco' : style === 'hype' ? '🥳 Hype' : style === 'robot' ? '🤖 Robot' : '🎸 Rock'}
+                      {s === 'disco' ? '🕺' : s === 'hype' ? '🥳' : s === 'robot' ? '🤖' : '🎸'} {s}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* ══ RIGHT COLUMN – Stats & Actions ══ */}
-              <div style={{ padding: '28px clamp(18px, 3vw, 36px) 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-                {/* Badge Pill */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+              {/* ── RIGHT: Content ── */}
+              <div
+                style={{
+                  padding: 'clamp(20px, 3vw, 32px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                  justifyContent: 'center',
+                }}
+              >
+                {/* Top row: badge + coach button */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                   <div
                     style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 8,
-                      padding: '5px 14px', borderRadius: 20,
-                      background: `${completionHook?.badgeColor || tk.cyan}18`,
-                      border: `1px solid ${completionHook?.badgeColor || tk.cyan}50`,
+                      display: 'inline-flex', alignItems: 'center', gap: 7,
+                      padding: '5px 13px', borderRadius: 20,
+                      background: `${completionHook?.badgeColor || tk.cyan}15`,
+                      border: `1px solid ${completionHook?.badgeColor || tk.cyan}45`,
                       color: completionHook?.badgeColor || tk.cyan,
-                      fontSize: 11, fontFamily: tk.fontMono, fontWeight: 800,
-                      letterSpacing: '0.12em', textTransform: 'uppercase',
+                      fontSize: 10.5, fontFamily: tk.fontMono, fontWeight: 800,
+                      letterSpacing: '0.1em', textTransform: 'uppercase' as const,
                       animation: 'floatBadge 2.5s ease-in-out infinite',
                     }}
                   >
-                    <Sparkles size={12} />
+                    <Sparkles size={11} />
                     <span>{completionHook?.badge || '⚡ HIGH VELOCITY FINISH'}</span>
                   </div>
                   <button
@@ -3003,123 +2990,76 @@ export default function TypingSpeedTestPage() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
                       padding: '5px 11px', borderRadius: 10,
-                      background: 'rgba(255,255,255,0.05)', border: `1px solid ${tk.border}`,
-                      color: tk.text, cursor: 'pointer', fontSize: 11, fontFamily: tk.fontMono,
+                      background: 'rgba(255,255,255,0.04)',
+                      border: `1px solid rgba(255,255,255,0.08)`,
+                      color: tk.textDim, cursor: 'pointer',
+                      fontSize: 10.5, fontFamily: tk.fontMono, fontWeight: 600,
+                      transition: 'all 0.2s',
                     }}
                   >
-                    <Volume2 size={12} color={tk.gold} /><span>Coach</span>
+                    <Volume2 size={12} color={tk.gold} />
+                    <span>Coach Voice</span>
                   </button>
                 </div>
 
-                {/* BIG Stat Badges Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-
-                  {/* WPM Speedometer Card */}
-                  <div style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.04))', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(0,212,255,0.7)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚡ Speed</div>
-                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: '#00d4ff', lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 2s ease-in-out infinite' }}>
-                      {stats.wpm}
-                    </div>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>WPM · Raw {stats.rawWpm}</div>
-                    {/* Mini speedometer arc */}
-                    <svg width="100%" height="22" viewBox="0 0 120 22" style={{ marginTop: 4 }}>
-                      <path d="M 10 20 A 50 50 0 0 1 110 20" fill="none" stroke="rgba(0,212,255,0.15)" strokeWidth="6" strokeLinecap="round" />
-                      <path d="M 10 20 A 50 50 0 0 1 110 20" fill="none" stroke="#00d4ff" strokeWidth="6" strokeLinecap="round"
-                        strokeDasharray={`${Math.min(157, (stats.wpm / 150) * 157)} 157`} style={{ filter: 'drop-shadow(0 0 5px #00d4ff)' }} />
-                    </svg>
-                  </div>
-
-                  {/* Accuracy Bullseye Card */}
-                  <div style={{ background: 'linear-gradient(135deg, rgba(0,229,160,0.1), rgba(0,229,160,0.04))', border: '1px solid rgba(0,229,160,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(0,229,160,0.7)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🎯 Accuracy</div>
-                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: tk.green, lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 2.2s ease-in-out infinite' }}>
-                      {Math.round(stats.accuracy)}%
-                    </div>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>Precision · {stats.correctChars} correct</div>
-                    <div style={{ marginTop: 4, height: 6, borderRadius: 4, background: 'rgba(0,229,160,0.12)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${stats.accuracy}%`, background: 'linear-gradient(90deg, #00e5a0, #00d4ff)', borderRadius: 4, transition: 'width 1s ease', boxShadow: '0 0 8px rgba(0,229,160,0.6)' }} />
-                    </div>
-                  </div>
-
-                  {/* Rank & Tier Trophy Card */}
-                  <div style={{ background: `linear-gradient(135deg, ${rank.color}14, ${rank.color}05)`, border: `1px solid ${rank.color}35`, borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: `${rank.color}bb`, letterSpacing: '0.1em', textTransform: 'uppercase' }}>🏆 Rank</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 28, animation: 'crownStarSpin 4s linear infinite', display: 'inline-block', transformOrigin: 'center' }}>{rank.emoji}</span>
-                      <div>
-                        <div style={{ fontSize: 15, fontFamily: tk.fontDisplay, fontWeight: 800, color: rank.color, lineHeight: 1.1 }}>{rank.title}</div>
-                        <div style={{ fontSize: 9, fontFamily: tk.fontMono, color: tk.textDim, marginTop: 2 }}>{rank.percentile}</div>
-                      </div>
-                    </div>
-                    {rank.nextTierWpm && (
-                      <div style={{ fontSize: 9, fontFamily: tk.fontMono, color: tk.textDim }}>
-                        Next: <span style={{ color: rank.color }}>{rank.nextTierTitle}</span> @ {rank.nextTierWpm} WPM
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Streak Flame Card */}
-                  <div style={{ background: 'linear-gradient(135deg, rgba(255,107,107,0.12), rgba(255,107,107,0.04))', border: '1px solid rgba(255,107,107,0.3)', borderRadius: 16, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: 'rgba(255,107,107,0.8)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🔥 Streak</div>
-                    <div style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: tk.fontDisplay, fontWeight: 900, color: '#ff6b6b', lineHeight: 1, letterSpacing: '-0.03em', animation: 'pulse 1.6s ease-in-out infinite' }}>
-                      {streak}×
-                    </div>
-                    <div style={{ fontSize: 10, fontFamily: tk.fontMono, color: tk.textDim }}>Tests in a row</div>
-                    <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
-                      {Array.from({ length: Math.min(streak, 7) }).map((_, i) => (
-                        <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: `hsl(${10 + i * 15}, 90%, 60%)`, boxShadow: `0 0 6px hsl(${10 + i * 15}, 90%, 50%)` }} />
-                      ))}
-                    </div>
-                  </div>
+                {/* Title */}
+                <div>
+                  <h2
+                    style={{
+                      fontFamily: tk.fontDisplay,
+                      fontSize: 'clamp(18px, 2.4vw, 26px)',
+                      fontWeight: 900,
+                      color: '#ffffff',
+                      lineHeight: 1.25,
+                      marginBottom: 6,
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {completionHook?.title}
+                  </h2>
+                  <p style={{ fontSize: 12.5, fontFamily: tk.fontMono, color: tk.gold, fontStyle: 'italic', lineHeight: 1.5 }}>
+                    &ldquo;{completionHook?.quote}&rdquo;
+                  </p>
                 </div>
 
                 {/* Hook message */}
                 <div
                   style={{
-                    padding: '11px 16px', borderRadius: 12,
-                    background: `${completionHook?.badgeColor || 'rgba(0,212,255'}0.07)`,
-                    border: `1px solid ${completionHook?.badgeColor || 'rgba(0,212,255'}0.22)`,
-                    fontSize: 12.5, color: '#e2e8f0', lineHeight: 1.55, fontFamily: tk.fontMono,
-                    display: 'flex', alignItems: 'flex-start', gap: 8,
+                    padding: '11px 15px',
+                    borderRadius: 12,
+                    background: 'rgba(255,121,198,0.06)',
+                    border: '1px solid rgba(255,121,198,0.2)',
+                    display: 'flex', alignItems: 'flex-start', gap: 9,
+                    fontSize: 12.5, color: '#d8e8f0', lineHeight: 1.6, fontFamily: tk.fontMono,
                   }}
                 >
-                  <Flame size={15} color="#ff79c6" style={{ flexShrink: 0, marginTop: 1 }} />
-                  <span><strong style={{ color: '#ff79c6' }}>Byte says:</strong> {completionHook?.hook}</span>
+                  <Flame size={14} color="#ff79c6" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <span>
+                    <strong style={{ color: '#ff79c6' }}>Byte says: </strong>
+                    {completionHook?.hook}
+                  </span>
                 </div>
 
-                {/* CTA Buttons */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => { generateText(); setTimeout(() => inputRef.current?.focus(), 50); }}
-                    style={{
-                      flex: 1,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                      padding: '14px 20px', borderRadius: 14, minWidth: 180,
-                      background: 'linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #ff79c6 100%)',
-                      backgroundSize: '200% 100%',
-                      animation: 'hookShimmer 3s linear infinite',
-                      border: 'none', color: '#ffffff', cursor: 'pointer',
-                      fontSize: 13.5, fontFamily: tk.fontDisplay, fontWeight: 900,
-                      letterSpacing: '0.03em',
-                      boxShadow: '0 8px 32px rgba(0,212,255,0.4), 0 2px 8px rgba(168,85,247,0.3)',
-                    }}
-                  >
-                    <Zap size={16} />
-                    <span>{completionHook?.actionText || '🔥 Keep Dancing – Next Round (Enter ↵)'}</span>
-                  </button>
-                  <button
-                    onClick={handleCopyResult}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '14px 18px', borderRadius: 14,
-                      background: 'rgba(255,255,255,0.04)', border: `1px solid ${tk.border}`,
-                      color: tk.text, cursor: 'pointer', fontSize: 12, fontFamily: tk.fontMono, fontWeight: 600,
-                    }}
-                  >
-                    {copiedNotification ? <Check size={14} color={tk.green} /> : <Share2 size={14} />}
-                    <span>{copiedNotification ? 'Copied!' : 'Share'}</span>
-                  </button>
-                </div>
+                {/* CTA */}
+                <button
+                  onClick={() => { generateText(); setTimeout(() => inputRef.current?.focus(), 50); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    padding: '13px 24px', borderRadius: 14,
+                    background: 'linear-gradient(135deg, #00d4ff, #a855f7, #ff79c6)',
+                    backgroundSize: '200% 100%',
+                    animation: 'hookShimmer 3s linear infinite',
+                    border: 'none', color: '#ffffff', cursor: 'pointer',
+                    fontSize: 13, fontFamily: tk.fontDisplay, fontWeight: 900,
+                    letterSpacing: '0.03em',
+                    boxShadow: '0 6px 28px rgba(0,212,255,0.35)',
+                    width: '100%',
+                    marginTop: 2,
+                  }}
+                >
+                  <Zap size={15} />
+                  <span>{completionHook?.actionText || '🔥 Keep Dancing – Next Round (Enter ↵)'}</span>
+                </button>
               </div>
             </div>
           </div>
